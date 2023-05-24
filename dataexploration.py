@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # Data exploration
 
 import os
@@ -320,11 +322,11 @@ if __name__ == '__main__':
     gene_used = most_common_gene(try_count)
     gene_std = get_gene_std(path, gene_used)
 
-# with open(path + '\\' + 'std_genes.pkl', "rb") as f:
-#     hello = pkl.load(f)
+with open(path + '\\' + 'std_genes.pkl', "rb") as f:
+    hello = pkl.load(f)
 
-# with open(path + '\\' + 'std_genes_avg.pkl', "rb") as f:
-#     bye =pkl.load(f)
+with open(path + '\\' + 'std_genes_avg.pkl', "rb") as f:
+    bye =pkl.load(f)
 
 ### Already done below:
 # colname_fixer(path)
@@ -377,6 +379,16 @@ df_gene.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
 df_gene2 = filtering_ambiguous(df_gene2)
 df_gene2.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
 
+gene_sum.head(10)
+
+df_gene.set_index("Unnamed: 0").rename(columns={"Unnamed: 0":"index"})
+
+len(set(list(bye.index[:1000])).intersection(list(hello.index[:1000])))
+
+# try_list = list(try_count.keys())
+
+# "ENSG00000270951" in gene_sum.index # false
+# "ENSG00000276722" in try_list # False
 
 # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1_complete.pkl", "rb") as f:
 #     df_try = pkl.load(f)
