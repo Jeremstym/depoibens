@@ -278,6 +278,35 @@ def inner_genes(path):
                 pkl.dump(df_join, f)
 
 
+def counting_frame(path: str, gene_list: list) -> pd.DataFrame:
+    counting_df = pd.DataFrame()
+    
+    files_list = os.listdir(path)
+    files_list.remove(".DS_Store")
+    files_list.remove("._.DS_Store")
+    files_list.remove("std_genes.pkl")
+    files_list.remove("std_genes_avg.pkl")
+    
+    for file in tqdm(files_list):
+        essai = os.listdir(path + '\\' + file)
+        essaistr = '\n'.join(essai)
+        list_df = re.findall('.*[0-9].tsv', essaistr)
+
+        for df in list_df:
+            child_path = '\\' + file + '\\' + df
+
+            with open(path + child_path , "rb") as f:
+                df_brut = pd.read_csv(f, sep='\t')
+            df_filtered = filtering_ambiguous(df_brut)[gene_list]
+        
+            sum_serie = df_filtered.sum()
+            sum_df = pd.DataFrame(sum_serie).T
+            sum_name = df.replace(".tsv", "")
+            sum_df.index = [sum_name]
+            counting_df = pd.concat([counting_df, sum_df])
+    
+    return counting_df
+
 def get_cropped_image(path: str, format=".png"):
     """Stock cropped image for each tissue, in each file (by spot)
 
@@ -322,11 +351,11 @@ if __name__ == '__main__':
     gene_used = most_common_gene(try_count)
     gene_std = get_gene_std(path, gene_used)
 
-with open(path + '\\' + 'std_genes.pkl', "rb") as f:
-    hello = pkl.load(f)
+# with open(path + '\\' + 'std_genes.pkl', "rb") as f:
+#     hello = pkl.load(f)
 
-with open(path + '\\' + 'std_genes_avg.pkl', "rb") as f:
-    bye =pkl.load(f)
+# with open(path + '\\' + 'std_genes_avg.pkl', "rb") as f:
+#     bye = pkl.load(f)
 
 ### Already done below:
 # colname_fixer(path)
@@ -352,7 +381,7 @@ if __name__ == '__main__':
         for df in df_list:
             child_path = '\\' + file + '\\' + df
 
-            with open(path + child_path , "rb") as f:
+            with open(path + child_path, "rb") as f:
                 df_coords = pd.read_csv(f, sep=",")
             
             listing.append(len(df_coords))
@@ -366,24 +395,33 @@ if __name__ == '__main__':
     gene_used = most_common_gene(try_count)    
     gene_sum = summing_genes(path, gene_used)
 
+if __name__ == '__main__':
+
+    path = r"E:\ST-Net\data\hist2tscript\BRCA"
+    try_count = common_genes(path)
+    gene_used = most_common_gene(try_count) 
+    df_sum = counting_frame(path, gene_used)
+
 
 ### ------------ Brouillon -----------------------
 
-with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.tsv", "rb") as f:
-    df_gene = pd.read_csv(f, sep="\t")
-with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C2.tsv", "rb") as f:
-    df_gene2 = pd.read_csv(f, sep="\t")
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.tsv", "rb") as f:
+#     df_gene = pd.read_csv(f, sep="\t")
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C2.tsv", "rb") as f:
+#     df_gene2 = pd.read_csv(f, sep="\t")
 
-df_gene = filtering_ambiguous(df_gene)
-df_gene.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
-df_gene2 = filtering_ambiguous(df_gene2)
-df_gene2.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
 
-gene_sum.head(10)
+# df_sum.to_csv(r"C:\Jérémie\Stage\IBENS\depo\data\df_sum.csv", index_label="id")
 
-df_gene.set_index("Unnamed: 0").rename(columns={"Unnamed: 0":"index"})
+# df_gene.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
+# df_gene2 = filtering_ambiguous(df_gene2)
+# df_gene2.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
 
-len(set(list(bye.index[:1000])).intersection(list(hello.index[:1000])))
+# gene_sum.head(10)
+
+# df_gene.set_index("Unnamed: 0").rename(columns={"Unnamed: 0":"index"})
+
+# len(set(list(bye.index[:1000])).intersection(list(hello.index[:1000])))
 
 # try_list = list(try_count.keys())
 
