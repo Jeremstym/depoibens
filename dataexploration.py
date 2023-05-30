@@ -307,7 +307,7 @@ def counting_frame(path: str, gene_list: list) -> pd.DataFrame:
     
     return counting_df
 
-def get_cropped_image(path: str, format=".png"):
+def get_cropped_image(path: str, format=".jpg"):
     """Stock cropped image for each tissue, in each file (by spot)
 
     Args:
@@ -333,13 +333,16 @@ def get_cropped_image(path: str, format=".png"):
             tissue_img = cv2.imread(path + '\\' + file + '\\' + tissue_img_loc,
                                     cv2.COLOR_BGR2RGB)
             tissue_name = re.sub("_complete.pkl", "", df)
+            os.mkdir(path + '\\' + file + '\\' + tissue_name)
             
             for idx in df_complete.index:
                 crop_name = tissue_name + '_' + idx 
-                coord = df_complete.loc[idx][["X", "Y"]].values.astype("int32")
-                img_crop = tissue_img[coord[0]:coord[0]+300, coord[1]:coord[1]+300]
+                # Note that the axis are purposely inversed below
+                coord = df_complete.loc[idx][["Y", "X"]].values.astype("int32") 
+                img_crop = tissue_img[coord[0]:coord[0]+300, coord[1]-300:coord[1]]
+                # print(path + '\\' + file + '\\' + tissue_name + '\\' + crop_name + format)
                 cv2.imwrite(path + '\\' + file + '\\' + tissue_name + '\\' + crop_name + format,
-                            img_crop)
+                            img_crop)    
 
 
 ### ------------- Programmes ---------------------- 
@@ -351,11 +354,6 @@ if __name__ == '__main__':
     gene_used = most_common_gene(try_count)
     gene_std = get_gene_std(path, gene_used)
 
-# with open(path + '\\' + 'std_genes.pkl', "rb") as f:
-#     hello = pkl.load(f)
-
-# with open(path + '\\' + 'std_genes_avg.pkl', "rb") as f:
-#     bye = pkl.load(f)
 
 ### Already done below:
 # colname_fixer(path)
@@ -402,6 +400,11 @@ if __name__ == '__main__':
     gene_used = most_common_gene(try_count) 
     df_sum = counting_frame(path, gene_used)
 
+if __name__ =='__main__':
+    
+    path = r"E:\ST-Net\data\hist2tscript\BRCA"
+    get_cropped_image(path)
+
 
 ### ------------ Brouillon -----------------------
 
@@ -412,6 +415,15 @@ if __name__ == '__main__':
 
 
 # df_sum.to_csv(r"C:\Jérémie\Stage\IBENS\depo\data\df_sum.csv", index_label="id")
+
+# with open(path + '\\' + 'std_genes.pkl', "rb") as f:
+#     hello = pkl.load(f)
+
+# with open(path + '\\' + 'std_genes_avg.pkl', "rb") as f:
+#     bye = pkl.load(f)
+
+# selected_cols = list(bye.head(10).index)
+# df_sum[selected_cols].head(10).to_excel(r"C:\Jérémie\Stage\IBENS\depo\data\df_sum.xlsx")
 
 # df_gene.sum().sort_values(ascending=False).head(10).plot.pie(autopct='%1.1f%%')
 # df_gene2 = filtering_ambiguous(df_gene2)
@@ -428,9 +440,27 @@ if __name__ == '__main__':
 # "ENSG00000270951" in gene_sum.index # false
 # "ENSG00000276722" in try_list # False
 
-# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1_complete.pkl", "rb") as f:
+
+
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1_Coords.pkl", "rb") as f:
+#     hello = pkl.load(f)
+
+# hello
+
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.spots.txt", "r") as f:
+#     df_try = pd.read_csv(f, sep=',')
+
+# df_try 
+
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.tsv", "r") as f:
+#     df_tsv = pd.read_csv(f, sep='\t')
+
+# df_tsv 
+
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_D2_complete.pkl", "rb") as f:
 #     df_try = pkl.load(f)
 
+# df_try
 # for idx in df_try.index:
 #     idx
 #     break
@@ -438,7 +468,7 @@ if __name__ == '__main__':
 # coord = df_try.loc["19x5"][["X","Y"]].values.astype("int32")
 
 # coord
-# c1tif_path = path + '\\' + 'BC23209\BC23209_C1.tif'
+# c1tif_path = path + '\\' + 'BC23270\BC23270_D2.tif'
 
 # finder = Image.open(c1tif_path)
 # finder.size
