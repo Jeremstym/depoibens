@@ -14,9 +14,10 @@ from collections import Counter
 from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
-import matplotlib.image as mping 
+import matplotlib.image as mping
 
-import PIL 
+import PIL
+
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
 
@@ -30,33 +31,37 @@ def colname_fixer(parent_path: str):
     Raises:
         ValueError: If datasets already processed
     """
-    
+
     files_list = os.listdir(parent_path)
     files_list.remove(".DS_Store")
     files_list.remove("._.DS_Store")
-    
+
     for file in files_list:
         print(file)
-        essai = os.listdir(parent_path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        df_list = re.findall('.*Coords.pkl', essaistr)
+        essai = os.listdir(parent_path + "\\" + file)
+        essaistr = "\n".join(essai)
+        df_list = re.findall(".*Coords.pkl", essaistr)
 
         for df in df_list:
             print(df)
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
             print(parent_path + child_path)
 
-            with open(parent_path + child_path , "rb") as f:
+            with open(parent_path + child_path, "rb") as f:
                 mat = pkl.load(f)
-            
-            if 'Unnamed: 4' not in mat.columns:
+
+            if "Unnamed: 4" not in mat.columns:
                 raise ValueError("Data already processed")
 
-            mat = mat.rename(columns={'xcoord':'title',
-                                'ycoord':'xcoord',
-                                'lab':'ycoord',
-                                'tumor':'lab',
-                                'Unnamed: 4':'tumor'})
+            mat = mat.rename(
+                columns={
+                    "xcoord": "title",
+                    "ycoord": "xcoord",
+                    "lab": "ycoord",
+                    "tumor": "lab",
+                    "Unnamed: 4": "tumor",
+                }
+            )
 
             with open(parent_path + child_path, "wb") as f:
                 pkl.dump(mat, f)
@@ -69,9 +74,9 @@ def zero_counter(df: pd.DataFrame) -> pd.Series:
         df (pd.DataFrame): _description_
 
     Returns:
-        pd.Series: 
+        pd.Series:
     """
-    return df.drop('Unnamed: 0', axis=1).isin([0]).sum(axis=0).sort_values()
+    return df.drop("Unnamed: 0", axis=1).isin([0]).sum(axis=0).sort_values()
 
 
 def filtering_ambiguous(df: pd.DataFrame) -> pd.DataFrame:
@@ -83,9 +88,9 @@ def filtering_ambiguous(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: New clean dataset
     """
-    mask = list(df.filter(regex='ambiguous'))
+    mask = list(df.filter(regex="ambiguous"))
     filtered_df = df[df.columns.drop(mask)]
-    return filtered_df.drop('Unnamed: 0', axis=1)
+    return filtered_df.drop("Unnamed: 0", axis=1)
 
 
 def common_genes(path: str):
@@ -95,10 +100,10 @@ def common_genes(path: str):
         path (str): path to the datasets
 
     Returns:
-        collections.Counter: OrderedDict with number of appearance 
+        collections.Counter: OrderedDict with number of appearance
         for each gene
     """
-    
+
     gene_list = []
     counter = 0
 
@@ -107,21 +112,20 @@ def common_genes(path: str):
     files_list.remove("._.DS_Store")
     files_list.remove("std_genes.pkl")
     files_list.remove("std_genes_avg.pkl")
-    
+
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        df_list = re.findall('.*[0-9].tsv', essaistr)
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        df_list = re.findall(".*[0-9].tsv", essaistr)
 
         for df in df_list:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
 
-            with open(path + child_path , "rb") as f:
-                df_brut = pd.read_csv(f, sep='\t')
+            with open(path + child_path, "rb") as f:
+                df_brut = pd.read_csv(f, sep="\t")
             counter += 1
-            df_filter = filtering_ambiguous(df_brut) 
+            df_filter = filtering_ambiguous(df_brut)
             gene_list += list(df_filter.columns.values)
-
 
     gene_counter = Counter(gene_list)
 
@@ -140,7 +144,7 @@ def most_common_gene(dict_count: Counter) -> list:
         list: List of the most frequent genes
     """
     maxi = max(dict_count.values())
-    filtered_dict = dict(filter(lambda x: x[1]==maxi, dict_count.items()))
+    filtered_dict = dict(filter(lambda x: x[1] == maxi, dict_count.items()))
     return list(filtered_dict.keys())
 
 
@@ -153,10 +157,10 @@ def get_gene_std(path: str, gene_list: list, method="avg") -> pd.Series:
         gene_list (list): list of genes present in all tissues
 
     Returns:
-        pd.Series: a ranked serie of all genes with 
+        pd.Series: a ranked serie of all genes with
         the biggest standard deviation
     """
-    
+
     final_df = pd.DataFrame()
     final_avg = pd.DataFrame()
 
@@ -167,52 +171,52 @@ def get_gene_std(path: str, gene_list: list, method="avg") -> pd.Series:
     files_list.remove("std_genes_avg.pkl")
 
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        list_df = re.findall('.*[0-9].tsv', essaistr)
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        list_df = re.findall(".*[0-9].tsv", essaistr)
 
         for df in list_df:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
 
-            with open(path + child_path , "rb") as f:
-                df_brut = pd.read_csv(f, sep='\t')
+            with open(path + child_path, "rb") as f:
+                df_brut = pd.read_csv(f, sep="\t")
             df_filtered = filtering_ambiguous(df_brut)[gene_list]
 
             if method == "avg":
                 std_serie = df_filtered.std(axis=0)
-                final_avg = pd.concat([final_avg, std_serie], axis=1, ignore_index=True)            
+                final_avg = pd.concat([final_avg, std_serie], axis=1, ignore_index=True)
             elif method == "all":
                 final_df = pd.concat([final_df, df_filtered], ignore_index=True)
-    
+
     if method == "avg":
         gene_std = final_avg.mean(axis=1).sort_values(ascending=False)
     elif method == "all":
         gene_std = final_df.std(axis=0).sort_values(ascending=False)
-    
+
     return gene_std
 
+
 def summing_genes(path: str, gene_list: list) -> pd.Series:
-    
     final_df = pd.DataFrame()
-    
+
     files_list = os.listdir(path)
     files_list.remove(".DS_Store")
     files_list.remove("._.DS_Store")
     files_list.remove("std_genes.pkl")
     files_list.remove("std_genes_avg.pkl")
-    
+
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        list_df = re.findall('.*[0-9].tsv', essaistr)
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        list_df = re.findall(".*[0-9].tsv", essaistr)
 
         for df in list_df:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
 
-            with open(path + child_path , "rb") as f:
-                df_brut = pd.read_csv(f, sep='\t')
+            with open(path + child_path, "rb") as f:
+                df_brut = pd.read_csv(f, sep="\t")
             df_filtered = filtering_ambiguous(df_brut)[gene_list]
-        
+
             sum_serie = df_filtered.sum(axis=0)
             final_df = pd.concat([final_df, sum_serie], axis=1, ignore_index=True)
 
@@ -230,22 +234,25 @@ def make_index(df: pd.DataFrame) -> pd.DataFrame:
         tumor indicator, lab
 
     Returns:
-        pd.DataFrame: Return same dataframe with additional column: "Id" 
+        pd.DataFrame: Return same dataframe with additional column: "Id"
     """
-    df["id"] = df["xcoord"].apply(lambda x: str(round(x)))\
-          + 'x' + df["ycoord"].apply(lambda x: str(round(x)))
-    
+    df["id"] = (
+        df["xcoord"].apply(lambda x: str(round(x)))
+        + "x"
+        + df["ycoord"].apply(lambda x: str(round(x)))
+    )
+
     return df
 
 
 def inner_genes(path):
     """Join dataframe with new index (line x column) for each spot, with
-    a dataframe containing true coordinates for each pixels. 
+    a dataframe containing true coordinates for each pixels.
 
     Args:
         path (_type_): Path to all datasets
     """
-    
+
     files_list = os.listdir(path)
     files_list.remove(".DS_Store")
     files_list.remove("._.DS_Store")
@@ -253,59 +260,60 @@ def inner_genes(path):
     files_list.remove("std_genes_avg.pkl")
 
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        df_list = re.findall('.*Coords.pkl', essaistr)
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        df_list = re.findall(".*Coords.pkl", essaistr)
 
         for df in df_list:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
 
-            with open(path + child_path , "rb") as f:
+            with open(path + child_path, "rb") as f:
                 df_coords = pkl.load(f)
 
             df_coords = make_index(df_coords)
 
             df2 = re.sub("_Coords.pkl", ".spots.txt", df)
-            with open(path + '\\' + file + '\\' + df2, "rb") as f:
+            with open(path + "\\" + file + "\\" + df2, "rb") as f:
                 df_spots = pd.read_csv(f, sep=",")
 
             df_spots.set_index("Unnamed: 0", inplace=True)
-            
+
             df_join = df_coords.join(df_spots, on="id").set_index("id")
             df_join.drop(columns=["xcoord", "ycoord"], inplace=True)
             df3 = re.sub(".spots.txt", "_complete.pkl", df2)
-            with open(path + '\\' + file + '\\' + df3, "wb") as f:
+            with open(path + "\\" + file + "\\" + df3, "wb") as f:
                 pkl.dump(df_join, f)
 
 
 def counting_frame(path: str, gene_list: list) -> pd.DataFrame:
     counting_df = pd.DataFrame()
-    
+
     files_list = os.listdir(path)
     files_list.remove(".DS_Store")
     files_list.remove("._.DS_Store")
     files_list.remove("std_genes.pkl")
     files_list.remove("std_genes_avg.pkl")
-    
+
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        list_df = re.findall('.*[0-9].tsv', essaistr)
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        list_df = re.findall(".*[0-9].tsv", essaistr)
 
         for df in list_df:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
 
-            with open(path + child_path , "rb") as f:
-                df_brut = pd.read_csv(f, sep='\t')
+            with open(path + child_path, "rb") as f:
+                df_brut = pd.read_csv(f, sep="\t")
             df_filtered = filtering_ambiguous(df_brut)[gene_list]
-        
+
             sum_serie = df_filtered.sum()
             sum_df = pd.DataFrame(sum_serie).T
             sum_name = df.replace(".tsv", "")
             sum_df.index = [sum_name]
             counting_df = pd.concat([counting_df, sum_df])
-    
+
     return counting_df
+
 
 def get_cropped_image(path: str, format=".jpg"):
     """Stock cropped image for each tissue, in each file (by spot)
@@ -321,34 +329,40 @@ def get_cropped_image(path: str, format=".jpg"):
     files_list.remove("std_genes_avg.pkl")
 
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        df_list = re.findall('.*complete.pkl', essaistr)
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        df_list = re.findall(".*complete.pkl", essaistr)
 
         for df in df_list:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
             with open(path + child_path, "rb") as f:
                 df_complete = pkl.load(f)
             tissue_img_loc = re.sub("_complete.pkl", ".tif", df)
-            tissue_img = cv2.imread(path + '\\' + file + '\\' + tissue_img_loc,
-                                    cv2.COLOR_BGR2RGB)
+            tissue_img = cv2.imread(
+                path + "\\" + file + "\\" + tissue_img_loc, cv2.COLOR_BGR2RGB
+            )
             tissue_name = re.sub("_complete.pkl", "", df)
-            os.mkdir(path + '\\' + file + '\\' + tissue_name)
-            
+            os.mkdir(path + "\\" + file + "\\" + tissue_name)
+
             for idx in df_complete.index:
-                crop_name = tissue_name + '_' + idx 
+                crop_name = tissue_name + "_" + idx
                 # Note that the axis are purposely inversed below
-                coord = df_complete.loc[idx][["Y", "X"]].values.astype("int32") 
-                img_crop = tissue_img[coord[0]:coord[0]+300, coord[1]-300:coord[1]]
+                coord = df_complete.loc[idx][["Y", "X"]].values.astype("int32")
+                img_crop = tissue_img[
+                    coord[0] : coord[0] + 300, coord[1] - 300 : coord[1]
+                ]
                 # print(path + '\\' + file + '\\' + tissue_name + '\\' + crop_name + format)
-                cv2.imwrite(path + '\\' + file + '\\' + tissue_name + '\\' + crop_name + format,
-                            img_crop)    
+                cv2.imwrite(
+                    path + "\\" + file + "\\" + tissue_name + "\\" + crop_name + format,
+                    img_crop,
+                )
+            break
+        break
 
 
-### ------------- Programmes ---------------------- 
+### ------------- Programmes ----------------------
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     path = r"E:\ST-Net\data\hist2tscript\BRCA"
     try_count = common_genes(path)
     gene_used = most_common_gene(try_count)
@@ -359,8 +373,7 @@ if __name__ == '__main__':
 # colname_fixer(path)
 # inner_genes(path)
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     path = r"E:\ST-Net\data\hist2tscript\BRCA"
     files_list = os.listdir(path)
     files_list.remove(".DS_Store")
@@ -372,36 +385,33 @@ if __name__ == '__main__':
     listing = []
     listing_by_patient = []
     for file in tqdm(files_list):
-        essai = os.listdir(path + '\\' + file)
-        essaistr = '\n'.join(essai)
-        df_list = re.findall('.*spots.txt', essaistr)
-        
+        essai = os.listdir(path + "\\" + file)
+        essaistr = "\n".join(essai)
+        df_list = re.findall(".*spots.txt", essaistr)
+
         for df in df_list:
-            child_path = '\\' + file + '\\' + df
+            child_path = "\\" + file + "\\" + df
 
             with open(path + child_path, "rb") as f:
                 df_coords = pd.read_csv(f, sep=",")
-            
+
             listing.append(len(df_coords))
         listing_by_patient.append(np.sum(listing))
         listing = []
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     path = r"E:\ST-Net\data\hist2tscript\BRCA"
     try_count = common_genes(path)
-    gene_used = most_common_gene(try_count)    
+    gene_used = most_common_gene(try_count)
     gene_sum = summing_genes(path, gene_used)
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     path = r"E:\ST-Net\data\hist2tscript\BRCA"
     try_count = common_genes(path)
-    gene_used = most_common_gene(try_count) 
+    gene_used = most_common_gene(try_count)
     df_sum = counting_frame(path, gene_used)
 
-if __name__ =='__main__':
-    
+if __name__ == "__main__":
     path = r"E:\ST-Net\data\hist2tscript\BRCA"
     get_cropped_image(path)
 
@@ -441,7 +451,6 @@ if __name__ =='__main__':
 # "ENSG00000276722" in try_list # False
 
 
-
 # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1_Coords.pkl", "rb") as f:
 #     hello = pkl.load(f)
 
@@ -450,12 +459,12 @@ if __name__ =='__main__':
 # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.spots.txt", "r") as f:
 #     df_try = pd.read_csv(f, sep=',')
 
-# df_try 
+# df_try
 
 # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.tsv", "r") as f:
 #     df_tsv = pd.read_csv(f, sep='\t')
 
-# df_tsv 
+# df_tsv
 
 # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_D2_complete.pkl", "rb") as f:
 #     df_try = pkl.load(f)
@@ -501,7 +510,6 @@ if __name__ =='__main__':
 # re.sub("_complete.pkl", "", df_list[0])
 
 
-
 # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.spots.txt", "rb") as f:
 #     dimC1 = pd.read_csv(f, sep=',')
 
@@ -525,4 +533,3 @@ if __name__ =='__main__':
 # genC2[gene_used]
 
 # pd.concat([genC1[gene_used], genC2[gene_used]], ignore_index=True)
-
