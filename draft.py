@@ -8,3 +8,4 @@ import os
 if __name__ == '__main__':
     os.chdir('/projects/minos/jeremie/data')
     print(os.getcwd())
+    print(os.listdir())
