@@ -314,13 +314,14 @@ def counting_frame(path: str, gene_list: list) -> pd.DataFrame:
 
     return counting_df
 
+
 def complete_processing(df: pd.DataFrame) -> pd.DataFrame:
     df["idX"] = df.index.map(lambda x: int(x.split("x")[0]))
     df["idY"] = df.index.map(lambda x: int(x.split("x")[1]))
-    df.sort_values(["idX","idY"], inplace=True)
+    df.sort_values(["idX", "idY"], inplace=True)
     df["gapY"] = df["Y"].shift(-1, fill_value=0) - df["Y"]
     df["gapX"] = df["X"].shift(-1, fill_value=0) - df["X"]
-    df["gapX"] = df["idX"].apply(lambda x: df[df["idX"]==x]["gapX"].max())
+    df["gapX"] = df["idX"].apply(lambda x: df[df["idX"] == x]["gapX"].max())
     df["gapX"] = df["gapX"].apply(lambda x: 300 if x < 250 else x)
     df["gapY"] = df["gapY"].apply(lambda x: 300 if x < 250 else x)
 
@@ -366,13 +367,14 @@ def get_cropped_image(path: str, format=".jpg"):
                 gaps = df_complete.loc[idx][["gapY", "gapX"]].values
                 gaps = list(map(round, list(gaps)))
                 img_crop = tissue_img[
-                    coord[0] - int(gaps[0]/2) : coord[0] + int(gaps[0]/2) , coord[1] - int(gaps[1]/2) : coord[1] + int(gaps[1]/2)
+                    coord[0] - int(gaps[0] / 2) : coord[0] + int(gaps[0] / 2),
+                    coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
                 ]
                 cv2.imwrite(
                     path + "\\" + file + "\\" + tissue_name + "\\" + crop_name + format,
                     img_crop,
                 )
-            
+
         break
 
 
@@ -482,22 +484,24 @@ if __name__ == "__main__":
 
 # df_tsv
 
-with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_D2_complete.pkl", "rb") as f:
-    df_try = pkl.load(f)
+# with open(
+#     r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_D2_complete.pkl", "rb"
+# ) as f:
+#     df_try = pkl.load(f)
 
-df_try["idX"] = df_try.index.map(lambda x: int(x.split("x")[0]))
-df_try["idY"] = df_try.index.map(lambda x: int(x.split("x")[1]))
-df_try.sort_values(["idX","idY"], inplace=True)
-df_try["gapY"] = df_try["Y"].shift(-1, fill_value=0) - df_try["Y"]
-df_try["gapX"] = df_try["X"].shift(-1, fill_value=0) - df_try["X"]
-df_try["gapX"] = df_try["idX"].apply(lambda x: df_try[df_try["idX"]==x]["gapX"].max())
-df_try["gapX"] = df_try["gapX"].apply(lambda x: 300 if x < 0 else x)
-df_try["gapY"] = df_try["gapY"].apply(lambda x: 300 if x < 0 else x)
-print(df_try.to_string())
+# df_try["idX"] = df_try.index.map(lambda x: int(x.split("x")[0]))
+# df_try["idY"] = df_try.index.map(lambda x: int(x.split("x")[1]))
+# df_try.sort_values(["idX", "idY"], inplace=True)
+# df_try["gapY"] = df_try["Y"].shift(-1, fill_value=0) - df_try["Y"]
+# df_try["gapX"] = df_try["X"].shift(-1, fill_value=0) - df_try["X"]
+# df_try["gapX"] = df_try["idX"].apply(lambda x: df_try[df_try["idX"] == x]["gapX"].max())
+# df_try["gapX"] = df_try["gapX"].apply(lambda x: 300 if x < 0 else x)
+# df_try["gapY"] = df_try["gapY"].apply(lambda x: 300 if x < 0 else x)
+# print(df_try.to_string())
 
-coord = df_try.loc["7x22"][["gapX","gapY"]].values
-coord = list(map(round, list(coord)))
-coord
+# coord = df_try.loc["7x22"][["gapX", "gapY"]].values
+# coord = list(map(round, list(coord)))
+# coord
 # c1tif_path = path + '\\' + 'BC23270\BC23270_D2.tif'
 
 # finder = Image.open(c1tif_path)
