@@ -314,6 +314,18 @@ def counting_frame(path: str, gene_list: list) -> pd.DataFrame:
 
     return counting_df
 
+def complete_processing(df: pd.DataFrame) -> pd.DataFrame:
+    df["idX"] = df.index.map(lambda x: int(x.split("x")[0]))
+    df["idY"] = df.index.map(lambda x: int(x.split("x")[1]))
+    df.sort_values(["idX","idY"], inplace=True)
+    df["gapY"] = df["Y"].shift(-1, fill_value=0) - df["Y"]
+    df["gapX"] = df["X"].shift(-1, fill_value=0) - df["X"]
+    df["gapX"] = df["idX"].apply(lambda x: df[df["idX"]==x]["gapX"].max())
+    df["gapX"] = df["gapX"].apply(lambda x: 300 if x < 250 else x)
+    df["gapY"] = df["gapY"].apply(lambda x: 300 if x < 250 else x)
+
+    return df
+
 
 def get_cropped_image(path: str, format=".jpg"):
     """Stock cropped image for each tissue, in each file (by spot)
@@ -337,6 +349,8 @@ def get_cropped_image(path: str, format=".jpg"):
             child_path = "\\" + file + "\\" + df
             with open(path + child_path, "rb") as f:
                 df_complete = pkl.load(f)
+
+            df_complete = complete_processing(df_complete)
             tissue_img_loc = re.sub("_complete.pkl", ".tif", df)
             tissue_img = cv2.imread(
                 path + "\\" + file + "\\" + tissue_img_loc, cv2.COLOR_BGR2RGB
@@ -347,16 +361,18 @@ def get_cropped_image(path: str, format=".jpg"):
             for idx in df_complete.index:
                 crop_name = tissue_name + "_" + idx
                 # Note that the axis are purposely inversed below
-                coord = df_complete.loc[idx][["Y", "X"]].values.astype("int32")
+                coord = df_complete.loc[idx][["Y", "X"]].values
+                coord = list(map(round, list(coord)))
+                gaps = df_complete.loc[idx][["gapY", "gapX"]].values
+                gaps = list(map(round, list(gaps)))
                 img_crop = tissue_img[
-                    coord[0] : coord[0] + 300, coord[1] - 300 : coord[1]
+                    coord[0] - int(gaps[0]/2) : coord[0] + int(gaps[0]/2) , coord[1] - int(gaps[1]/2) : coord[1] + int(gaps[1]/2)
                 ]
-                # print(path + '\\' + file + '\\' + tissue_name + '\\' + crop_name + format)
                 cv2.imwrite(
                     path + "\\" + file + "\\" + tissue_name + "\\" + crop_name + format,
                     img_crop,
                 )
-            break
+            
         break
 
 
@@ -466,17 +482,22 @@ if __name__ == "__main__":
 
 # df_tsv
 
-# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_D2_complete.pkl", "rb") as f:
-#     df_try = pkl.load(f)
+with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_D2_complete.pkl", "rb") as f:
+    df_try = pkl.load(f)
 
-# df_try
-# for idx in df_try.index:
-#     idx
-#     break
+df_try["idX"] = df_try.index.map(lambda x: int(x.split("x")[0]))
+df_try["idY"] = df_try.index.map(lambda x: int(x.split("x")[1]))
+df_try.sort_values(["idX","idY"], inplace=True)
+df_try["gapY"] = df_try["Y"].shift(-1, fill_value=0) - df_try["Y"]
+df_try["gapX"] = df_try["X"].shift(-1, fill_value=0) - df_try["X"]
+df_try["gapX"] = df_try["idX"].apply(lambda x: df_try[df_try["idX"]==x]["gapX"].max())
+df_try["gapX"] = df_try["gapX"].apply(lambda x: 300 if x < 0 else x)
+df_try["gapY"] = df_try["gapY"].apply(lambda x: 300 if x < 0 else x)
+print(df_try.to_string())
 
-# coord = df_try.loc["19x5"][["X","Y"]].values.astype("int32")
-
-# coord
+coord = df_try.loc["7x22"][["gapX","gapY"]].values
+coord = list(map(round, list(coord)))
+coord
 # c1tif_path = path + '\\' + 'BC23270\BC23270_D2.tif'
 
 # finder = Image.open(c1tif_path)
