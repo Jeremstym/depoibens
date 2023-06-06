@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 # Brouillon
 
-import multiprocessing
+import multiprocessing as mp
 import os
 
 if __name__ == '__main__':
     os.chdir('/projects/minos/jeremie/data')
     print(os.getcwd())
-    print(os.listdir())
+    p = mp.Pool(mp.cpu_count())
+    print(mp.cpu_count())
