@@ -354,22 +354,22 @@ def get_cropped_image(path: str, format=".jpg") -> None:
     files_list.remove("std_genes_avg.pkl")
 
     for file in tqdm(files_list):
-        essai = os.listdir(path + "\\" + file)
+        essai = os.listdir(path + "/" + file)
         essaistr = "\n".join(essai)
         df_list = re.findall(".*complete.pkl", essaistr)
 
         for df in df_list:
-            child_path = "\\" + file + "\\" + df
+            child_path = "/" + file + "/" + df
             with open(path + child_path, "rb") as f:
                 df_complete = pkl.load(f)
 
             df_complete = complete_processing(df_complete)
             tissue_img_loc = re.sub("_complete.pkl", ".tif", df)
             tissue_img = cv2.imread(
-                path + "\\" + file + "\\" + tissue_img_loc, cv2.COLOR_BGR2RGB
+                path + "/" + file + "/" + tissue_img_loc, cv2.COLOR_BGR2RGB
             )
             tissue_name = re.sub("_complete.pkl", "", df)
-            os.mkdir(path + "\\" + file + "\\" + tissue_name)
+            os.mkdir(path + "/" + file + "/" + tissue_name)
 
             for idx in df_complete.index:
                 crop_name = tissue_name + "_" + idx
@@ -383,7 +383,7 @@ def get_cropped_image(path: str, format=".jpg") -> None:
                     coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
                 ]
                 cv2.imwrite(
-                    path + "\\" + file + "\\" + tissue_name + "\\" + crop_name + format,
+                    path + "/" + file + "/" + tissue_name + "/" + crop_name + format,
                     img_crop,
                 )
 
@@ -440,7 +440,7 @@ def get_cropped_image(path: str, format=".jpg") -> None:
 #     df_sum = counting_frame(path, gene_used)
 
 if __name__ == "__main__":
-    path = r"\import\pr_minos\jeremie\data"
+    path = "/import/pr_minos/jeremie/data"
     get_cropped_image(path)
 
 
