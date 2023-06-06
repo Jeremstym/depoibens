@@ -79,7 +79,7 @@ def zero_counter(df: pd.DataFrame) -> pd.Series:
     return df.drop("Unnamed: 0", axis=1).isin([0]).sum(axis=0).sort_values()
 
 
-def filtering_ambiguous(df: pd.DataFrame) -> pd.DataFrame:
+def filtering_ambiguous(df: pd.DataFrame, with_index=False) -> pd.DataFrame:
     """Remove the "ambiguous" genes from the datasets
 
     Args:
@@ -90,7 +90,10 @@ def filtering_ambiguous(df: pd.DataFrame) -> pd.DataFrame:
     """
     mask = list(df.filter(regex="ambiguous"))
     filtered_df = df[df.columns.drop(mask)]
-    return filtered_df.drop("Unnamed: 0", axis=1)
+    if with_index:
+        return filtered_df.rename(columns={"Unnamed: 0":"id"}).set_index("id")
+    else:
+        return filtered_df.drop("Unnamed: 0", axis=1)
 
 
 def common_genes(path: str):
@@ -433,14 +436,25 @@ if __name__ == "__main__":
     path = r"E:\ST-Net\data\hist2tscript\BRCA"
     get_cropped_image(path)
 
+df_sum
+
 
 ### ------------ Brouillon -----------------------
 
-# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C1.tsv", "rb") as f:
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23270\BC23270_E2.tsv", "rb") as f:
 #     df_gene = pd.read_csv(f, sep="\t")
-# with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C2.tsv", "rb") as f:
-#     df_gene2 = pd.read_csv(f, sep="\t")
+# # with open(r"E:\ST-Net\data\hist2tscript\BRCA\BC23209\BC23209_C2.tsv", "rb") as f:
+# #     df_gene2 = pd.read_csv(f, sep="\t")
 
+# df_gene = filtering_ambiguous(df_gene, with_index=True)
+# df_gene[gene_used].iloc[0].value_counts
+
+# with open(r"E:\ST-Net\data\hist2tscript\BRCA\std_genes_avg.pkl", "rb") as f:
+#     df_std = pkl.load(f)
+
+# bestgene = list(df_std.index[:1000])
+
+# df_gene[bestgene]
 
 # df_sum.to_csv(r"C:\Jérémie\Stage\IBENS\depo\data\df_sum.csv", index_label="id")
 
