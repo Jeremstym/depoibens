@@ -440,7 +440,7 @@ def get_cropped_image(path: str, format=".jpg") -> None:
 #     df_sum = counting_frame(path, gene_used)
 
 if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
+    path = r"\import\pr_minos\jeremie\data"
     get_cropped_image(path)
 
 
