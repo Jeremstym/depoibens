@@ -5,6 +5,7 @@
 import os
 import re
 from tqdm import tqdm
+import multiprocessing as mp
 
 import numpy as np
 import pandas as pd
@@ -19,7 +20,6 @@ import matplotlib.image as mping
 import PIL
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
-
 
 def colname_fixer(parent_path: str):
     """Fixe column name issues with previous datasets
@@ -289,6 +289,15 @@ def inner_genes(path):
 
 
 def counting_frame(path: str, gene_list: list) -> pd.DataFrame:
+    """Create a dataframe with the number of counts for each gene
+
+    Args:
+        path (str): path to the folder containing all datasets
+        gene_list (list): list of genes to count (best to use std_genes.pkl)
+
+    Returns:
+        pd.DataFrame: dataframe with the number of counts for each gene
+    """
     counting_df = pd.DataFrame()
 
     files_list = os.listdir(path)
@@ -331,7 +340,7 @@ def complete_processing(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_cropped_image(path: str, format=".jpg"):
+def get_cropped_image(path: str, format=".jpg") -> None:
     """Stock cropped image for each tissue, in each file (by spot)
 
     Args:
@@ -378,65 +387,62 @@ def get_cropped_image(path: str, format=".jpg"):
                     img_crop,
                 )
 
-        break
-
 
 ### ------------- Programmes ----------------------
 
+# if __name__ == "__main__":
+#     path = r"E:\ST-Net\data\hist2tscript\BRCA"
+#     try_count = common_genes(path)
+#     gene_used = most_common_gene(try_count)
+#     gene_std = get_gene_std(path, gene_used)
+
+
+# ### Already done below:
+# # colname_fixer(path)
+# # inner_genes(path)
+
+# if __name__ == "__main__":
+#     path = r"E:\ST-Net\data\hist2tscript\BRCA"
+#     files_list = os.listdir(path)
+#     files_list.remove(".DS_Store")
+#     files_list.remove("._.DS_Store")
+#     files_list.remove("std_genes.pkl")
+#     files_list.remove("std_genes_avg.pkl")
+
+#     # counting = 0
+#     listing = []
+#     listing_by_patient = []
+#     for file in tqdm(files_list):
+#         essai = os.listdir(path + "\\" + file)
+#         essaistr = "\n".join(essai)
+#         df_list = re.findall(".*spots.txt", essaistr)
+
+#         for df in df_list:
+#             child_path = "\\" + file + "\\" + df
+
+#             with open(path + child_path, "rb") as f:
+#                 df_coords = pd.read_csv(f, sep=",")
+
+#             listing.append(len(df_coords))
+#         listing_by_patient.append(np.sum(listing))
+#         listing = []
+
+# if __name__ == "__main__":
+#     path = r"E:\ST-Net\data\hist2tscript\BRCA"
+#     try_count = common_genes(path)
+#     gene_used = most_common_gene(try_count)
+#     gene_sum = summing_genes(path, gene_used)
+
+# if __name__ == "__main__":
+#     path = r"E:\ST-Net\data\hist2tscript\BRCA"
+#     try_count = common_genes(path)
+#     gene_used = most_common_gene(try_count)
+#     df_sum = counting_frame(path, gene_used)
+
 if __name__ == "__main__":
-    path = r"E:\ST-Net\data\hist2tscript\BRCA"
-    try_count = common_genes(path)
-    gene_used = most_common_gene(try_count)
-    gene_std = get_gene_std(path, gene_used)
-
-
-### Already done below:
-# colname_fixer(path)
-# inner_genes(path)
-
-if __name__ == "__main__":
-    path = r"E:\ST-Net\data\hist2tscript\BRCA"
-    files_list = os.listdir(path)
-    files_list.remove(".DS_Store")
-    files_list.remove("._.DS_Store")
-    files_list.remove("std_genes.pkl")
-    files_list.remove("std_genes_avg.pkl")
-
-    # counting = 0
-    listing = []
-    listing_by_patient = []
-    for file in tqdm(files_list):
-        essai = os.listdir(path + "\\" + file)
-        essaistr = "\n".join(essai)
-        df_list = re.findall(".*spots.txt", essaistr)
-
-        for df in df_list:
-            child_path = "\\" + file + "\\" + df
-
-            with open(path + child_path, "rb") as f:
-                df_coords = pd.read_csv(f, sep=",")
-
-            listing.append(len(df_coords))
-        listing_by_patient.append(np.sum(listing))
-        listing = []
-
-if __name__ == "__main__":
-    path = r"E:\ST-Net\data\hist2tscript\BRCA"
-    try_count = common_genes(path)
-    gene_used = most_common_gene(try_count)
-    gene_sum = summing_genes(path, gene_used)
-
-if __name__ == "__main__":
-    path = r"E:\ST-Net\data\hist2tscript\BRCA"
-    try_count = common_genes(path)
-    gene_used = most_common_gene(try_count)
-    df_sum = counting_frame(path, gene_used)
-
-if __name__ == "__main__":
-    path = r"E:\ST-Net\data\hist2tscript\BRCA"
+    path = "/import/pr_minos/jeremie/data"
     get_cropped_image(path)
 
-df_sum
 
 
 ### ------------ Brouillon -----------------------
