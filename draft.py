@@ -9,6 +9,7 @@ import torch
 
 if __name__ == '__main__':
     if torch.cuda.is_available():
-        print(torch.cuda.current_device())
+        available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
+        print(available_gpus)
     else:
         print("No GPU available")
