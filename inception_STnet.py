@@ -91,7 +91,7 @@ def embed_all_images(path):
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
     embeddings = embed_all_images(path)
-    with open("embeddings.pkl", "wb") as f:
+    with open(path + "/embeddings.pkl", "wb") as f:
         pkl.dump(embeddings, f)
 
 
