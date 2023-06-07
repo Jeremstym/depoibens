@@ -18,6 +18,7 @@ import cv2
 import matplotlib.pyplot as plt
 from torchvision import transforms
 
+PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
 ### ------------ Data processing ---------------------
 
@@ -109,83 +110,83 @@ if __name__ == "__main__":
 
 # preprocess(cell1).size()
 
-path = r"E:\ST-Net\data\hist2tscript\BRCA\BC23270"
-cell1 = Image.open(path + "\BC23270_E2.jpg")
-cell1 = cv2.imread(path + "\BC23270_E2.jpg", cv2.COLOR_BGR2RGB)
-# cell1 = cell1.resize((300,300))
-cell1.shape
-tensor = torch.tensor(np.transpose(cell1, (2, 0, 1)))
-tensor.size()
-# cv2.imshow("hello", cv2.resize(cell1, (300,300)))
-# plt.show()
+# path = r"E:\ST-Net\data\hist2tscript\BRCA\BC23270"
+# cell1 = Image.open(path + "\BC23270_E2.jpg")
+# cell1 = cv2.imread(path + "\BC23270_E2.jpg", cv2.COLOR_BGR2RGB)
+# # cell1 = cell1.resize((300,300))
+# cell1.shape
+# tensor = torch.tensor(np.transpose(cell1, (2, 0, 1)))
+# tensor.size()
+# # cv2.imshow("hello", cv2.resize(cell1, (300,300)))
+# # plt.show()
 
 
-tensor = torch.randn((1, 28, 28)).unsqueeze(0)
-tensor = nn.Conv2d(1, 32, 3, 1)(tensor)
-tensor = nn.Conv2d(32, 64, 3, 1)(tensor)
-tensor = nn.Dropout2d(0.25)(tensor)
-tensor = F.max_pool2d(tensor, 2)
-tensor.size()
-nn.ConvTranspose2d()
+# tensor = torch.randn((1, 28, 28)).unsqueeze(0)
+# tensor = nn.Conv2d(1, 32, 3, 1)(tensor)
+# tensor = nn.Conv2d(32, 64, 3, 1)(tensor)
+# tensor = nn.Dropout2d(0.25)(tensor)
+# tensor = F.max_pool2d(tensor, 2)
+# tensor.size()
+# nn.ConvTranspose2d()
 
-torch.flatten(tensor, 1).size()
+# torch.flatten(tensor, 1).size()
 
-tensor = torch.randn((1, 28, 28)).unsqueeze(0)
-transforms.CenterCrop(28)(tensor)
+# tensor = torch.randn((1, 28, 28)).unsqueeze(0)
+# transforms.CenterCrop(28)(tensor)
 
-from torchvision.datasets import MNIST
-import torch.utils.data as data
-
-
-batch_size = 128
-transform = transforms.Compose(
-    [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
-)
-train_set = MNIST(
-    r"C:\Jérémie\Stage\IBENS\depo\dataplus",
-    train=True,
-    transform=transform,
-    download=True,
-)
-train_loader = data.DataLoader(
-    train_set, batch_size=batch_size, shuffle=True, num_workers=2, drop_last=True
-)
+# from torchvision.datasets import MNIST
+# import torch.utils.data as data
 
 
-with open(path + "\BC23270_D2_complete.pkl", "rb") as f:
-    df_complete = pkl.load(f)
+# batch_size = 128
+# transform = transforms.Compose(
+#     [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
+# )
+# train_set = MNIST(
+#     r"C:\Jérémie\Stage\IBENS\depo\dataplus",
+#     train=True,
+#     transform=transform,
+#     download=True,
+# )
+# train_loader = data.DataLoader(
+#     train_set, batch_size=batch_size, shuffle=True, num_workers=2, drop_last=True
+# )
 
 
-class PandasDataset(data.Dataset):
-    def __init__(self, dataframe):
-        self.dataframe = dataframe
-
-    def __len__(self):
-        return len(self.dataframe)
-
-    def __getitem__(self, index):
-        if torch.is_tensor(index):
-            index = index.tolist()
-        coords = list(self.dataframe.iloc[index][:-1])
-        label = self.dataframe.iloc[index][-1]
-        return [coords, label]
+# with open(path + "\BC23270_D2_complete.pkl", "rb") as f:
+#     df_complete = pkl.load(f)
 
 
-df_complete["label"] = df_complete["tumor"].apply(lambda x: 1 if x == "tumor" else 0)
-df_complete.drop(columns=["title", "lab", "tumor"], inplace=True)
+# class PandasDataset(data.Dataset):
+#     def __init__(self, dataframe):
+#         self.dataframe = dataframe
 
-df = PandasDataset(df_complete)
+#     def __len__(self):
+#         return len(self.dataframe)
 
-df[1]
-# df_complete = PandasDataset(df_complete)
+#     def __getitem__(self, index):
+#         if torch.is_tensor(index):
+#             index = index.tolist()
+#         coords = list(self.dataframe.iloc[index][:-1])
+#         label = self.dataframe.iloc[index][-1]
+#         return [coords, label]
 
-train_loader = data.DataLoader(df, batch_size=4)
-next(iter(train_loader))[1]
 
-for X, y in train_loader:
-    print(X)
-    print(y)
-    break
+# df_complete["label"] = df_complete["tumor"].apply(lambda x: 1 if x == "tumor" else 0)
+# df_complete.drop(columns=["title", "lab", "tumor"], inplace=True)
+
+# df = PandasDataset(df_complete)
+
+# df[1]
+# # df_complete = PandasDataset(df_complete)
+
+# train_loader = data.DataLoader(df, batch_size=4)
+# next(iter(train_loader))[1]
+
+# for X, y in train_loader:
+#     print(X)
+#     print(y)
+#     break
 
 # df_complete.to_numpy()
 
