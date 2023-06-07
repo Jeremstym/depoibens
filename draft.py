@@ -3,10 +3,10 @@
 # Brouillon
 
 import multiprocessing as mp
+from multiprocessing import Pool
 import os
+import torch
 
 if __name__ == '__main__':
-    os.chdir('/projects/minos/jeremie/data')
-    print(os.getcwd())
-    p = mp.Pool(mp.cpu_count())
-    print(mp.cpu_count())
+    if torch.cuda.is_available():
+        torch.cuda.current_device()
