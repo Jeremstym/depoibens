@@ -102,7 +102,7 @@ if __name__ == '__main__':
         embeddings = pkl.load(f)
     all_emebeddings = torch.cat(embeddings, dim=0)
     embedding_std = torch.std(all_emebeddings, dim=0, keepdim=True)
-    print(embedding_std)
+    print(embedding_std.size())
 
 # preprocess = transforms.Compose(
 #     [
