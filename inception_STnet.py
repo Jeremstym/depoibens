@@ -88,14 +88,21 @@ def embed_all_images(path):
 
     return embeddings
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    embeddings = embed_all_images(path)
-    with open(path + "/embeddings.pkl", "wb") as f:
-        pkl.dump(embeddings, f)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     embeddings = embed_all_images(path)
+#     with open(path + "/embeddings.pkl", "wb") as f:
+#         pkl.dump(embeddings, f)
 
 
 ### --------------- Brouillon ---------------
+if __name__ == '__main__':
+    path = "/import/pr_minos/jeremie/data"
+    with open(path + "/embeddings.pkl", "rb") as f:
+        embeddings = pkl.load(f)
+    all_emebeddings = torch.cat(embeddings, dim=0)
+    embedding_std = torch.std(all_emebeddings, dim=0, keepdim=True)
+    print(embedding_std)
 
 # preprocess = transforms.Compose(
 #     [
