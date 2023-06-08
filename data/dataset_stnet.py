@@ -60,7 +60,8 @@ class Phenotypes(data.Dataset):
     
     def concat_tsv(self):
         df = pd.DataFrame()
-        for path_tsv in tqdm(glob(self.path + "/*.tsv", recursive=True)):
+        pbar = tqdm(glob(self.path + "/*.tsv", recursive=True))
+        for path_tsv in pbar:
             m = re.search("data/(.*)/(.*).tsv", path_tsv)
             if m:
                 tissue_name = m.group(2)
@@ -70,6 +71,7 @@ class Phenotypes(data.Dataset):
                 df = pd.concat([df, df_tsv])
             else:
                 raise ValueError("Path not found")
+            pbar.set_description(f"Processing {tissue_name}")
         return df
 
     def image_embedding(self, path):
@@ -87,10 +89,20 @@ class Phenotypes(data.Dataset):
     def embed_all_images(self):
         embeddings_dict = {}
         for sub_path in tqdm(glob(self.path + "/*/", recursive=True)):
+            pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
             for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
                 m = re.search("data/(.*)/(.*).jpg", path_image)
                 if m:
                     embeddings_dict[m.group(2)] = self.image_embedding(path_image)
                 else:
                     raise ValueError("Path not found")
+                pbar.set_description(f"Processing {m.group(2)}")
         return embeddings_dict
+    
+
+### ---------------- Creation of dataset ------------------
+
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    st_set = Phenotypes(path)
+    torch.save(st_set, "data/st_set.pt")
