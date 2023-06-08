@@ -114,7 +114,7 @@ class Phenotypes(data.Dataset):
 
     def concat_tsv(self):
         df = pd.DataFrame()
-        pbar = tqdm(glob(self.path + "/*.tsv", recursive=True))
+        pbar = tqdm(glob(self.path + "/*/*[0-9].tsv", recursive=True))
         for path_tsv in pbar:
             m = re.search("data/(.*)/(.*).tsv", path_tsv)
             if m:
@@ -134,3 +134,13 @@ if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
     st_set = Phenotypes(path)
     torch.save(st_set, "data/st_set.pt")
+
+### ---------------- Brouillon ------------------
+
+# minipath = r"E:\ST-Net\data\hist2tscript\BRCA"
+# for path_tsv in glob(minipath + "\*\*[0-9].tsv", recursive=True):
+#     m = re.search(r"BRCA\\(.*)\\(.*).tsv", path_tsv)
+#     if m:
+#         tissue_name = m.group(2)
+#         print(tissue_name)
+#     break
