@@ -9,8 +9,12 @@ import torch
 from torch import nn
 from torchvision import transforms
 import torch.utils.data as data
+import os
 
-from depoibens.models.inception_STnet import model, device
+print(os.getcwd())
+print(next(os.walk(os.getcwd())))
+
+from ..models.inception_STnet import model, device
 
 import pickle as pkl
 from PIL import Image
