@@ -28,7 +28,7 @@ device = "cuda:0" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 class Phenotypes(data.Dataset):
-    def __init__(self, path, model=model, device=device):
+    def __init__(self, path: str, model=model, device=device) -> None:
         super().__init__()
         self.path = path
         self.model = model
@@ -47,8 +47,8 @@ class Phenotypes(data.Dataset):
                 ),
             ]
         )
-        self.embeddings_dict = self.embed_all_images()
         self.genotypes = self.concat_tsv()
+        self.embeddings_dict = self.embed_all_images()
 
     def __len__(self):
         return len(self.embeddings_dict)
