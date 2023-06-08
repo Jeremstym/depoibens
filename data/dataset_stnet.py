@@ -133,7 +133,7 @@ class Phenotypes(data.Dataset):
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
     st_set = Phenotypes(path)
-    torch.save(st_set, "st_set.pt")
+    torch.save(st_set, path + "/st_set.pt")
 
 ### ---------------- Brouillon ------------------
 
