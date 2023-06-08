@@ -127,15 +127,13 @@ class Phenotypes(data.Dataset):
             else:
                 raise ValueError("Path not found")
             pbar.set_description(f"Processing {tissue_name}")
-            break
-        print(df)
         return df
 
 
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
     st_set = Phenotypes(path)
-    torch.save(st_set, "data/st_set.pt")
+    torch.save(st_set, "st_set.pt")
 
 ### ---------------- Brouillon ------------------
 
