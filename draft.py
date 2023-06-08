@@ -13,3 +13,7 @@ if __name__ == '__main__':
         print(available_gpus)
     else:
         print("No GPU available")
+
+
+def f(x:str) -> str:
+    return x + "a"
