@@ -24,7 +24,7 @@ import re
 from tqdm import tqdm
 
 model = inception_STnet.model
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 class Phenotypes(data.Dataset):
