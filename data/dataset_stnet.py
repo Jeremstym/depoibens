@@ -28,7 +28,7 @@ class Phenotypes(data.Dataset):
 
         with open(path + "/std_genes_avg.pkl", "rb") as f:
             self.bestgene = list(pkl.load(f).index[:900])
-            
+
         self.preprocess = transforms.Compose(
             [
                 transforms.Resize(299),
@@ -46,18 +46,21 @@ class Phenotypes(data.Dataset):
         return len(self.embeddings_dict)
 
     def __getitem__(self, index):
-        return torch.tensor(self.genotypes.iloc[index].values), self.embeddings_dict[index]
+        return (
+            torch.tensor(self.genotypes.iloc[index].values),
+            self.embeddings_dict[index],
+        )
 
     def tsv_processing(self, tissue_name: str, df: pd.DataFrame) -> pd.DataFrame:
         # mask = list(df.filter(regex="ambiguous"))
         # filtered_df = df[df.columns.drop(mask)]
         filtered_df = df[self.bestgene]
         filtered_df.rename(columns={"Unnamed: 0": "id"}, inplace=True)
-        filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + '_' + x)
+        filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
         filtered_df.set_index("id", inplace=True)
 
         return filtered_df
-    
+
     def concat_tsv(self):
         df = pd.DataFrame()
         pbar = tqdm(glob(self.path + "/*.tsv", recursive=True))
@@ -98,7 +101,7 @@ class Phenotypes(data.Dataset):
                     raise ValueError("Path not found")
                 pbar.set_description(f"Processing {m.group(2)}")
         return embeddings_dict
-    
+
 
 ### ---------------- Creation of dataset ------------------
 
