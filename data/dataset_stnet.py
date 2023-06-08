@@ -106,9 +106,9 @@ class Phenotypes(data.Dataset):
         # mask = list(df.filter(regex="ambiguous"))
         # filtered_df = df[df.columns.drop(mask)]
         filtered_df = df[self.bestgene]
-        filtered_df.rename(columns={"Unnamed: 0": "id"}, inplace=True)
+        filtered_df = filtered_df.rename(columns={"Unnamed: 0": "id"})
         filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
-        filtered_df.set_index("id", inplace=True)
+        filtered_df = filtered_df.set_index("id")
 
         return filtered_df
 
