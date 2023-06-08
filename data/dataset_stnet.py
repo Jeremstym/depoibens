@@ -65,11 +65,11 @@ def embed_all_images(path):
             pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    embeddings_dict = embed_all_images(path)
-    with open(path + "/embeddings_dict.pkl", "wb") as f:
-        pkl.dump(embeddings_dict, f)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     embeddings_dict = embed_all_images(path)
+#     with open(path + "/embeddings_dict.pkl", "wb") as f:
+#         pkl.dump(embeddings_dict, f)
 
 ### ---------------- Create dataset ------------------
 
