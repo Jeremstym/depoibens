@@ -10,7 +10,7 @@ from torch import nn
 from torchvision import transforms
 import torch.utils.data as data
 
-from inception_STnet import model, device
+from models.inception_STnet import model, device
 
 import pickle as pkl
 from PIL import Image
