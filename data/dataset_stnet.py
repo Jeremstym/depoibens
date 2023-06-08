@@ -3,21 +3,18 @@
 
 # Dataset ot ST-Net
 
+import os
+print(os.getcwd())
+import sys
+# setting path
+sys.path.append("../")
+
 import numpy as np
 import pandas as pd
 import torch
 from torch import nn
 from torchvision import transforms
-import torchvision
-from torchvision.models.inception import Inception_V3_Weights
 import torch.utils.data as data
-import os
-
-print(os.getcwd())
-import sys
-
-# setting path
-sys.path.append("../")
 import models.inception_STnet as inception_STnet
 
 import pickle as pkl
@@ -26,24 +23,9 @@ from glob import glob
 import re
 from tqdm import tqdm
 
-# model = inception_STnet.model
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-
-model = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
+model = inception_STnet.model
 model.eval()
-model.to(device)
-
-
-class Identity(nn.Module):
-    def __init__(self):
-        super(Identity, self).__init__()
-
-    def forward(self, x):
-        return x
-
-
-model.fc = Identity()
-
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 ### ---------------- Pre-processing for images ------------------
 
@@ -100,6 +82,9 @@ class Phenotypes(data.Dataset):
         self.path = path
         self.model = model
         self.device = device
+        self.selection_tensor = torch.tensor(
+            [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
+        ).to(self.device)
 
         with open(path + "/embeddings_dict.pkl", "rb") as f:
             self.embeddings_dict = pkl.load(f)
@@ -114,7 +99,7 @@ class Phenotypes(data.Dataset):
     def __getitem__(self, index):
         return (
             torch.tensor(self.genotypes.iloc[index].values),
-            self.embeddings_dict[index],
+            self.embeddings_dict[index][self.selection_tensor],
         )
 
     def tsv_processing(self, tissue_name: str, df: pd.DataFrame) -> pd.DataFrame:
@@ -144,7 +129,7 @@ class Phenotypes(data.Dataset):
         return df
 
 
-# if __name__ == "__main__":
-#     path = "/import/pr_minos/jeremie/data"
-#     st_set = Phenotypes(path)
-#     torch.save(st_set, "data/st_set.pt")
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    st_set = Phenotypes(path)
+    torch.save(st_set, "data/st_set.pt")
