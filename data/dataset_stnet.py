@@ -14,8 +14,8 @@ import os
 print(os.getcwd())
 import sys
 # setting path
-sys.path.append('../models')
-import inception_STnet as inception_STnet
+sys.path.append('../')
+import models.inception_STnet as inception_STnet
 
 import pickle as pkl
 from PIL import Image
@@ -25,6 +25,7 @@ from tqdm import tqdm
 
 model = inception_STnet.model
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+model.to(device)
 
 class Phenotypes(data.Dataset):
     def __init__(self, path, model=model, device=device):
