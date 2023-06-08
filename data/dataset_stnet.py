@@ -20,7 +20,7 @@ from tqdm import tqdm
 
 
 class Phenotypes(data.Dataset):
-    def __init__(self, path, model=model, device=device) -> None:
+    def __init__(self, path, model=model, device=device):
         super().__init__()
         self.path = path
         self.model = model
