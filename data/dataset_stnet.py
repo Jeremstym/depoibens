@@ -12,8 +12,9 @@ import torch.utils.data as data
 import os
 
 print(os.getcwd())
-print(next(os.walk(os.getcwd())))
-
+import sys
+# setting path
+sys.path.append('../models')
 import models.inception_STnet as inception_STnet
 
 import pickle as pkl
