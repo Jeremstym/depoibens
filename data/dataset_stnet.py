@@ -52,7 +52,7 @@ def image_embedding(path):
     return output[selection_tensor]
 
 
-def embed_all_images():
+def embed_all_images(path):
     embeddings_dict = {}
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
         pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
@@ -96,7 +96,7 @@ class Phenotypes(data.Dataset):
         #         ),
         #     ]
         # )
-        
+
         self.genotypes = self.concat_tsv()
 
     def __len__(self):
