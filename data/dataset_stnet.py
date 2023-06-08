@@ -4,8 +4,10 @@
 # Dataset ot ST-Net
 
 import os
+
 print(os.getcwd())
 import sys
+
 # setting path
 sys.path.append("../")
 
@@ -106,7 +108,8 @@ class Phenotypes(data.Dataset):
         # mask = list(df.filter(regex="ambiguous"))
         # filtered_df = df[df.columns.drop(mask)]
         filtered_df = df[self.bestgene]
-        filtered_df.rename(columns={"Unnamed: 0": "id"})
+        filtered_df.rename(columns={"Unnamed: 0": "id"}, inplace=True)
+        print(filtered_df.columns)
         filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
         filtered_df.set_index("id", inplace=True)
 
@@ -120,7 +123,6 @@ class Phenotypes(data.Dataset):
             if m:
                 tissue_name = m.group(2)
                 with open(path_tsv, "rb") as f:
-                    print(path_tsv)
                     df_tsv = pd.read_csv(f, sep="\t")
                 df_tsv = self.tsv_processing(tissue_name, df_tsv)
                 df = pd.concat([df, df_tsv])
