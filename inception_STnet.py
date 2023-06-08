@@ -8,26 +8,24 @@ from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
+import re
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.utils.data as data
 
 import PIL
 from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
+import torchvision
 from torchvision import transforms
+from torchvision.models.inception import Inception_V3_Weights
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
 ### ------------ Data processing ---------------------
 
-
-# def tsv_processing(df: pd.DataFrame, gene_list: list) -> pd.DataFrame:
-#     mask = list(df.filter(regex="ambiguous"))
-#     filtered_df = df[df.columns.drop(mask)]
-#     filtered_df.rename(columns={"Unnamed: 0": "id"}, inplace=True)
-#     filtered_df.set_index("id", inplace=True)
 
 #     return filtered_df[gene_list]
 
@@ -45,20 +43,24 @@ PIL.Image.MAX_IMAGE_PIXELS = 933120000
 ### ------------ Network ---------------
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-model = torch.hub.load("pytorch/vision:v0.10.0", "inception_v3", pretrained=True)
+# model = torch.hub.load("pytorch/vision:v0.10.0", "inception_v3", pretrained=True)
+model = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
 model.eval()
 model.to(device)
+
 
 class Identity(nn.Module):
     def __init__(self):
         super(Identity, self).__init__()
-        
+
     def forward(self, x):
         return x
-    
+
+
 model.fc = Identity()
 
 ### -------------- Image embedding ---------------
+
 
 def image_embedding(path, model=model, device=device):
     cell = Image.open(path)
@@ -67,9 +69,7 @@ def image_embedding(path, model=model, device=device):
             transforms.Resize(299),
             transforms.CenterCrop(299),
             transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-            ),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
     input_tensor = preprocess(cell)
@@ -79,14 +79,15 @@ def image_embedding(path, model=model, device=device):
         output = model(input_batch)
     return output
 
+
 def embed_all_images(path):
-    
     embeddings = []
-    for sub_path in tqdm(glob(path + '/*/', recursive=True)):
-        for path_image in tqdm(glob(sub_path + '/*.jpg', recursive=True)):
+    for sub_path in tqdm(glob(path + "/*/", recursive=True)):
+        for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
             embeddings.append(image_embedding(path_image))
 
     return embeddings
+
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
@@ -96,13 +97,24 @@ def embed_all_images(path):
 
 
 ### --------------- Brouillon ---------------
-if __name__ == '__main__':
-    path = "/import/pr_minos/jeremie/data"
-    with open(path + "/embeddings.pkl", "rb") as f:
-        embeddings = pkl.load(f)
-    all_emebeddings = torch.cat(embeddings, dim=0)
-    embedding_std = torch.std(all_emebeddings, dim=0, keepdim=True)
-    print(torch.topk(embedding_std, 10).indices)
+
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     with open(path + "/embeddings.pkl", "rb") as f:
+#         embeddings = pkl.load(f)
+#     all_emebeddings = torch.cat(embeddings, dim=0)
+#     embedding_std = torch.std(all_emebeddings, dim=0, keepdim=True)
+#     print(torch.topk(embedding_std, 10).indices)
+
+# try_path = "/projects/minos/jeremie/data/BT23269/BT23269_C1/BT23269_C1_25x25.jpg"
+# path = r"E:\ST-Net\data\hist2tscript\BRCA\BC23270"
+# m = re.search("/projects/minos/jeremie/data/(.*)/(.*).jpg", try_path)
+# m.group(2)
+# for path_image in glob(path + "\*\*.jpg", recursive=True):
+#     print(path_image)
+    
+
+# yield tensor([[ 552, 1382, 1171,  699,  663, 1502,  588,  436, 1222,  617]])
 
 # preprocess = transforms.Compose(
 #     [
