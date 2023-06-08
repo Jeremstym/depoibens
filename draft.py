@@ -8,4 +8,4 @@ import os
 import torch
 
 if __name__ == '__main__':
-    print(torch.cuda.device_count())
+    print(torch.cuda.memory_summary())
