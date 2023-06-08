@@ -8,6 +8,8 @@ import pandas as pd
 import torch
 from torch import nn
 from torchvision import transforms
+import torchvision
+from torchvision.models.inception import Inception_V3_Weights
 import torch.utils.data as data
 import os
 
@@ -24,23 +26,38 @@ from glob import glob
 import re
 from tqdm import tqdm
 
-model = inception_STnet.model
+# model = inception_STnet.model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-### ---------------- Pre-processing for images ------------------
+model = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
+model.eval()
+model.to(device)
 
-preprocess = transforms.Compose(
-    [
-        transforms.Resize(299),
-        transforms.CenterCrop(299),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]
-)
+
+class Identity(nn.Module):
+    def __init__(self):
+        super(Identity, self).__init__()
+
+    def forward(self, x):
+        return x
+
+
+model.fc = Identity()
+
+
+### ---------------- Pre-processing for images ------------------
 
 
 def image_embedding(path):
     cell = Image.open(path)
+    preprocess = transforms.Compose(
+        [
+            transforms.Resize(299),
+            transforms.CenterCrop(299),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
     input_tensor = preprocess(cell)
     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch of 1 sample
     input_batch = input_batch.to(device)
@@ -65,11 +82,36 @@ def embed_all_images(path):
             pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
-# if __name__ == "__main__":
-#     path = "/import/pr_minos/jeremie/data"
-#     embeddings_dict = embed_all_images(path)
-#     with open(path + "/embeddings_dict.pkl", "wb") as f:
-#         pkl.dump(embeddings_dict, f)
+# def embed_all_images(path):
+#     embeddings = []
+#     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
+#         for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
+#             embeddings.append(image_embedding(path_image))
+
+#     return embeddings
+
+# def image_embedding(path, model=model, device=device):
+#     cell = Image.open(path)
+#     preprocess = transforms.Compose(
+#         [
+#             transforms.Resize(299),
+#             transforms.CenterCrop(299),
+#             transforms.ToTensor(),
+#             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+#         ]
+#     )
+#     input_tensor = preprocess(cell)
+#     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch of 1 sample
+#     input_batch = input_batch.to(device)
+#     with torch.no_grad():
+#         output = model(input_batch)
+#     return output
+
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    embeddings_dict = embed_all_images(path)
+    with open(path + "/embeddings_dict.pkl", "wb") as f:
+        pkl.dump(embeddings_dict, f)
 
 ### ---------------- Create dataset ------------------
 
