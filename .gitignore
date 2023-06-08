@@ -1,2 +1,4 @@
 *.pyc
 dataplus
+
+__pycache__
