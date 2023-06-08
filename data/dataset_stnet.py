@@ -63,10 +63,11 @@ def image_embedding(path):
     input_batch = input_batch.to(device)
     with torch.no_grad():
         output = model(input_batch)
-    # selection_tensor = torch.tensor(
-    #     [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
-    # )
-    return output
+    selection_tensor = torch.tensor(
+        [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
+    )
+    selection_tensor = selection_tensor.to(device)
+    return output[selection_tensor]
 
 
 def embed_all_images(path):
