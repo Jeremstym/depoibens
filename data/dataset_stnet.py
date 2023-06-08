@@ -47,6 +47,10 @@ model.fc = Identity()
 
 ### ---------------- Pre-processing for images ------------------
 
+# selection_tensor = torch.tensor(
+#         [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
+#     )
+# selection_tensor = selection_tensor.to(device)
 
 def image_embedding(path):
     cell = Image.open(path)
@@ -67,17 +71,14 @@ def image_embedding(path):
 
 
 def embed_all_images(path):
-    selection_tensor = torch.tensor(
-        [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
-    )
-    selection_tensor = selection_tensor.to(device)
+    
     embeddings_dict = {}
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
         pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
         for path_image in pbar:
             m = re.search("data/(.*)/(.*).jpg", path_image)
             if m:
-                embeddings_dict[m.group(2)] = image_embedding(path_image)[selection_tensor]
+                embeddings_dict[m.group(2)] = image_embedding(path_image)
             else:
                 raise ValueError("Path not found")
             pbar.set_description(f"Processing {m.group(2)}")
