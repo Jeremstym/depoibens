@@ -68,7 +68,6 @@ def embed_all_images(path):
             pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
-
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
 #     embeddings_dict = embed_all_images(path)
@@ -81,6 +80,36 @@ def embed_all_images(path):
 #     embeddings = embed_all_images(path)
 #     with open(path + "/embeddings.pkl", "wb") as f:
 #         pkl.dump(embeddings, f)
+
+### ---------------- Pre-processing for tsv files ------------------
+
+def tsv_processing(tissue_name: str, df: pd.DataFrame) -> pd.DataFrame:
+    mask = list(df.filter(regex="ambiguous"))
+    filtered_df = df[df.columns.drop(mask)]
+    filtered_df = filtered_df.rename(columns={"Unnamed: 0": "id"})
+    filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
+    filtered_df = filtered_df.set_index("id")
+
+    return filtered_df
+
+def concat_tsv(path: str) -> pd.DataFrame:
+    df = pd.DataFrame()
+    for sub_path in tqdm(glob(path + "/*/", recursive=True)):
+        pbar = tqdm(glob(sub_path + "/*.tsv", recursive=True))
+        for path_tsv in pbar:
+            m = re.search("data/(.*)/(.*).tsv", path_tsv)
+            if m:
+                df = pd.concat([df, tsv_processing(m.group(2), pd.read_csv(path_tsv, sep="\t"))])
+            else:
+                raise ValueError("Path not found")
+            pbar.set_description(f"Processing {m.group(2)}")
+    return df
+
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    df = concat_tsv(path)
+    with open(path + "/tsv_concatened.pkl", "wb") as f:
+        pkl.dump(df, f)
 
 ### ---------------- Create dataset ------------------
 
@@ -97,10 +126,12 @@ class Phenotypes(data.Dataset):
 
         with open(path + "/embeddings_dict.pkl", "rb") as f:
             self.embeddings_dict = pkl.load(f)
+        with open(path + "/tsv_concatened.pkl", "rb") as f:
+            self.genotypes = pkl.load(f)
         with open(path + "/std_genes_avg.pkl", "rb") as f:
             self.bestgene = list(pkl.load(f).index[:900])
 
-        self.genotypes = self.concat_tsv()
+        # self.genotypes = self.concat_tsv()
 
     def __len__(self):
         return len(self.embeddings_dict)
@@ -111,36 +142,32 @@ class Phenotypes(data.Dataset):
             self.embeddings_dict[index][self.selection_tensor],
         )
 
-    def tsv_processing(self, tissue_name: str, df: pd.DataFrame) -> pd.DataFrame:
-        mask = list(df.filter(regex="ambiguous"))
-        filtered_df = df[df.columns.drop(mask)]
-        filtered_df = filtered_df.rename(columns={"Unnamed: 0": "id"})
-        filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
-        filtered_df = filtered_df.set_index("id")
+    # def tsv_processing(self, tissue_name: str, df: pd.DataFrame) -> pd.DataFrame:
+    #     mask = list(df.filter(regex="ambiguous"))
+    #     filtered_df = df[df.columns.drop(mask)]
+    #     filtered_df = filtered_df.rename(columns={"Unnamed: 0": "id"})
+    #     filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
+    #     filtered_df = filtered_df.set_index("id")
 
-        return filtered_df[self.bestgene]
+    #     return filtered_df[self.bestgene]
 
-    def concat_tsv(self):
-        df = pd.DataFrame()
-        pbar = tqdm(glob(self.path + "/*/*[0-9].tsv", recursive=True))
-        for path_tsv in pbar:
-            m = re.search("data/(.*)/(.*).tsv", path_tsv)
-            if m:
-                tissue_name = m.group(2)
-                with open(path_tsv, "rb") as f:
-                    df_tsv = pd.read_csv(f, sep="\t")
-                df_tsv = self.tsv_processing(tissue_name, df_tsv)
-                df = pd.concat([df, df_tsv])
-            else:
-                raise ValueError("Path not found")
-            pbar.set_description(f"Processing {tissue_name}")
-        return df
+    # def concat_tsv(self):
+    #     df = pd.DataFrame()
+    #     pbar = tqdm(glob(self.path + "/*/*[0-9].tsv", recursive=True))
+    #     for path_tsv in pbar:
+    #         m = re.search("data/(.*)/(.*).tsv", path_tsv)
+    #         if m:
+    #             tissue_name = m.group(2)
+    #             with open(path_tsv, "rb") as f:
+    #                 df_tsv = pd.read_csv(f, sep="\t")
+    #             df_tsv = self.tsv_processing(tissue_name, df_tsv)
+    #             df = pd.concat([df, df_tsv])
+    #         else:
+    #             raise ValueError("Path not found")
+    #         pbar.set_description(f"Processing {tissue_name}")
+    #     return df
 
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    st_set = Phenotypes(path)
-    torch.save(st_set, path + "/st_set.pt")
 
 ### ---------------- Brouillon ------------------
 
@@ -151,3 +178,8 @@ if __name__ == "__main__":
 #         tissue_name = m.group(2)
 #         print(tissue_name)
 #     break
+
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     st_set = Phenotypes(path)
+#     torch.save(st_set, path + "/st_set.pt")
