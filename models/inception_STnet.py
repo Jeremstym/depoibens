@@ -24,22 +24,25 @@ from torchvision.models.inception import Inception_V3_Weights
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
-### ------------ Data processing ---------------------
 
+### ---------------- Create dataloader ------------------------
 
-#     return filtered_df[gene_list]
+def create_dataloader(batch_size=16, num_workers=4) -> data.DataLoader:
+    """
+    Create dataloader for images
+    """
+    dataset = torch.load("/import/pr_minos/jeremie/data/st_set.pt")
+    dataloader = data.DataLoader(
+        dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+    )
+    return dataloader
 
-# with open(r"E:\ST-Net\data\hist2tscript\BRCA\std_genes_avg.pkl", "rb") as f:
-#     df_std = pkl.load(f)
-# bestgene = list(df_std.index[:900])
-
-# path = r"E:\ST-Net\data\hist2tscript\BRCA\BC23270"
-# with open(path + "\BC23270_E2.tsv", "rb") as f:
-#     gene_270E2 = pd.read_csv(f, sep="\t")
-
-# gene_270E2 = tsv_processing(gene_270E2, bestgene)
-# torch.tensor(gene_270E2.values).size()
-
+if __name__ == "__main__":
+    dataloader = create_dataloader(batch_size=16, num_workers=4)
+    for i, (images, labels) in enumerate(dataloader):
+        print(images.shape)
+        print(labels.shape)
+        break
 ### ------------ Network ---------------
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -59,41 +62,7 @@ class Identity(nn.Module):
 
 model.fc = Identity()
 
-### -------------- Image embedding ---------------
 
-
-def image_embedding(path, model=model, device=device):
-    cell = Image.open(path)
-    preprocess = transforms.Compose(
-        [
-            transforms.Resize(299),
-            transforms.CenterCrop(299),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
-    input_tensor = preprocess(cell)
-    input_batch = input_tensor.unsqueeze(0)  # create a mini-batch of 1 sample
-    input_batch = input_batch.to(device)
-    with torch.no_grad():
-        output = model(input_batch)
-    return output
-
-
-def embed_all_images(path):
-    embeddings = []
-    for sub_path in tqdm(glob(path + "/*/", recursive=True)):
-        for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
-            embeddings.append(image_embedding(path_image))
-
-    return embeddings
-
-
-# if __name__ == "__main__":
-#     path = "/import/pr_minos/jeremie/data"
-#     embeddings = embed_all_images(path)
-#     with open(path + "/embeddings.pkl", "wb") as f:
-#         pkl.dump(embeddings, f)
 
 
 ### --------------- Brouillon ---------------
