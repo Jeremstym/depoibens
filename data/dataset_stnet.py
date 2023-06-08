@@ -52,6 +52,7 @@ model.fc = Identity()
 #     )
 # selection_tensor = selection_tensor.to(device)
 
+
 def image_embedding(path):
     cell = Image.open(path)
     preprocess = transforms.Compose(
@@ -71,7 +72,6 @@ def image_embedding(path):
 
 
 def embed_all_images(path):
-    
     embeddings_dict = {}
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
         pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
@@ -84,36 +84,12 @@ def embed_all_images(path):
             pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
-# def embed_all_images(path):
-#     embeddings = []
-#     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
-#         for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
-#             embeddings.append(image_embedding(path_image))
 
-#     return embeddings
-
-# def image_embedding(path, model=model, device=device):
-#     cell = Image.open(path)
-#     preprocess = transforms.Compose(
-#         [
-#             transforms.Resize(299),
-#             transforms.CenterCrop(299),
-#             transforms.ToTensor(),
-#             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-#         ]
-#     )
-#     input_tensor = preprocess(cell)
-#     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch of 1 sample
-#     input_batch = input_batch.to(device)
-#     with torch.no_grad():
-#         output = model(input_batch)
-#     return output
-
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    embeddings_dict = embed_all_images(path)
-    with open(path + "/embeddings_dict.pkl", "wb") as f:
-        pkl.dump(embeddings_dict, f)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     embeddings_dict = embed_all_images(path)
+#     with open(path + "/embeddings_dict.pkl", "wb") as f:
+#         pkl.dump(embeddings_dict, f)
 
 ### ---------------- Create dataset ------------------
 
@@ -129,17 +105,6 @@ class Phenotypes(data.Dataset):
             self.embeddings_dict = pkl.load(f)
         with open(path + "/std_genes_avg.pkl", "rb") as f:
             self.bestgene = list(pkl.load(f).index[:900])
-
-        # self.preprocess = transforms.Compose(
-        #     [
-        #         transforms.Resize(299),
-        #         transforms.CenterCrop(299),
-        #         transforms.ToTensor(),
-        #         transforms.Normalize(
-        #             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        #         ),
-        #     ]
-        # )
 
         self.genotypes = self.concat_tsv()
 
@@ -177,31 +142,6 @@ class Phenotypes(data.Dataset):
                 raise ValueError("Path not found")
             pbar.set_description(f"Processing {tissue_name}")
         return df
-
-    # def image_embedding(self, path):
-    #     cell = Image.open(path)
-    #     input_tensor = self.preprocess(cell)
-    #     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch of 1 sample
-    #     input_batch = input_batch.to(self.device)
-    #     with torch.no_grad():
-    #         output = self.model(input_batch)
-    #     selection_tensor = torch.tensor(
-    #         [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
-    #     )
-    #     return output[selection_tensor]
-
-    # def embed_all_images(self):
-    #     embeddings_dict = {}
-    #     for sub_path in tqdm(glob(self.path + "/*/", recursive=True)):
-    #         pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
-    #         for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
-    #             m = re.search("data/(.*)/(.*).jpg", path_image)
-    #             if m:
-    #                 embeddings_dict[m.group(2)] = self.image_embedding(path_image)
-    #             else:
-    #                 raise ValueError("Path not found")
-    #             pbar.set_description(f"Processing {m.group(2)}")
-    #     return embeddings_dict
 
 
 # if __name__ == "__main__":
