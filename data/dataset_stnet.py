@@ -15,7 +15,7 @@ print(os.getcwd())
 import sys
 # setting path
 sys.path.append('../models')
-import models.inception_STnet as inception_STnet
+import inception_STnet as inception_STnet
 
 import pickle as pkl
 from PIL import Image
