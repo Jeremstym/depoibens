@@ -127,6 +127,7 @@ class Phenotypes(data.Dataset):
             else:
                 raise ValueError("Path not found")
             pbar.set_description(f"Processing {tissue_name}")
+            break
         print(df)
         return df
 
