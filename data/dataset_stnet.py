@@ -105,15 +105,13 @@ class Phenotypes(data.Dataset):
         )
 
     def tsv_processing(self, tissue_name: str, df: pd.DataFrame) -> pd.DataFrame:
-        # mask = list(df.filter(regex="ambiguous"))
-        # filtered_df = df[df.columns.drop(mask)]
-        filtered_df = df[self.bestgene]
+        mask = list(df.filter(regex="ambiguous"))
+        filtered_df = df[df.columns.drop(mask)]
         filtered_df.rename(columns={"Unnamed: 0": "id"}, inplace=True)
-        print(filtered_df.columns)
         filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
         filtered_df.set_index("id", inplace=True)
 
-        return filtered_df
+        return filtered_df[self.bestgene]
 
     def concat_tsv(self):
         df = pd.DataFrame()
