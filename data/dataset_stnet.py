@@ -73,7 +73,7 @@ def embed_all_images(path):
     embeddings_dict = {}
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
         pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
-        for path_image in tqdm(glob(sub_path + "/*.jpg", recursive=True)):
+        for path_image in pbar:
             m = re.search("data/(.*)/(.*).jpg", path_image)
             if m:
                 embeddings_dict[m.group(2)] = image_embedding(path_image)
