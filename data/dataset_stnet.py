@@ -75,6 +75,13 @@ def embed_all_images(path):
 #     with open(path + "/embeddings_dict.pkl", "wb") as f:
 #         pkl.dump(embeddings_dict, f)
 
+## Deprecated version below
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     embeddings = embed_all_images(path)
+#     with open(path + "/embeddings.pkl", "wb") as f:
+#         pkl.dump(embeddings, f)
+
 ### ---------------- Create dataset ------------------
 
 
