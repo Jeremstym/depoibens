@@ -86,11 +86,11 @@ def embed_all_images(path):
     return embeddings_dict
 
 
-# if __name__ == "__main__":
-#     path = "/import/pr_minos/jeremie/data"
-#     embeddings_dict = embed_all_images(path)
-#     with open(path + "/embeddings_dict.pkl", "wb") as f:
-#         pkl.dump(embeddings_dict, f)
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    embeddings_dict = embed_all_images(path)
+    with open(path + "/embeddings_dict2.pkl", "wb") as f:
+        pkl.dump(embeddings_dict, f)
 
 ## Deprecated version below
 # if __name__ == "__main__":
@@ -198,3 +198,22 @@ class Phenotypes(data.Dataset):
 #     path = "/import/pr_minos/jeremie/data"
 #     st_set = Phenotypes(path)
 #     torch.save(st_set, path + "/st_set.pt")
+
+
+path = r"E:\ST-Net\data\hist2tscript\BRCA"
+def embed_all_images(path):
+    embeddings_dict = {}
+    for sub_path in glob(path + "/*/", recursive=True):
+        pbar = glob(sub_path + "/*/*.jpg", recursive=True)
+        for path_image in pbar:
+            m = re.search(r"hist2tscript\\(.*)\\(.*).jpg", path_image)
+            print(path_image)
+            if m:
+                print(m.group(2))
+                break
+                # embeddings_dict[m.group(2)] = image_embedding(path_image)
+            else:
+                raise ValueError("Path not found")
+
+
+embed_all_images(path)        
