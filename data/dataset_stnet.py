@@ -88,12 +88,24 @@ def embed_all_images(path):
             pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
+def change_device_embedding(embeddings_dict):
+    for key in embeddings_dict.keys():
+        embeddings_dict[key] = embeddings_dict[key].to("cpu")
+    return embeddings_dict
 
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
     embeddings_dict = embed_all_images(path)
-    with open(path + "/embeddings_dict2.pkl", "wb") as f:
+    embeddings_dict = change_device_embedding(embeddings_dict)
+    with open(path + "/embeddings_dict.pkl", "wb") as f:
         pkl.dump(embeddings_dict, f)
+
+
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     embeddings_dict = embed_all_images(path)
+#     with open(path + "/embeddings_dict2.pkl", "wb") as f:
+#         pkl.dump(embeddings_dict, f)
 
 ## Deprecated version below
 # if __name__ == "__main__":
@@ -175,7 +187,6 @@ class Phenotypes(data.Dataset):
         self.selection_tensor = torch.tensor(
             [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
         ).to(self.device)
-        print(embeddings_dict["BC23270_E2_8x21"].get_device())
 
     def __len__(self):
         return len(self.embeddings_dict)
