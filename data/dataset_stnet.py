@@ -98,23 +98,38 @@ def tsv_processing(tissue_name: str, df: pd.DataFrame, bestgene: list) -> pd.Dat
 
 def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     df = pd.DataFrame()
-    for sub_path in tqdm(glob(path + "/*/", recursive=True)):
-        pbar = tqdm(glob(sub_path + "/*.tsv", recursive=True))
-        for path_tsv in pbar:
-            m = re.search("data/(.*)/(.*).tsv", path_tsv)
-            if m:
-                df = pd.concat(
-                    [
-                        df,
-                        tsv_processing(
-                            m.group(2), pd.read_csv(path_tsv, sep="\t"), bestgene
-                        ),
-                    ]
-                )
-            else:
-                raise ValueError("Path not found")
-            pbar.set_description(f"Processing {m.group(2)}")
+    pbar = tqdm(glob(path + "/*/*[0-9].tsv", recursive=True))
+    for path_tsv in pbar:
+        m = re.search("data/(.*)/(.*).tsv", path_tsv)
+        if m:
+            tissue_name = m.group(2)
+            with open(path_tsv, "rb") as f:
+                df_tsv = pd.read_csv(f, sep="\t")
+            df_tsv = tsv_processing(tissue_name, df_tsv)
+            df = pd.concat([df, df_tsv])
+        else:
+            raise ValueError("Path not found")
+        pbar.set_description(f"Processing {tissue_name}")
     return df
+
+#     df = pd.DataFrame()
+#     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
+#         pbar = tqdm(glob(sub_path + "/*.tsv", recursive=True))
+#         for path_tsv in pbar:
+#             m = re.search("data/(.*)/(.*).tsv", path_tsv)
+#             if m:
+#                 df = pd.concat(
+#                     [
+#                         df,
+#                         tsv_processing(
+#                             m.group(2), pd.read_csv(path_tsv, sep="\t"), bestgene
+#                         ),
+#                     ]
+#                 )
+#             else:
+#                 raise ValueError("Path not found")
+#             pbar.set_description(f"Processing {m.group(2)}")
+#     return df
 
 
 if __name__ == "__main__":
