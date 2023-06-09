@@ -61,7 +61,8 @@ def create_dataloader(
     """
     Create dataloader for images
     """
-    tsv_concatened = pd.read_csv(tsv_path, sep="\t")
+    with open(tsv_concatened, "rb") as f:
+        tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
     dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model, device=device)
