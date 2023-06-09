@@ -64,7 +64,7 @@ def create_dataloader(
         tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
-    dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model, device=device)
+    dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model, device="cpu")
     dataloader = data.DataLoader(
         dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
