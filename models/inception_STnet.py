@@ -61,7 +61,7 @@ def create_dataloader(
     """
     Create dataloader for images
     """
-    with open(tsv_concatened, "rb") as f:
+    with open(tsv_path, "rb") as f:
         tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
