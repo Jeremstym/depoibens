@@ -105,7 +105,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
             tissue_name = m.group(2)
             with open(path_tsv, "rb") as f:
                 df_tsv = pd.read_csv(f, sep="\t")
-            df_tsv = tsv_processing(tissue_name, df_tsv)
+            df_tsv = tsv_processing(tissue_name, df_tsv, bestgene)
             df = pd.concat([df, df_tsv])
         else:
             raise ValueError("Path not found")
