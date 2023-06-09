@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
+from data.dataset_stnet import Phenotypes
 
 import PIL
 from PIL import Image
@@ -24,25 +25,9 @@ from torchvision.models.inception import Inception_V3_Weights
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
+tsv_path = "/projects/minos/jeremie/data/tsv_concatened.tsv"
+embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 
-### ---------------- Create dataloader ------------------------
-
-def create_dataloader(batch_size=16, num_workers=4) -> data.DataLoader:
-    """
-    Create dataloader for images
-    """
-    dataset = torch.load("/import/pr_minos/jeremie/data/st_set.pt")
-    dataloader = data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    return dataloader
-
-if __name__ == "__main__":
-    dataloader = create_dataloader(batch_size=16, num_workers=4)
-    for i, (images, labels) in enumerate(dataloader):
-        print(images.shape)
-        print(labels.shape)
-        break
 ### ------------ Network ---------------
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -62,7 +47,31 @@ class Identity(nn.Module):
 
 model.fc = Identity()
 
+### ---------------- Create dataloader ------------------------
 
+
+def create_dataloader(
+    tsv_path=tsv_path, embeddings_path=embeddings_path, batch_size=16, num_workers=4
+) -> data.DataLoader:
+    """
+    Create dataloader for images
+    """
+    tsv_concatened = pd.read_csv(tsv_path, sep="\t")
+    with open(embeddings_path, "rb") as f:
+        embeddings_dict = pkl.load(f)
+    dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model, device=device)
+    dataloader = data.DataLoader(
+        dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+    )
+    return dataloader
+
+
+if __name__ == "__main__":
+    dataloader = create_dataloader(batch_size=16, num_workers=4)
+    for i, (images, labels) in enumerate(dataloader):
+        print(images.shape)
+        print(labels.shape)
+        break
 
 
 ### --------------- Brouillon ---------------
@@ -81,7 +90,7 @@ model.fc = Identity()
 # m.group(2)
 # for path_image in glob(path + "\*\*.jpg", recursive=True):
 #     print(path_image)
-    
+
 
 # yield tensor([[ 552, 1382, 1171,  699,  663, 1502,  588,  436, 1222,  617]])
 
