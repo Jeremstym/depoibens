@@ -80,7 +80,7 @@ def embed_all_images(path):
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
         pbar = tqdm(glob(sub_path + "/*.jpg", recursive=True))
         for path_image in pbar:
-            m = re.search("minos/(.*)/(.*).jpg", path_image)
+            m = re.search("jeremie/(.*)/(.*).jpg", path_image)
             if m:
                 embeddings_dict[m.group(2)] = image_embedding(path_image)
             else:
