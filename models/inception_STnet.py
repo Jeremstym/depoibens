@@ -30,7 +30,7 @@ from torchvision.models.inception import Inception_V3_Weights
 
 
 tsv_path = "/projects/minos/jeremie/data/tsv_concatened.pkl"
-embeddings_path = "/projects/minos/jeremie/data/embeddings_dict2.pkl"
+embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 
 ### ------------ Network ---------------
 
@@ -64,7 +64,7 @@ def create_dataloader(
         tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
-    dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model, device="cpu")
+    dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model)
     dataloader = data.DataLoader(
         dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )

@@ -177,13 +177,13 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 
 class Phenotypes(data.Dataset):
     def __init__(
-        self, tsv_concatened, embeddings_dict, model=model, device=device
+        self, tsv_concatened, embeddings_dict, model=model
     ) -> None:
         super().__init__()
         self.genotypes = tsv_concatened
         self.embeddings_dict = embeddings_dict
         self.model = model
-        self.device = device
+        # self.device = device
         self.selection_tensor = torch.tensor(
             [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
         ).to(self.device)
@@ -194,8 +194,8 @@ class Phenotypes(data.Dataset):
     def __getitem__(self, idx_number: int):
         index = list(self.embeddings_dict.keys())[idx_number]
         return (
-            torch.tensor(self.genotypes.loc[index].values).to(self.device),
-            self.embeddings_dict[index].to(self.device),
+            torch.tensor(self.genotypes.loc[index].values),
+            self.embeddings_dict[index],
         )
 
 
