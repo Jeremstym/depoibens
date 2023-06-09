@@ -175,6 +175,7 @@ class Phenotypes(data.Dataset):
         self.selection_tensor = torch.tensor(
             [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
         ).to(self.device)
+        print(embeddings_dict["BC23270_E2_8x21"].get_device())
 
     def __len__(self):
         return len(self.embeddings_dict)
