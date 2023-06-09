@@ -21,10 +21,13 @@ import torchvision
 from torchvision.models.inception import Inception_V3_Weights
 
 import pickle as pkl
+import PIL
 from PIL import Image
 from glob import glob
 import re
 from tqdm import tqdm
+
+PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
 ### ---------------- Customized Inception model ------------------------
 
@@ -200,20 +203,20 @@ class Phenotypes(data.Dataset):
 #     torch.save(st_set, path + "/st_set.pt")
 
 
-path = r"E:\ST-Net\data\hist2tscript\BRCA"
-def embed_all_images(path):
-    embeddings_dict = {}
-    for sub_path in glob(path + "/*/", recursive=True):
-        pbar = glob(sub_path + "/*/*.jpg", recursive=True)
-        for path_image in pbar:
-            m = re.search(r"hist2tscript\\(.*)\\(.*).jpg", path_image)
-            print(path_image)
-            if m:
-                print(m.group(2))
-                break
-                # embeddings_dict[m.group(2)] = image_embedding(path_image)
-            else:
-                raise ValueError("Path not found")
+# path = r"E:\ST-Net\data\hist2tscript\BRCA"
+# def embed_all_images(path):
+#     embeddings_dict = {}
+#     for sub_path in glob(path + "/*/", recursive=True):
+#         pbar = glob(sub_path + "/*/*.jpg", recursive=True)
+#         for path_image in pbar:
+#             m = re.search(r"hist2tscript\\(.*)\\(.*).jpg", path_image)
+#             print(path_image)
+#             if m:
+#                 print(m.group(2))
+#                 break
+#                 # embeddings_dict[m.group(2)] = image_embedding(path_image)
+#             else:
+#                 raise ValueError("Path not found")
 
 
-embed_all_images(path)        
+# embed_all_images(path)        
