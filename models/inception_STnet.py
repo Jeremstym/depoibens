@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import pickle as pkl
 import os
+print(os.getcwd())
+import sys
+
+# setting path
+sys.path.append("../")
+import pickle as pkl
 from glob import glob
 from tqdm import tqdm
 
