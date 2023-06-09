@@ -89,7 +89,6 @@ def tsv_processing(tissue_name: str, df: pd.DataFrame, bestgene: list) -> pd.Dat
     mask = list(df.filter(regex="ambiguous"))
     filtered_df = df[df.columns.drop(mask)]
     filtered_df = filtered_df.rename(columns={"Unnamed: 0": "id"})
-    print(filtered_df.columns)
     filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
     filtered_df = filtered_df.set_index("id")
 
