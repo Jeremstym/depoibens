@@ -93,12 +93,12 @@ def change_device_embedding(embeddings_dict):
         embeddings_dict[key] = embeddings_dict[key].to("cpu")
     return embeddings_dict
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    embeddings_dict = embed_all_images(path)
-    embeddings_dict = change_device_embedding(embeddings_dict)
-    with open(path + "/embeddings_dict.pkl", "wb") as f:
-        pkl.dump(embeddings_dict, f)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     embeddings_dict = embed_all_images(path)
+#     embeddings_dict = change_device_embedding(embeddings_dict)
+#     with open(path + "/embeddings_dict.pkl", "wb") as f:
+#         pkl.dump(embeddings_dict, f)
 
 
 # if __name__ == "__main__":
@@ -186,7 +186,7 @@ class Phenotypes(data.Dataset):
         # self.device = device
         self.selection_tensor = torch.tensor(
             [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
-        ).to(self.device)
+        )
 
     def __len__(self):
         return len(self.embeddings_dict)
