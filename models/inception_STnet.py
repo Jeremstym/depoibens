@@ -30,7 +30,7 @@ from torchvision.models.inception import Inception_V3_Weights
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
-tsv_path = "/projects/minos/jeremie/data/tsv_concatened.tsv"
+tsv_path = "/projects/minos/jeremie/data/tsv_concatened.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 
 ### ------------ Network ---------------
