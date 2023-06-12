@@ -148,7 +148,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
                 df_complete = pkl.load(f)
                 true_index = df_complete.index
         else:
-            raise ValueError("Path not found")
+            raise ValueError("Path not found for m2")
         if m:
             print(m)
             tissue_name = m.group(2)
@@ -157,7 +157,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
             df_tsv = tsv_processing(tissue_name, df_tsv, true_index, bestgene)
             df = pd.concat([df, df_tsv])
         else:
-            raise ValueError("Path not found")
+            raise ValueError("Path not found for m")
         pbar.set_description(f"Processing {tissue_name}")
         break
     return df
