@@ -71,12 +71,12 @@ def create_dataloader(
     return dataloader
 
 
-if __name__ == "__main__":
-    dataloader = create_dataloader(batch_size=16, num_workers=4)
-    for i, (genotypes, images_embd) in enumerate(dataloader):
-        print(genotypes.shape) # (16, 900)
-        print(images_embd.shape) # (16, 10)
-        break
+# if __name__ == "__main__":
+#     dataloader = create_dataloader(batch_size=16, num_workers=4)
+#     for i, (genotypes, images_embd) in enumerate(dataloader):
+#         print(genotypes.shape) # (16, 900)
+#         print(images_embd.shape) # (16, 10)
+#         break
 
  
  ### --------------- Neural Network ---------------
