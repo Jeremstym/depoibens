@@ -119,32 +119,57 @@ def change_device_embedding(embeddings_dict):
 ### ---------------- Pre-processing for tsv files ------------------
 
 
-def tsv_processing(tissue_name: str, df: pd.DataFrame, bestgene: list) -> pd.DataFrame:
+def tsv_processing(
+    tissue_name: str,
+    df: pd.DataFrame,
+    true_index: pd.core.indexes.base.Index,
+    bestgene: list,
+) -> pd.DataFrame:
     mask = list(df.filter(regex="ambiguous"))
     filtered_df = df[df.columns.drop(mask)]
     filtered_df = filtered_df.rename(columns={"Unnamed: 0": "id"})
     filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
     filtered_df = filtered_df.set_index("id")
 
-    return filtered_df[bestgene]
+    return filtered_df[bestgene].loc[true_index]
 
 
 def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     df = pd.DataFrame()
-    pbar = tqdm(glob(path + "/*/*[0-9].tsv", recursive=True))
-    for path_tsv in pbar:
-        m = re.search("data/(.*)/(.*).tsv", path_tsv)
+    # pbar = tqdm(glob(path + "/*/*[0-9].tsv", recursive=True))
+    pbar = tqdm(glob(path + "/*/*", recursive=True))
+    for subpath in pbar:
+        print(subpath)
+        m = re.search("data/(.*)/(.*)[0-9].tsv", subpath)
+        m2 = re.search("data/(.*)/(.*)complete.pkl", subpath)
+        if m2:
+            print(m2)
+            with open(subpath, "rb") as f:
+                df_complete = pkl.load(f)
+                true_index = df_complete.index
+        else:
+            raise ValueError("Path not found")
         if m:
+            print(m)
             tissue_name = m.group(2)
-            with open(path_tsv, "rb") as f:
+            with open(subpath, "rb") as f:
                 df_tsv = pd.read_csv(f, sep="\t")
-            df_tsv = tsv_processing(tissue_name, df_tsv, bestgene)
+            df_tsv = tsv_processing(tissue_name, df_tsv, true_index, bestgene)
             df = pd.concat([df, df_tsv])
         else:
             raise ValueError("Path not found")
         pbar.set_description(f"Processing {tissue_name}")
+        break
     return df
 
+
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    with open(path + "/bestgene.pkl", "rb") as f:
+        bestgene = pkl.load(f)
+    print(concat_tsv(path, bestgene))
+    # with open(path + "/df.pkl", "wb") as f:
+    #     pkl.dump(df, f)
 
 #     df = pd.DataFrame()
 #     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
@@ -238,9 +263,25 @@ class Phenotypes(data.Dataset):
 
 # path = r"E:\ST-Net\data\hist2tscript\BRCA"
 
+# with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
+#     try_tsv = pd.read_csv(f, sep="\t")
+
+# try_tsv.set_index("Unnamed: 0", inplace=True)
+
+
+# try_tsv[try_tsv["Unnamed: 0"].str.endswith("x34")]
+
+# with open(path + "\BC23270\BC23270_D2.spots.txt", "r") as f:
+#     try_coords = pd.read_csv(f, sep=",")
+
+# try_coords.set_index("Unnamed: 0", inplace=True)
+# try_coords
+# try_coords.loc['18x18']
+
 # with open(path + "\BC23270\BC23270_D2_complete.pkl", "rb") as f:
-#     try_tsv = pkl.load(f)   
-# try_tsv
+#     try_coords = pkl.load(f)
+
+# try_coords.loc['18x18']
 
 # try_tsv[~try_tsv.index.str.endswith('x12')]
 # list(try_tsv[try_tsv.index.str.endswith('x12')].index)
@@ -248,4 +289,3 @@ class Phenotypes(data.Dataset):
 # my_dict = {"oui":0, "non":1, "peut-être":2}
 
 # {k: my_dict[k] for k in set(list(my_dict.keys())) - set(["oui"])}
-
