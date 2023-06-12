@@ -145,7 +145,8 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
         print(m2)
         with open(m2, "rb") as f:
             df_complete = pkl.load(f)
-            true_index = df_complete.index
+            true_index = list(df_complete.index)
+            print(true_index)
         if m:
             print(m)
             tissue_name = m.group(2)
@@ -258,25 +259,28 @@ class Phenotypes(data.Dataset):
 # my_tensor[0, [1, 2]]
 
 
-# path = r"E:\ST-Net\data\hist2tscript\BRCA"
+path = r"E:\ST-Net\data\hist2tscript\BRCA"
 
-# with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
-#     try_tsv = pd.read_csv(f, sep="\t")
+with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
+    try_tsv = pd.read_csv(f, sep="\t")
 
-# try_tsv.set_index("Unnamed: 0", inplace=True)
+try_tsv.set_index("Unnamed: 0", inplace=True)
 
+try_tsv.index
 
-# try_tsv[try_tsv["Unnamed: 0"].str.endswith("x34")]
+try_tsv[try_tsv["Unnamed: 0"].str.endswith("x34")]
 
-# with open(path + "\BC23270\BC23270_D2.spots.txt", "r") as f:
-#     try_coords = pd.read_csv(f, sep=",")
+with open(path + "\BC23270\BC23270_D2.spots.txt", "r") as f:
+    try_coords = pd.read_csv(f, sep=",")
 
-# try_coords.set_index("Unnamed: 0", inplace=True)
-# try_coords
-# try_coords.loc['18x18']
+try_coords.set_index("Unnamed: 0", inplace=True)
+try_coords
+try_coords.loc['18x18']
 
-# with open(path + "\BC23270\BC23270_D2_complete.pkl", "rb") as f:
-#     try_coords = pkl.load(f)
+with open(path + "\BC23270\BC23270_D2_complete.pkl", "rb") as f:
+    try_coords = pkl.load(f)
+
+try_tsv.loc[try_coords.index]
 
 # try_coords.loc['18x18']
 
