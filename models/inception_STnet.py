@@ -103,9 +103,8 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
             for genotypes, images_embd in pbar:
                 pbar.set_description(f"Epoch {epoch}")
                 genotypes = genotypes.to(device)
-                print(genotypes.dtype)
+                genotypes = genotypes.float()
                 images_embd = images_embd.to(device)
-                print(images_embd.dtype)
                 optimizer.zero_grad()
                 outputs = model(genotypes)
                 loss = criterion(outputs, images_embd)
