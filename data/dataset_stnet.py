@@ -195,7 +195,7 @@ class Phenotypes(data.Dataset):
         index = list(self.embeddings_dict.keys())[idx_number]
         return (
             torch.tensor(self.genotypes.loc[index].values),
-            self.embeddings_dict[index],
+            self.embeddings_dict[index][self.selection_tensor],
         )
 
 
