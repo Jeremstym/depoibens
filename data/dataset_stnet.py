@@ -88,10 +88,12 @@ def embed_all_images(path):
             pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
+
 def change_device_embedding(embeddings_dict):
     for key in embeddings_dict.keys():
         embeddings_dict[key] = embeddings_dict[key].to("cpu")
     return embeddings_dict
+
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
@@ -176,17 +178,13 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 
 
 class Phenotypes(data.Dataset):
-    def __init__(
-        self, tsv_concatened, embeddings_dict, model=model
-    ) -> None:
+    def __init__(self, tsv_concatened, embeddings_dict, model=model) -> None:
         super().__init__()
         self.genotypes = tsv_concatened
         self.embeddings_dict = embeddings_dict
         self.model = model
         # self.device = device
-        self.selection_tensor = torch.tensor(
-            [[552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]]
-        )
+        self.selection_list = [552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]
 
     def __len__(self):
         return len(self.embeddings_dict)
@@ -195,7 +193,7 @@ class Phenotypes(data.Dataset):
         index = list(self.embeddings_dict.keys())[idx_number]
         return (
             torch.tensor(self.genotypes.loc[index].values),
-            self.embeddings_dict[index][self.selection_tensor],
+            self.embeddings_dict[index][0, self.selection_list],
         )
 
 
@@ -231,4 +229,8 @@ class Phenotypes(data.Dataset):
 #                 raise ValueError("Path not found")
 
 
-# embed_all_images(path)        
+# embed_all_images(path)
+
+
+# my_tensor = torch.randn(1, 10)
+# my_tensor[0, [1, 2]]
