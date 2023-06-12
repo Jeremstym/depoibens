@@ -77,7 +77,7 @@ def create_dataloader(
 
         embeddings_train = {
             k: embeddings_dict[k]
-            for k in set(list(embeddings_dict.keys)) - set([test_patient])
+            for k in set(list(embeddings_dict.keys())) - set([test_patient])
         }
         embeddings_test = embeddings_dict[test_patient]
 
