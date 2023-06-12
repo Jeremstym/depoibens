@@ -143,7 +143,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
         m = re.search("data/(.*)/(.*).tsv", subpath)
         m2 = re.sub("tsv", "_Complete.pkl", subpath)
         print(m2)
-        with open(subpath, "rb") as f:
+        with open(m2, "rb") as f:
             df_complete = pkl.load(f)
             true_index = df_complete.index
         if m:
