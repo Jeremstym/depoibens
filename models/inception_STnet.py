@@ -72,8 +72,8 @@ def create_dataloader(
         embeddings_dict = pkl.load(f)
 
     if test_patient:
-        tsv_train = tsv_concatened[~tsv_concatened.index.startswith(test_patient)]
-        tsv_test = tsv_concatened[tsv_concatened.index.startswith(test_patient)]
+        tsv_train = tsv_concatened[~tsv_concatened.index.str.startswith(test_patient)]
+        tsv_test = tsv_concatened[tsv_concatened.index.str.startswith(test_patient)]
 
         embeddings_train = {
             k: embeddings_dict[k]
