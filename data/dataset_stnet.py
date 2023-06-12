@@ -141,7 +141,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     for subpath in pbar:
         print(subpath)
         m = re.search("data/(.*)/(.*).tsv", subpath)
-        m2 = re.sub(".tsv", "_Complete.pkl", subpath)
+        m2 = re.sub(".tsv", "_complete.pkl", subpath)
         print(m2)
         with open(m2, "rb") as f:
             df_complete = pkl.load(f)
