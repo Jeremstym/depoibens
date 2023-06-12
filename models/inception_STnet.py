@@ -101,7 +101,7 @@ def create_dataloader(
 
 if __name__ == "__main__":
     train_loader, test_loader = create_dataloader(
-        batch_size=16, num_workers=4, test_patient="BC23270"
+        train_batch_size=16, num_workers=4, test_patient="BC23270"
     )
     for i, (genotypes, images_embd) in enumerate(train_loader):
         print(genotypes.shape)  # (16, 900)
