@@ -165,8 +165,8 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 
 if __name__ == "__main__":
     path = "/projects/minos/jeremie/data"
-    with open(path + "/bestgene.pkl", "rb") as f:
-        bestgene = pkl.load(f)
+    with open(path + "/std_genes_avg.pkl", "rb") as f:
+        bestgene = list(pkl.load(f).index[:900])
     print(concat_tsv(path, bestgene))
     # with open(path + "/df.pkl", "wb") as f:
     #     pkl.dump(df, f)
