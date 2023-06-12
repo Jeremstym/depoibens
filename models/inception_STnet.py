@@ -73,11 +73,70 @@ def create_dataloader(
 
 if __name__ == "__main__":
     dataloader = create_dataloader(batch_size=16, num_workers=4)
-    for i, (images, labels) in enumerate(dataloader):
-        print(images.shape)
-        print(labels.shape)
+    for i, (genotypes, images_embd) in enumerate(dataloader):
+        print(genotypes.shape) # (16, 900)
+        print(images_embd.shape) # (16, 10)
         break
 
+ 
+ ### --------------- Neural Network ---------------
+
+class Regression_STnet(nn.Module):
+    def __init__(self, input_size=900, hidden_size=512, output_size=10):
+        super(Regression_STnet, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.dropout = nn.Dropout(p=0.2)
+
+    def forward(self, x):
+        x = self.dropout(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+        return x
+    
+### --------------- Training ---------------
+
+def train(model, dataloader, criterion, optimizer, device, epochs=10):
+    model.train()
+    for epoch in range(epochs):
+        with tqdm(dataloader, unit="batch") as pbar:
+            running_loss = 0.0
+            for genotypes, images_embd in pbar:
+                pbar.set_description(f"Epoch {epoch}")
+                genotypes = genotypes.to(device)
+                images_embd = images_embd.to(device)
+                optimizer.zero_grad()
+                outputs = model(genotypes)
+                loss = criterion(outputs, images_embd)
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item()
+                pbar.set_postfix(loss=running_loss)
+                # if i % 100 == 99:
+                #     print(
+                #         "[%d, %5d] loss: %.3f"
+                #         % (epoch + 1, i + 1, running_loss / 100)
+                #     )
+                #     running_loss = 0.0
+    print("Finished Training")
+
+def test(model, dataloader, criterion, device):
+    model.eval()
+    with torch.no_grad():
+        for genotypes, images_embd in dataloader:
+            genotypes = genotypes.to(device)
+            images_embd = images_embd.to(device)
+            outputs = model(genotypes)
+            loss = criterion(outputs, images_embd)
+            print(loss.item())
+
+if __name__ == "__main__":
+    dataloader = create_dataloader(batch_size=16, num_workers=4)
+    model = Regression_STnet()
+    model.to(device)
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    train(model, dataloader, criterion, optimizer, device, epochs=10)
+    # test(model, dataloader, criterion, device)
 
 ### --------------- Brouillon ---------------
 
