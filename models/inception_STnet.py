@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 print(os.getcwd())
 import sys
 
@@ -55,7 +56,12 @@ model.fc = Identity()
 
 
 def create_dataloader(
-    tsv_path=tsv_path, embeddings_path=embeddings_path, batch_size=16, num_workers=4
+    tsv_path=tsv_path,
+    embeddings_path=embeddings_path,
+    train_batch_size=16,
+    num_workers=4,
+    test_patient=None,
+    test_batch_size=4,
 ) -> data.DataLoader:
     """
     Create dataloader for images
@@ -64,11 +70,33 @@ def create_dataloader(
         tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
-    dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model)
-    dataloader = data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    return dataloader
+
+    if test_patient:
+        tsv_train = tsv_concatened[~tsv_concatened.index.startswith(test_patient)]
+        tsv_test = tsv_concatened[tsv_concatened.index.startswith(test_patient)]
+
+        embeddings_train = {
+            k: embeddings_dict[k]
+            for k in set(list(embeddings_dict.keys)) - set([test_patient])
+        }
+        embeddings_test = embeddings_dict[test_patient]
+
+        trainset = Phenotypes(tsv_train, embeddings_train, model=model)
+        testset = Phenotypes(tsv_test, embeddings_test, model=model)
+        trainloader = data.DataLoader(
+            trainset, batch_size=train_batch_size, shuffle=True, num_workers=num_workers
+        )
+        testloader = data.DataLoader(
+            testset, batch_size=test_batch_size, shuffle=True, num_workers=num_workers
+        )
+        return trainloader, testloader
+
+    else:
+        dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model)
+        dataloader = data.DataLoader(
+            dataset, batch_size=train_batch_size, shuffle=True, num_workers=num_workers
+        )
+        return dataloader
 
 
 # if __name__ == "__main__":
@@ -78,8 +106,9 @@ def create_dataloader(
 #         print(images_embd.shape) # (16, 10)
 #         break
 
- 
- ### --------------- Neural Network ---------------
+
+### --------------- Neural Network ---------------
+
 
 class Regression_STnet(nn.Module):
     def __init__(self, input_size=900, hidden_size=512, output_size=10):
@@ -92,8 +121,10 @@ class Regression_STnet(nn.Module):
         x = self.dropout(F.relu(self.fc1(x)))
         x = self.fc2(x)
         return x
-    
+
+
 ### --------------- Training ---------------
+
 
 def train(model, dataloader, criterion, optimizer, device, epochs=10):
     model.train()
@@ -120,24 +151,28 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
                 #     running_loss = 0.0
     print("Finished Training")
 
-def test(model, dataloader, criterion, device):
+
+def test(model, testloader, criterion, device):
     model.eval()
     with torch.no_grad():
-        for genotypes, images_embd in dataloader:
+        for genotypes, images_embd in testloader:
             genotypes = genotypes.to(device)
             images_embd = images_embd.to(device)
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             print(loss.item())
 
+
 if __name__ == "__main__":
-    dataloader = create_dataloader(batch_size=16, num_workers=4)
+    train_loader, test_loader = create_dataloader(
+        batch_size=16, num_workers=4, test_patient="BC23270"
+    )
     model = Regression_STnet()
     model.to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    train(model, dataloader, criterion, optimizer, device, epochs=10)
-    # test(model, dataloader, criterion, device)
+    train(model, train_loader, criterion, optimizer, device, epochs=10)
+    test(model, test_loader, criterion, device)
 
 ### --------------- Brouillon ---------------
 

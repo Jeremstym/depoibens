@@ -234,3 +234,16 @@ class Phenotypes(data.Dataset):
 
 # my_tensor = torch.randn(1, 10)
 # my_tensor[0, [1, 2]]
+
+
+# path = r"E:\ST-Net\data\hist2tscript\BRCA"
+
+# with open(path + "\BC23270\BC23270_D2_complete.pkl", "rb") as f:
+#     try_tsv = pkl.load(f)   
+# try_tsv
+
+# try_tsv[~try_tsv.index.str.endswith('x12')]
+
+my_dict = {"oui":0, "non":1, "peut-être":2}
+
+{k: my_dict[k] for k in set(list(my_dict.keys())) - set(["oui"])}
