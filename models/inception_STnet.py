@@ -99,12 +99,18 @@ def create_dataloader(
         return dataloader
 
 
-# if __name__ == "__main__":
-#     dataloader = create_dataloader(batch_size=16, num_workers=4)
-#     for i, (genotypes, images_embd) in enumerate(dataloader):
-#         print(genotypes.shape) # (16, 900)
-#         print(images_embd.shape) # (16, 10)
-#         break
+if __name__ == "__main__":
+    train_loader, test_loader = create_dataloader(
+        batch_size=16, num_workers=4, test_patient="BC23270"
+    )
+    for i, (genotypes, images_embd) in enumerate(train_loader):
+        print(genotypes.shape)  # (16, 900)
+        print(images_embd.shape)  # (16, 10)
+        break
+    for i, (genotypes, images_embd) in enumerate(test_loader):
+        print(genotypes.shape)
+        print(images_embd.shape)
+        break
 
 
 ### --------------- Neural Network ---------------
@@ -163,16 +169,16 @@ def test(model, testloader, criterion, device):
             print(loss.item())
 
 
-if __name__ == "__main__":
-    train_loader, test_loader = create_dataloader(
-        batch_size=16, num_workers=4, test_patient="BC23270"
-    )
-    model = Regression_STnet()
-    model.to(device)
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    train(model, train_loader, criterion, optimizer, device, epochs=10)
-    test(model, test_loader, criterion, device)
+# if __name__ == "__main__":
+#     train_loader, test_loader = create_dataloader(
+#         batch_size=16, num_workers=4, test_patient="BC23270"
+#     )
+#     model = Regression_STnet()
+#     model.to(device)
+#     criterion = nn.MSELoss()
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+#     train(model, train_loader, criterion, optimizer, device, epochs=10)
+#     test(model, test_loader, criterion, device)
 
 ### --------------- Brouillon ---------------
 
