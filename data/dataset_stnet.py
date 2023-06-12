@@ -136,19 +136,16 @@ def tsv_processing(
 
 def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     df = pd.DataFrame()
-    # pbar = tqdm(glob(path + "/*/*[0-9].tsv", recursive=True))
-    pbar = tqdm(glob(path + "/*/*", recursive=True))
+    pbar = tqdm(glob(path + "/*/*[0-9].tsv", recursive=True))
+    # pbar = tqdm(glob(path + "/*/*", recursive=True))
     for subpath in pbar:
         print(subpath)
-        m = re.search("data/(.*)/(.*)[0-9].tsv", subpath)
-        m2 = re.search("data/(.*)/(.*)complete.pkl", subpath)
-        if m2:
-            print(m2)
-            with open(subpath, "rb") as f:
-                df_complete = pkl.load(f)
-                true_index = df_complete.index
-        else:
-            raise ValueError("Path not found for m2")
+        m = re.search("data/(.*)/(.*).tsv", subpath)
+        m2 = re.sub("tsv", "_Complete.pkl", subpath)
+        print(m2)
+        with open(subpath, "rb") as f:
+            df_complete = pkl.load(f)
+            true_index = df_complete.index
         if m:
             print(m)
             tissue_name = m.group(2)
