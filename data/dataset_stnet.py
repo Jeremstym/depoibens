@@ -164,7 +164,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
+    path = "/projects/minos/jeremie/data"
     with open(path + "/bestgene.pkl", "rb") as f:
         bestgene = pkl.load(f)
     print(concat_tsv(path, bestgene))
