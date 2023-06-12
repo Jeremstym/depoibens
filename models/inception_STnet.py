@@ -111,7 +111,7 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
-                pbar.set_postfix(loss=running_loss)
+                pbar.set_postfix(loss=loss.item())
                 # if i % 100 == 99:
                 #     print(
                 #         "[%d, %5d] loss: %.3f"
