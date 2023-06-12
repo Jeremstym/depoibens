@@ -243,7 +243,9 @@ class Phenotypes(data.Dataset):
 # try_tsv
 
 # try_tsv[~try_tsv.index.str.endswith('x12')]
+# list(try_tsv[try_tsv.index.str.endswith('x12')].index)
 
-my_dict = {"oui":0, "non":1, "peut-être":2}
+# my_dict = {"oui":0, "non":1, "peut-être":2}
 
-{k: my_dict[k] for k in set(list(my_dict.keys())) - set(["oui"])}
+# {k: my_dict[k] for k in set(list(my_dict.keys())) - set(["oui"])}
+

@@ -75,11 +75,13 @@ def create_dataloader(
         tsv_train = tsv_concatened[~tsv_concatened.index.str.startswith(test_patient)]
         tsv_test = tsv_concatened[tsv_concatened.index.str.startswith(test_patient)]
 
+        embd_list = list(
+            tsv_concatened[tsv_concatened.index.str.startswith(test_patient)].index
+        )
         embeddings_train = {
-            k: embeddings_dict[k]
-            for k in set(list(embeddings_dict.keys())) - set([test_patient])
+            k: embeddings_dict[k] for k in embeddings_dict.keys() if k not in embd_list
         }
-        embeddings_test = embeddings_dict[test_patient]
+        embeddings_test = {k: embeddings_dict[k] for k in embd_list}
 
         trainset = Phenotypes(tsv_train, embeddings_train, model=model)
         testset = Phenotypes(tsv_test, embeddings_test, model=model)
