@@ -159,13 +159,13 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     return df
 
 
-if __name__ == "__main__":
-    path = "/projects/minos/jeremie/data"
-    with open(path + "/std_genes_avg.pkl", "rb") as f:
-        bestgene = list(pkl.load(f).index[:900])
-    tsv_concatened = concat_tsv(path, bestgene)
-    with open(path + "/tsv_concatened3.pkl", "wb") as f:
-        pkl.dump(tsv_concatened, f)
+# if __name__ == "__main__":
+#     path = "/projects/minos/jeremie/data"
+#     with open(path + "/std_genes_avg.pkl", "rb") as f:
+#         bestgene = list(pkl.load(f).index[:900])
+#     tsv_concatened = concat_tsv(path, bestgene)
+#     with open(path + "/tsv_concatened3.pkl", "wb") as f:
+#         pkl.dump(tsv_concatened, f)
 
 #     df = pd.DataFrame()
 #     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
