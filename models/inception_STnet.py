@@ -129,16 +129,16 @@ if __name__ == "__main__":
         train_batch_size=16, num_workers=4, test_patient="BC23270"
     )
     for i, (genotypes, images_embd) in enumerate(trainloader):
-        print(genotypes.shape)
-        print(images_embd.shape)
+        print("train", genotypes.shape)
+        print("train", images_embd.shape)
         break
     for i, (genotypes, images_embd) in enumerate(validationloader):
-        print(genotypes.shape)
-        print(images_embd.shape)
+        print("validation", genotypes.shape)
+        print("validation", images_embd.shape)
         break
     for i, (genotypes, images_embd) in enumerate(testloader):
-        print(genotypes.shape)
-        print(images_embd.shape)
+        print("test", genotypes.shape)
+        print("test", images_embd.shape)
         break
 
 # if __name__ == "__main__":
