@@ -257,14 +257,14 @@ class Phenotypes(data.Dataset):
 # my_tensor[0, [1, 2]]
 
 
-path = r"E:\ST-Net\data\hist2tscript\BRCA"
+# path = r"E:\ST-Net\data\hist2tscript\BRCA"
 
-with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
-    try_tsv = pd.read_csv(f, sep="\t")
+# with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
+#     try_tsv = pd.read_csv(f, sep="\t")
 
-try_tsv.set_index("Unnamed: 0", inplace=True)
+# try_tsv.set_index("Unnamed: 0", inplace=True)
 
-try_tsv.sample(10, weights=try_tsv.index)
+# try_tsv.sample(10, weights=try_tsv.index)
 
 # try_tsv[try_tsv["Unnamed: 0"].str.endswith("x34")]
 
