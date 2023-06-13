@@ -35,7 +35,7 @@ BATCH_SIZE = 64
 VALID_SPLIT = 0.2
 NUM_WORKERS = 4
 
-tsv_path = "/projects/minos/jeremie/data/tsv_concatened2.pkl"
+tsv_path = "/projects/minos/jeremie/data/tsv_concatened3.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 
 ### ------------ Network ---------------
