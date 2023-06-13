@@ -150,11 +150,11 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
                 loss = criterion(outputs, images_embd)
                 metric = R2Score()
                 metric.update(outputs, images_embd)
-                metric.compute()
+                # metric.compute()
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
-                pbar.set_postfix(loss=loss.item(), score=metric.item())
+                pbar.set_postfix(loss=loss.item(), score=metric.compute())
                 # if i % 100 == 99:
                 #     print(
                 #         "[%d, %5d] loss: %.3f"
