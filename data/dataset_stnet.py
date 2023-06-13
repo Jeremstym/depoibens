@@ -140,16 +140,12 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     pbar = tqdm(glob(path + "/*/*[0-9].tsv", recursive=True))
     # pbar = tqdm(glob(path + "/*/*", recursive=True))
     for subpath in pbar:
-        print(subpath)
         m = re.search("data/(.*)/(.*).tsv", subpath)
         m2 = re.sub(".tsv", "_complete.pkl", subpath)
-        print(m2)
         with open(m2, "rb") as f:
             df_complete = pkl.load(f)
             true_index = list(df_complete.index)
-            print(true_index)
         if m:
-            print(m)
             tissue_name = m.group(2)
             with open(subpath, "rb") as f:
                 df_tsv = pd.read_csv(f, sep="\t")
@@ -158,7 +154,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
         else:
             raise ValueError("Path not found for m")
         pbar.set_description(f"Processing {tissue_name}")
-        break
+
     return df
 
 
@@ -166,9 +162,9 @@ if __name__ == "__main__":
     path = "/projects/minos/jeremie/data"
     with open(path + "/std_genes_avg.pkl", "rb") as f:
         bestgene = list(pkl.load(f).index[:900])
-    print(concat_tsv(path, bestgene))
-    # with open(path + "/df.pkl", "wb") as f:
-    #     pkl.dump(df, f)
+    tsv_concatened = concat_tsv(path, bestgene)
+    with open(path + "/tsv_concatened2.pkl", "wb") as f:
+        pkl.dump(tsv_concatened, f)
 
 #     df = pd.DataFrame()
 #     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
