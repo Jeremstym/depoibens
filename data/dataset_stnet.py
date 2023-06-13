@@ -131,6 +131,7 @@ def tsv_processing(
     filtered_df = filtered_df[filtered_df["id"].isin(true_index)]
     filtered_df["id"] = filtered_df["id"].apply(lambda x: tissue_name + "_" + x)
     filtered_df = filtered_df.set_index("id")
+    filtered_df["tissue"] = tissue_name
 
     return filtered_df[bestgene]
 
@@ -163,7 +164,7 @@ if __name__ == "__main__":
     with open(path + "/std_genes_avg.pkl", "rb") as f:
         bestgene = list(pkl.load(f).index[:900])
     tsv_concatened = concat_tsv(path, bestgene)
-    with open(path + "/tsv_concatened2.pkl", "wb") as f:
+    with open(path + "/tsv_concatened3.pkl", "wb") as f:
         pkl.dump(tsv_concatened, f)
 
 #     df = pd.DataFrame()
@@ -256,14 +257,14 @@ class Phenotypes(data.Dataset):
 # my_tensor[0, [1, 2]]
 
 
-# path = r"E:\ST-Net\data\hist2tscript\BRCA"
+path = r"E:\ST-Net\data\hist2tscript\BRCA"
 
-# with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
-#     try_tsv = pd.read_csv(f, sep="\t")
+with open(path + "\BC23270\BC23270_D2.tsv", "r") as f:
+    try_tsv = pd.read_csv(f, sep="\t")
 
-# try_tsv.set_index("Unnamed: 0", inplace=True)
+try_tsv.set_index("Unnamed: 0", inplace=True)
 
-# try_tsv.index
+try_tsv.sample(10, weights=try_tsv.index)
 
 # try_tsv[try_tsv["Unnamed: 0"].str.endswith("x34")]
 
