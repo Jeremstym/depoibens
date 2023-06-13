@@ -166,6 +166,7 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
 
 def test(model, testloader, criterion, device):
     model.eval()
+    test_loss = 0.0
     with torch.no_grad():
         for genotypes, images_embd in testloader:
             genotypes = genotypes.to(device)
@@ -173,7 +174,8 @@ def test(model, testloader, criterion, device):
             images_embd = images_embd.to(device)
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
-            print(loss.item())
+            test_loss += loss.item() * genotypes.size(0)
+        print(f'Testing Loss:{test_loss/len(testloader)}')
 
 
 if __name__ == "__main__":
