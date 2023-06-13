@@ -30,7 +30,7 @@ from torchvision import transforms
 from torchvision.models.inception import Inception_V3_Weights
 
 
-tsv_path = "/projects/minos/jeremie/data/tsv_concatened.pkl"
+tsv_path = "/projects/minos/jeremie/data/tsv_concatened2.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 
 ### ------------ Network ---------------
