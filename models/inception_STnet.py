@@ -30,6 +30,10 @@ import torchvision
 from torchvision import transforms
 from torchvision.models.inception import Inception_V3_Weights
 
+# data constants
+BATCH_SIZE = 64
+VALID_SPLIT = 0.2
+NUM_WORKERS = 4
 
 tsv_path = "/projects/minos/jeremie/data/tsv_concatened2.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
@@ -38,9 +42,9 @@ embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 # model = torch.hub.load("pytorch/vision:v0.10.0", "inception_v3", pretrained=True)
-model = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
-model.eval()
-model.to(device)
+inception = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
+inception.eval()
+inception.to(device)
 
 
 class Identity(nn.Module):
@@ -51,7 +55,7 @@ class Identity(nn.Module):
         return x
 
 
-model.fc = Identity()
+inception.fc = Identity()
 
 ### ---------------- Create dataloader ------------------------
 
@@ -59,9 +63,9 @@ model.fc = Identity()
 def create_dataloader(
     tsv_path=tsv_path,
     embeddings_path=embeddings_path,
-    train_batch_size=16,
-    num_workers=4,
-    test_patient=None,
+    train_batch_size=BATCH_SIZE,
+    num_workers=NUM_WORKERS,
+    test_patient="BC23270",
     test_batch_size=4,
 ) -> data.DataLoader:
     """
@@ -72,49 +76,84 @@ def create_dataloader(
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
 
+    # # number if validation images
+    # train_dataset_size = len(tsv_concatened)
+
+    # validation size = number of validation images
+    valid_size = VALID_SPLIT
+
     if test_patient:
         tsv_train = tsv_concatened[~tsv_concatened.index.str.startswith(test_patient)]
+        tsv_validation = tsv_train.groupby("tissue").sample(
+            frac=valid_size, random_state=42
+        )
+        tsv_train = tsv_train.drop(tsv_validation.index)
         tsv_test = tsv_concatened[tsv_concatened.index.str.startswith(test_patient)]
 
-        embd_list = list(
-            tsv_concatened[tsv_concatened.index.str.startswith(test_patient)].index
-        )
+        train_list = list(tsv_train.index)
+        validation_list = list(tsv_validation.index)
+        test_list = list(tsv_test.index)
         embeddings_train = {
-            k: embeddings_dict[k] for k in embeddings_dict.keys() if k not in embd_list
+            k: embeddings_dict[k] for k in embeddings_dict.keys() if k in train_list
         }
-        embeddings_test = {k: embeddings_dict[k] for k in embd_list}
+        embedding_validation = {
+            k: embeddings_dict[k] for k in test_list if k in validation_list
+        }
+        embeddings_test = {k: embeddings_dict[k] for k in test_list}
 
-        trainset = Phenotypes(tsv_train, embeddings_train, model=model)
-        testset = Phenotypes(tsv_test, embeddings_test, model=model)
+        trainset = Phenotypes(tsv_train, embeddings_train, model=inception)
+        validationset = Phenotypes(
+            tsv_validation, embedding_validation, model=inception
+        )
+        testset = Phenotypes(tsv_test, embeddings_test, model=inception)
         trainloader = data.DataLoader(
             trainset, batch_size=train_batch_size, shuffle=True, num_workers=num_workers
         )
-        testloader = data.DataLoader(
-            testset, batch_size=test_batch_size, shuffle=True, num_workers=num_workers
+        validationloader = data.DataLoader(
+            validationset,
+            batch_size=train_batch_size,
+            shuffle=False,
+            num_workers=num_workers,
         )
-        return trainloader, testloader
+        testloader = data.DataLoader(
+            testset, batch_size=test_batch_size, shuffle=False, num_workers=num_workers
+        )
+        return trainloader, validationloader, testloader
 
     else:
-        dataset = Phenotypes(tsv_concatened, embeddings_dict, model=model)
-        dataloader = data.DataLoader(
-            dataset, batch_size=train_batch_size, shuffle=True, num_workers=num_workers
-        )
-        return dataloader
+        raise ValueError("test_patient must be specified")
 
 
 if __name__ == "__main__":
-    train_loader, test_loader = create_dataloader(
+    trainloader, validationloader, testloader = create_dataloader(
         train_batch_size=16, num_workers=4, test_patient="BC23270"
     )
-    for i, (genotypes, images_embd) in enumerate(train_loader):
-        print(genotypes.index)  # (16, 900)
-        print(images_embd.keys())
-        print(list(genotypes.index) == list(images_embd))  # (16, 10)
+    for i, (genotypes, images_embd) in enumerate(trainloader):
+        print(genotypes.shape)
+        print(images_embd.shape)
         break
-    # for i, (genotypes, images_embd) in enumerate(test_loader):
-    #     print(genotypes.shape) # (4, 900)
-    #     print(images_embd.shape) # (4, 10)
-    #     break
+    for i, (genotypes, images_embd) in enumerate(validationloader):
+        print(genotypes.shape)
+        print(images_embd.shape)
+        break
+    for i, (genotypes, images_embd) in enumerate(testloader):
+        print(genotypes.shape)
+        print(images_embd.shape)
+        break
+
+# if __name__ == "__main__":
+#     train_loader, test_loader = create_dataloader(
+#         train_batch_size=16, num_workers=4, test_patient="BC23270"
+#     )
+#     for i, (genotypes, images_embd) in enumerate(train_loader):
+#         print(genotypes.index)  # (16, 900)
+#         print(images_embd.keys())
+#         print(list(genotypes.index) == list(images_embd))  # (16, 10)
+#         break
+# for i, (genotypes, images_embd) in enumerate(test_loader):
+#     print(genotypes.shape) # (4, 900)
+#     print(images_embd.shape) # (4, 10)
+#     break
 
 
 ### --------------- Neural Network ---------------
@@ -176,7 +215,7 @@ def test(model, testloader, criterion, device):
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             test_loss += loss.item() * genotypes.size(0)
-        print(f'Testing Loss:{test_loss/len(testloader)}')
+        print(f"Testing Loss:{test_loss/len(testloader)}")
 
 
 # if __name__ == "__main__":
