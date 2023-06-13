@@ -173,7 +173,7 @@ def test(model, testloader, criterion, device):
 
 if __name__ == "__main__":
     train_loader, test_loader = create_dataloader(
-        batch_size=16, num_workers=4, test_patient="BC23270"
+        train_batch_size=16, num_workers=4, test_patient="BC23270"
     )
     model = Regression_STnet()
     model.to(device)
