@@ -19,7 +19,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
-from torchmetrics.functional import r2_score
+from torcheval.metrics import R2Score
 from data.dataset_stnet import Phenotypes
 
 import PIL
@@ -148,11 +148,13 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
                 optimizer.zero_grad()
                 outputs = model(genotypes)
                 loss = criterion(outputs, images_embd)
-                score = r2_score(outputs, images_embd)
+                metric = R2Score()
+                metric.update(outputs, images_embd)
+                metric.compute()
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
-                pbar.set_postfix(loss=loss.item(), score=score.item())
+                pbar.set_postfix(loss=loss.item(), score=metric.item())
                 # if i % 100 == 99:
                 #     print(
                 #         "[%d, %5d] loss: %.3f"
