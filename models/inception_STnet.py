@@ -92,14 +92,9 @@ def create_dataloader(
 
         train_list = list(tsv_train.index)
         validation_list = list(tsv_validation.index)
-        print(validation_list)
         test_list = list(tsv_test.index)
-        embeddings_train = {
-            k: embeddings_dict[k] for k in embeddings_dict.keys() if k in train_list
-        }
-        embedding_validation = {
-            k: embeddings_dict[k] for k in test_list if k in validation_list
-        }
+        embeddings_train = {k: embeddings_dict[k] for k in train_list}
+        embedding_validation = {k: embeddings_dict[k] for k in validation_list}
         embeddings_test = {k: embeddings_dict[k] for k in test_list}
 
         trainset = Phenotypes(tsv_train, embeddings_train, model=inception)
