@@ -92,6 +92,7 @@ def create_dataloader(
 
         train_list = list(tsv_train.index)
         validation_list = list(tsv_validation.index)
+        print(validation_list)
         test_list = list(tsv_test.index)
         embeddings_train = {
             k: embeddings_dict[k] for k in embeddings_dict.keys() if k in train_list
