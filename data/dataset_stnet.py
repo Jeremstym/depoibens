@@ -133,7 +133,7 @@ def tsv_processing(
     filtered_df = filtered_df.set_index("id")
     filtered_df["tissue"] = tissue_name
 
-    return filtered_df[bestgene]
+    return filtered_df[bestgene + ["tissue"]]
 
 
 def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
