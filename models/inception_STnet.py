@@ -138,6 +138,7 @@ class Regression_STnet(nn.Module):
 def train(model, dataloader, criterion, optimizer, device, epochs=10):
     model.train()
     for epoch in range(epochs):
+        metric = R2Score().to(device)
         with tqdm(dataloader, unit="batch") as pbar:
             running_loss = 0.0
             for genotypes, images_embd in pbar:
@@ -148,13 +149,12 @@ def train(model, dataloader, criterion, optimizer, device, epochs=10):
                 optimizer.zero_grad()
                 outputs = model(genotypes)
                 loss = criterion(outputs, images_embd)
-                metric = R2Score()
                 metric.update(outputs, images_embd)
                 # metric.compute()
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
-                pbar.set_postfix(loss=loss.item(), score=metric.compute())
+                pbar.set_postfix(loss=loss.item(), score=metric.compute().item())
                 # if i % 100 == 99:
                 #     print(
                 #         "[%d, %5d] loss: %.3f"
