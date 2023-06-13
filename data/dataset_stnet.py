@@ -201,7 +201,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 class Phenotypes(data.Dataset):
     def __init__(self, tsv_concatened, embeddings_dict, model=model) -> None:
         super().__init__()
-        self.genotypes = tsv_concatened
+        self.genotypes = tsv_concatened.drop("tissue", axis=1)
         self.embeddings_dict = embeddings_dict
         self.model = model
         # self.device = device
