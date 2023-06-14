@@ -14,11 +14,11 @@ from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
-import re
+import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.utils.data as data
+import torch.optim as optim
 from torcheval.metrics import R2Score
 from data.dataset_stnet import create_dataloader
 from utils import SaveBestModel, save_model, save_plots
@@ -50,33 +50,59 @@ class Regression_STnet(nn.Module):
 ### --------------- Training ---------------
 
 
-def train(model, dataloader, criterion, optimizer, device, epochs=10):
+def train(model, dataloader, criterion, optimizer, device, current_epoch):
     model.train()
-    for epoch in range(epochs):
-        metric = R2Score().to(device)
-        with tqdm(dataloader, unit="batch") as pbar:
-            running_loss = 0.0
-            for genotypes, images_embd in pbar:
-                pbar.set_description(f"Epoch {epoch}")
-                genotypes = genotypes.to(device)
-                genotypes = genotypes.float()
-                images_embd = images_embd.to(device)
-                optimizer.zero_grad()
-                outputs = model(genotypes)
-                loss = criterion(outputs, images_embd)
-                metric.update(outputs, images_embd)
-                # metric.compute()
-                loss.backward()
-                optimizer.step()
-                running_loss += loss.item()
-                pbar.set_postfix(loss=loss.item(), score=metric.compute().item())
-                # if i % 100 == 99:
-                #     print(
-                #         "[%d, %5d] loss: %.3f"
-                #         % (epoch + 1, i + 1, running_loss / 100)
-                #     )
-                #     running_loss = 0.0
-    print("Finished Training")
+    print("Start Training")
+    # for epoch in range(epochs):
+    metric = R2Score().to(device)
+    with tqdm(dataloader, unit="batch") as pbar:
+        running_loss = 0.0
+        counter = 0
+        pbar.set_description(f"Epoch {current_epoch}")
+        for genotypes, images_embd in pbar:
+            counter += 1
+            genotypes = genotypes.float()
+            genotypes = genotypes.to(device)
+            images_embd = images_embd.to(device)
+            optimizer.zero_grad()
+            outputs = model(genotypes)
+            loss = criterion(outputs, images_embd)
+            metric.update(outputs, images_embd)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+            pbar.set_postfix(loss=loss.item(), score=metric.compute().item())
+            # if i % 100 == 99:
+            #     print(
+            #         "[%d, %5d] loss: %.3f"
+            #         % (epoch + 1, i + 1, running_loss / 100)
+            #     )
+            #     running_loss = 0.0
+        # print("Finished Training")
+        epoch_loss = running_loss / counter
+        return epoch_loss, metric.compute().item()
+
+
+def validate(model, dataloader, criterion, device):
+    model.eval()
+    print("Validation")
+    valid_running_loss = 0.0
+    counter = 0
+    metric = R2Score().to(device)
+    with torch.no_grad():
+        for genotypes, images_embd in dataloader:
+            counter += 1
+            genotypes = genotypes.float()
+            genotypes = genotypes.to(device)
+            images_embd = images_embd.to(device)
+            outputs = model(genotypes)
+            loss = criterion(outputs, images_embd)
+            valid_running_loss += loss.item()
+            metric.update(outputs, images_embd)
+        epoch_loss = valid_running_loss / counter
+        print(f"Validation Loss:{epoch_loss}")
+        print(f"Validation Score:{metric.compute().item()}")
+        return epoch_loss, metric.compute().item()
 
 
 def test(model, testloader, criterion, device):
@@ -91,6 +117,84 @@ def test(model, testloader, criterion, device):
             loss = criterion(outputs, images_embd)
             test_loss += loss.item() * genotypes.size(0)
         print(f"Testing Loss:{test_loss/len(testloader)}")
+
+
+### --------------- Main ---------------
+
+
+def main():
+    # construct the argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-e",
+        "--epochs",
+        type=int,
+        default=20,
+        help="number of epochs to train our network for",
+    )
+    args = vars(parser.parse_args())
+
+    # learning_parameters
+    lr = 1e-3
+    epochs = args["epochs"]
+    # computation device
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    print(f"Computation device: {device}\n")
+
+    model = Regression_STnet()
+    model.to(device)
+
+    # total parameters and trainable parameters
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"{total_params:,} total parameters.")
+    total_trainable_params = sum(
+        p.numel() for p in model.parameters() if p.requires_grad
+    )
+    print(f"{total_trainable_params:,} training parameters.\n")
+    # optimizer
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+    # loss function
+    criterion = nn.CrossEntropyLoss()
+    # initialize SaveBestModel class
+    save_best_model = SaveBestModel()
+
+    # create dataloader
+    train_loader, valid_loader, test_loader = create_dataloader()
+
+    # start training
+    train_loss, valid_loss = [], []
+    train_r2, valid_r2 = [], []
+    for epoch in range(epochs):
+        print(f"[INFO]: Epoch {epoch+1} of {epochs}")
+        train_epoch_loss, train_r2score = train(
+            model, train_loader, criterion, optimizer, device, epoch
+        )
+        valid_epoch_loss, valid_r2score = validate(
+            model, valid_loader, criterion, device
+        )
+        train_loss.append(train_epoch_loss)
+        valid_loss.append(valid_epoch_loss)
+        train_r2.append(train_r2score)
+        valid_r2.append(valid_r2score)
+        print(
+            f"Training loss: {train_epoch_loss:.3f}, training r2: {train_r2score:.3f}"
+        )
+        print(
+            f"Validation loss: {valid_epoch_loss:.3f}, validation r2: {valid_r2score:.3f}"
+        )
+        # save the best model till now if we have the least loss in the current epoch
+        save_best_model(valid_epoch_loss, epoch, model, optimizer, criterion)
+        print("-" * 50)
+
+    # save the trained model weights for a final time
+    save_model(epochs, model, optimizer, criterion)
+    # save the loss and accuracy plots
+    save_plots(train_r2, valid_r2, train_loss, valid_loss)
+    print("TRAINING COMPLETE")
+
+
+if __name__ == "__main__":
+    main()
 
 
 # if __name__ == "__main__":
