@@ -266,11 +266,11 @@ def create_dataloader(
         embedding_validation = {k: embeddings_dict[k] for k in validation_list}
         embeddings_test = {k: embeddings_dict[k] for k in test_list}
 
-        trainset = Phenotypes(tsv_train, embeddings_train, model=inception)
+        trainset = Phenotypes(tsv_train, embeddings_train, premodel=inception)
         validationset = Phenotypes(
-            tsv_validation, embedding_validation, model=inception
+            tsv_validation, embedding_validation, premodel=inception
         )
-        testset = Phenotypes(tsv_test, embeddings_test, model=inception)
+        testset = Phenotypes(tsv_test, embeddings_test, premodel=inception)
         trainloader = data.DataLoader(
             trainset, batch_size=train_batch_size, shuffle=True, num_workers=num_workers
         )
