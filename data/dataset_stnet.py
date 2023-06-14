@@ -207,15 +207,13 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 
 
 class Phenotypes(data.Dataset):
-    def __init__(
-        self, tsv_concatened, embeddings_dict, premodel=inception, device=device
-    ) -> None:
+    def __init__(self, tsv_concatened, embeddings_dict) -> None:
         super().__init__()
         self.genotypes = tsv_concatened.drop("tissue", axis=1)
         self.embeddings_dict = embeddings_dict
-        self.model = premodel
-        self.model.to(device)
-        self.model.eval()
+        # self.model = premodel
+        # self.model.to(device)
+        # self.model.eval()
         # self.device = device
         self.selection_list = [552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]
 
