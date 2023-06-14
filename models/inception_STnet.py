@@ -154,7 +154,7 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     # optimizer
     optimizer = optim.Adam(model.parameters(), lr=lr)
     # loss function
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
     # initialize SaveBestModel class
     save_best_model = SaveBestModel()
 
