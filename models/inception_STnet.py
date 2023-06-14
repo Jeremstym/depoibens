@@ -183,7 +183,9 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
             f"Validation loss: {valid_epoch_loss:.3f}, validation r2: {valid_r2score:.3f}"
         )
         # save the best model till now if we have the least loss in the current epoch
-        save_best_model(path_saving, valid_epoch_loss, epoch, model, optimizer, criterion)
+        save_best_model(
+            path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
+        )
         print("-" * 50)
 
     # save the trained model weights for a final time
