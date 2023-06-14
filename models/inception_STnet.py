@@ -122,7 +122,7 @@ def test(model, testloader, criterion, device):
 ### --------------- Main ---------------
 
 
-def main():
+def main(path_saving="/import/pr_minos/jeremie/data"):
     # construct the argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -183,13 +183,13 @@ def main():
             f"Validation loss: {valid_epoch_loss:.3f}, validation r2: {valid_r2score:.3f}"
         )
         # save the best model till now if we have the least loss in the current epoch
-        save_best_model(valid_epoch_loss, epoch, model, optimizer, criterion)
+        save_best_model(path_saving, valid_epoch_loss, epoch, model, optimizer, criterion)
         print("-" * 50)
 
     # save the trained model weights for a final time
-    save_model(epochs, model, optimizer, criterion)
+    save_model(path_saving, epochs, model, optimizer, criterion)
     # save the loss and accuracy plots
-    save_plots(train_r2, valid_r2, train_loss, valid_loss)
+    save_plots(path_saving, train_r2, valid_r2, train_loss, valid_loss)
     print("TRAINING COMPLETE")
 
 
