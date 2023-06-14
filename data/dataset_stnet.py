@@ -41,7 +41,7 @@ embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 ### ---------------- Customized Inception model ------------------------
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-inception = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
+inception = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT, device=device)
 
 
 class Identity(nn.Module):
@@ -54,7 +54,7 @@ class Identity(nn.Module):
 
 inception.fc = Identity()
 
-inception.to(device)
+# inception.to(device)
 inception.eval()
 
 ### ---------------- Pre-processing for images ------------------
