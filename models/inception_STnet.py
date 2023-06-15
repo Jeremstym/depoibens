@@ -109,10 +109,12 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
     with torch.no_grad():
         for genotypes, images_embd in dataloader:
             counter += 1
-            genotypes = genotypes.float().unsqueeze(0)
+            genotypes = genotypes.float()
             genotypes = genotypes.to(device)
-            images_embd = images_embd.to(device).squeeze(0)
+            images_embd = images_embd.to(device)
             outputs = model(genotypes)
+            print(outputs.shape)
+            break
             loss = criterion(outputs, images_embd)
             valid_running_loss += loss.item()
             metric.update(outputs, images_embd)
