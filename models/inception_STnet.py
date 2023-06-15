@@ -80,11 +80,9 @@ def train(
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             metric.update(outputs, images_embd)
-            if run and counter % 10 == 0:
+            if run and counter % 30 == 0:
                 run["train/batch/loss"].append(loss.item())
-                run["train/batch/r2score"].append(
-                    metric.compute().item()
-                )
+                run["train/batch/r2score"].append(metric.compute().item())
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
@@ -97,6 +95,9 @@ def train(
             #     running_loss = 0.0
         # print("Finished Training")
         epoch_loss = running_loss / counter
+        if run:
+            run["train/epoch/loss"].append(epoch_loss)
+            run["train/epoch/r2score"].append(metric.compute().item())
         return epoch_loss, metric.compute().item()
 
 
@@ -105,7 +106,7 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
     print("Validation")
     valid_running_loss = 0.0
     counter = 0
-    metric = R2Score(multioutput='variance_weighted').to(device)
+    metric = R2Score(multioutput="variance_weighted").to(device)
     with torch.no_grad():
         for genotypes, images_embd in dataloader:
             counter += 1
@@ -118,10 +119,8 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
             metric.update(outputs, images_embd)
         epoch_loss = valid_running_loss / counter
         if run:
-            run["valid/batch/loss"].append(epoch_loss)
-            run["valid/batch/r2score"].append(
-                metric.compute().item()
-            )
+            run["valid/epoch/loss"].append(epoch_loss)
+            run["valid/epoch/r2score"].append(metric.compute().item())
         print(f"Validation Loss:{epoch_loss}")
         print(f"Validation Score:{metric.compute().item()}")
         return epoch_loss, metric.compute().item()
