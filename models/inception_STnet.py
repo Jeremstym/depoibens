@@ -19,6 +19,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.optim import lr_scheduler
 from torcheval.metrics import R2Score
 from data.dataset_stnet import create_dataloader
 from utils import SaveBestModel, save_model, save_plots
@@ -47,7 +48,7 @@ class Regression_STnet(nn.Module):
 
     def forward(self, x):
         x = self.dropout(F.gelu(self.fc1(x)))
-        x = self.dropout(F.relu(self.fc2(x)))
+        x = self.dropout(F.leaky_relu(self.fc2(x), 0.2))
         x = self.fc3(x)
         return x
 
@@ -219,6 +220,9 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     print(f"{total_trainable_params:,} training parameters.\n")
     # optimizer
     optimizer = optim.Adam(model.parameters(), lr=lr)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.1, patience=10, verbose=True
+    )
     # loss function
     criterion = nn.MSELoss()
     # initialize SaveBestModel class
@@ -255,6 +259,7 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         save_best_model(
             path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
         )
+        scheduler.step(valid_epoch_loss)
         print("-" * 50)
 
     run.stop()
