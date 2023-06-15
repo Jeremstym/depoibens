@@ -109,9 +109,9 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
     with torch.no_grad():
         for genotypes, images_embd in dataloader:
             counter += 1
-            genotypes = genotypes.float()
+            genotypes = genotypes.float().squeeze(0)
             genotypes = genotypes.to(device)
-            images_embd = images_embd.to(device)
+            images_embd = images_embd.to(device).squeeze(0)
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             valid_running_loss += loss.item()
@@ -168,7 +168,7 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         # "input_sz": 32 * 32 * 3,
         # "n_classes": 10,
         "model_filename": "STNet-regression",
-        "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "epochs": args["epochs"],
     }
     run["parameters"] = params
