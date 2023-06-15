@@ -109,7 +109,7 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
     with torch.no_grad():
         for genotypes, images_embd in dataloader:
             counter += 1
-            genotypes = genotypes.float().squeeze(0)
+            genotypes = genotypes.float().unsqueeze(0)
             genotypes = genotypes.to(device)
             images_embd = images_embd.to(device).squeeze(0)
             outputs = model(genotypes)
