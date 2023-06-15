@@ -156,9 +156,6 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     )
     args = vars(parser.parse_args())
 
-    model = Regression_STnet()
-    model.to(device)
-
     run = neptune.init_run(
         project="jeremstym/STNet-Regression",
         api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlMzdjNzg4Yy0xYTA3LTQ0MzItOGI2Yy00YzUwMWYyMzRlNDgifQ==",
@@ -175,6 +172,16 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     }
     run["parameters"] = params
 
+    # learning_parameters
+    lr = params["lr"]
+    epochs = params["epochs"]
+    # computation device
+    device = params["device"]
+    print(f"Computation device: {device}\n")
+
+    model = Regression_STnet()
+    model.to(device)
+
     npt_logger = NeptuneLogger(
         run=run,
         model=model,
@@ -185,13 +192,6 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     )
 
     run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
-
-    # learning_parameters
-    lr = params["lr"]
-    epochs = args["epochs"]
-    # computation device
-    device = params["device"]
-    print(f"Computation device: {device}\n")
 
     # total parameters and trainable parameters
     total_params = sum(p.numel() for p in model.parameters())
