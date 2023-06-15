@@ -212,6 +212,8 @@ def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
     device = params["device"]
     print(f"Computation device: {device}\n")
 
+    dummy = args["dummy"]
+
     if dummy:
         model = DummyRegression_STnet()
     else:
