@@ -81,8 +81,8 @@ def train(
             loss = criterion(outputs, images_embd)
             metric.update(outputs, images_embd)
             if run and counter % 10 == 0:
-                run[npt_logger]["train/batch/loss"].append(loss.item())
-                run[npt_logger]["train/batch/score"].append(
+                run["train/batch/loss"].append(loss.item())
+                run["train/batch/score"].append(
                     metric.compute().item()
                 )
             loss.backward()
@@ -118,8 +118,8 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
             metric.update(outputs, images_embd)
         epoch_loss = valid_running_loss / counter
         if run:
-            run[npt_logger]["valid/batch/loss"].append(epoch_loss)
-            run[npt_logger]["valid/batch/score"].append(
+            run["valid/batch/loss"].append(epoch_loss)
+            run["valid/batch/score"].append(
                 metric.compute().item()
             )
         print(f"Validation Loss:{epoch_loss}")
