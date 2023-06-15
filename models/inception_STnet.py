@@ -38,15 +38,17 @@ from neptune.utils import stringify_unsupported
 
 
 class Regression_STnet(nn.Module):
-    def __init__(self, input_size=900, hidden_size=512, output_size=10):
+    def __init__(self, input_size=900, hidden_size=650, output_size=10):
         super(Regression_STnet, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size//2)
+        self.fc3 = nn.Linear(hidden_size//2, output_size)
         self.dropout = nn.Dropout(p=0.2)
 
     def forward(self, x):
-        x = self.dropout(F.relu(self.fc1(x)))
-        x = self.fc2(x)
+        x = self.dropout(F.gelu(self.fc1(x)))
+        x = self.dropout(F.gelu(self.fc2(x)))
+        x = self.fc3(x)
         return x
 
 
