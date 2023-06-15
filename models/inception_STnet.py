@@ -220,9 +220,9 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     print(f"{total_trainable_params:,} training parameters.\n")
     # optimizer
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.1, patience=10, verbose=True
-    )
+    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+    #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
+    # )
     # loss function
     criterion = nn.MSELoss()
     # initialize SaveBestModel class
@@ -259,7 +259,7 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         save_best_model(
             path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
         )
-        scheduler.step(valid_epoch_loss)
+        # scheduler.step(valid_epoch_loss)
         print("-" * 50)
 
     run.stop()
