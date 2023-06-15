@@ -47,7 +47,7 @@ class Regression_STnet(nn.Module):
 
     def forward(self, x):
         x = self.dropout(F.gelu(self.fc1(x)))
-        x = self.dropout(F.gelu(self.fc2(x)))
+        x = self.dropout(F.relu(self.fc2(x)))
         x = self.fc3(x)
         return x
 
