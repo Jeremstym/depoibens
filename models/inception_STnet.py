@@ -30,6 +30,9 @@ import matplotlib.pyplot as plt
 import torchvision
 from torchvision import transforms
 
+import neptune
+from neptune_pytorch import NeptuneLogger
+from neptune.utils import stringify_unsupported
 
 ### --------------- Neural Network ---------------
 
@@ -50,7 +53,16 @@ class Regression_STnet(nn.Module):
 ### --------------- Training ---------------
 
 
-def train(model, dataloader, criterion, optimizer, device, current_epoch):
+def train(
+    model,
+    dataloader,
+    criterion,
+    optimizer,
+    device,
+    current_epoch,
+    run=None,
+    npt_logger=None,
+):
     model.train()
     print("Start Training")
     # for epoch in range(epochs):
@@ -68,6 +80,11 @@ def train(model, dataloader, criterion, optimizer, device, current_epoch):
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             metric.update(outputs, images_embd)
+            if run and counter % 10 == 0:
+                run[npt_logger.base_namespace]["train/batch/loss"].append(loss.item())
+                run[npt_logger.base_namespace]["train/batch/score"].append(
+                    metric.compute().item()
+                )
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
@@ -83,7 +100,7 @@ def train(model, dataloader, criterion, optimizer, device, current_epoch):
         return epoch_loss, metric.compute().item()
 
 
-def validate(model, dataloader, criterion, device):
+def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
     model.eval()
     print("Validation")
     valid_running_loss = 0.0
@@ -100,6 +117,11 @@ def validate(model, dataloader, criterion, device):
             valid_running_loss += loss.item()
             metric.update(outputs, images_embd)
         epoch_loss = valid_running_loss / counter
+        if run:
+            run[npt_logger.base_namespace]["valid/batch/loss"].append(epoch_loss)
+            run[npt_logger.base_namespace]["valid/batch/score"].append(
+                metric.compute().item()
+            )
         print(f"Validation Loss:{epoch_loss}")
         print(f"Validation Score:{metric.compute().item()}")
         return epoch_loss, metric.compute().item()
@@ -134,11 +156,38 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     )
     args = vars(parser.parse_args())
 
+    run = neptune.init_run(
+        project="jeremstym/STNet-Regression",
+        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlMzdjNzg4Yy0xYTA3LTQ0MzItOGI2Yy00YzUwMWYyMzRlNDgifQ==",
+    )
+
+    params = {
+        "lr": 1e-2,
+        "bs": 64,
+        # "input_sz": 32 * 32 * 3,
+        # "n_classes": 10,
+        "model_filename": "STNet-regression",
+        "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        "epochs": args["epochs"],
+    }
+    run["parameters"] = params
+
+    npt_logger = NeptuneLogger(
+        run=run,
+        model=model,
+        log_model_diagram=True,
+        log_gradients=True,
+        log_parameters=True,
+        log_freq=30,
+    )
+
+    run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
+
     # learning_parameters
-    lr = 1e-3
+    lr = params["lr"]
     epochs = args["epochs"]
     # computation device
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = params["device"]
     print(f"Computation device: {device}\n")
 
     model = Regression_STnet()
@@ -188,6 +237,7 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         )
         print("-" * 50)
 
+    run.stop()
     # save the trained model weights for a final time
     save_model(path_saving, epochs, model, optimizer, criterion)
     # save the loss and accuracy plots
