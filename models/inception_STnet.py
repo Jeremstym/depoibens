@@ -54,9 +54,9 @@ class Regression_STnet(nn.Module):
 
 
 class DummyRegression_STnet(nn.Module):
-    def __init__(self, input_size=900, output_size=10):
+    def __init__(self, bs=64, output_size=10):
         super(DummyRegression_STnet, self).__init__()
-        self.output = torch.randint(low=0, high=30, size=(output_size,))
+        self.output = torch.randint(low=0, high=30, size=(bs, output_size))
 
     def forward(self, x):
         return self.output
