@@ -51,7 +51,16 @@ class Regression_STnet(nn.Module):
         x = self.dropout(F.leaky_relu(self.fc2(x), 0.2))
         x = self.fc3(x)
         return x
+        
 
+class DummyRegression_STnet(nn.Module):
+    def __init__(self, input_size=900, output_size=10):
+        super(DummyRegression_STnet, self).__init__()
+        self.output = torch.randint(low=0, high=30, size=output_size, requires_grad=True)
+
+    def forward(self, x):
+        return self.output
+    
 
 ### --------------- Training ---------------
 
@@ -197,7 +206,8 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     device = params["device"]
     print(f"Computation device: {device}\n")
 
-    model = Regression_STnet()
+    # model = Regression_STnet()
+    model = DummyRegression_STnet()
     model.to(device)
 
     # npt_logger = NeptuneLogger(
