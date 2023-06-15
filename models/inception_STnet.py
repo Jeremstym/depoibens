@@ -61,7 +61,6 @@ def train(
     device,
     current_epoch,
     run=None,
-    npt_logger=None,
 ):
     model.train()
     print("Start Training")
@@ -70,7 +69,7 @@ def train(
     with tqdm(dataloader, unit="batch") as pbar:
         running_loss = 0.0
         counter = 0
-        pbar.set_description(f"Epoch {current_epoch}")
+        pbar.set_description(f"Epoch {current_epoch+1}")
         for genotypes, images_embd in pbar:
             counter += 1
             genotypes = genotypes.float()
@@ -101,7 +100,7 @@ def train(
         return epoch_loss, metric.compute().item()
 
 
-def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
+def validate(model, dataloader, criterion, device, run=None):
     model.eval()
     print("Validation")
     valid_running_loss = 0.0
@@ -153,13 +152,14 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         default=20,
         help="number of epochs to train our network for",
     )
-    args = vars(parser.parse_args())
-
-    run = neptune.init_run(
-        project="jeremstym/STNet-Regression",
-        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlMzdjNzg4Yy0xYTA3LTQ0MzItOGI2Yy00YzUwMWYyMzRlNDgifQ==",
+    parser.add_argument(
+        "-use_neptune",
+        "--neptune",
+        type=bool,
+        default=False,
+        help="Use neptune to log the training",
     )
-
+    args = vars(parser.parse_args())
     params = {
         "lr": 1e-2,
         "bs": 64,
@@ -170,7 +170,14 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "epochs": args["epochs"],
     }
-    run["parameters"] = params
+    if args["neptune"]:
+        run = neptune.init_run(
+            project="jeremstym/STNet-Regression",
+            api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlMzdjNzg4Yy0xYTA3LTQ0MzItOGI2Yy00YzUwMWYyMzRlNDgifQ==",
+        )
+        run["parameters"] = params
+    else:
+        run = None
 
     # learning_parameters
     lr = params["lr"]
@@ -182,14 +189,14 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     model = Regression_STnet()
     model.to(device)
 
-    npt_logger = NeptuneLogger(
-        run=run,
-        model=model,
-        log_model_diagram=True,
-        log_gradients=True,
-        log_parameters=True,
-        log_freq=30,
-    )
+    # npt_logger = NeptuneLogger(
+    #     run=run,
+    #     model=model,
+    #     log_model_diagram=True,
+    #     log_gradients=True,
+    #     log_parameters=True,
+    #     log_freq=30,
+    # )
 
     # run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
 
@@ -219,10 +226,10 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     for epoch in range(epochs):
         print(f"[INFO]: Epoch {epoch+1} of {epochs}")
         train_epoch_loss, train_r2score = train(
-            model, train_loader, criterion, optimizer, device, epoch, run, npt_logger
+            model, train_loader, criterion, optimizer, device, epoch, run
         )
         valid_epoch_loss, valid_r2score = validate(
-            model, valid_loader, criterion, device, run, npt_logger
+            model, valid_loader, criterion, device, run
         )
         train_loss.append(train_epoch_loss)
         valid_loss.append(valid_epoch_loss)
