@@ -159,9 +159,17 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         default=False,
         help="Use neptune to log the training",
     )
+    parser.add_argument(
+        "-lr",
+        "--learning_rate",
+        type=float,
+        default=1e-3,
+        help="Learning rate for the training",
+    )
     args = vars(parser.parse_args())
+
     params = {
-        "lr": 1e-2,
+        "lr": args["learning_rate"],
         "bs": 64,
         "tbs": 16,
         # "input_sz": 32 * 32 * 3,
