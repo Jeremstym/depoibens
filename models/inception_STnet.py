@@ -82,7 +82,7 @@ def train(
             metric.update(outputs, images_embd)
             if run and counter % 10 == 0:
                 run["train/batch/loss"].append(loss.item())
-                run["train/batch/score"].append(
+                run["train/batch/r2score"].append(
                     metric.compute().item()
                 )
             loss.backward()
@@ -119,7 +119,7 @@ def validate(model, dataloader, criterion, device, run=None, npt_logger=None):
         epoch_loss = valid_running_loss / counter
         if run:
             run["valid/batch/loss"].append(epoch_loss)
-            run["valid/batch/score"].append(
+            run["valid/batch/r2score"].append(
                 metric.compute().item()
             )
         print(f"Validation Loss:{epoch_loss}")
@@ -192,7 +192,7 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         log_freq=30,
     )
 
-    run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
+    # run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
 
     # total parameters and trainable parameters
     total_params = sum(p.numel() for p in model.parameters())
