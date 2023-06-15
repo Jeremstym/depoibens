@@ -56,7 +56,7 @@ class Regression_STnet(nn.Module):
 class DummyRegression_STnet(nn.Module):
     def __init__(self, input_size=900, output_size=10):
         super(DummyRegression_STnet, self).__init__()
-        self.output = torch.randint(low=0, high=30, size=output_size, requires_grad=True)
+        self.output = torch.randint(low=0, high=30, size=(output_size,), requires_grad=True)
 
     def forward(self, x):
         return self.output
@@ -192,8 +192,8 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     }
     if args["neptune"]:
         run = neptune.init_run(
-            project="jeremstym/STNet-Regression",
-            api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlMzdjNzg4Yy0xYTA3LTQ0MzItOGI2Yy00YzUwMWYyMzRlNDgifQ==",
+            # project="jeremstym/STNet-Regression",
+            # api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlMzdjNzg4Yy0xYTA3LTQ0MzItOGI2Yy00YzUwMWYyMzRlNDgifQ==",
         )
         run["parameters"] = params
     else:
