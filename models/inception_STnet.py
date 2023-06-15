@@ -42,8 +42,8 @@ class Regression_STnet(nn.Module):
     def __init__(self, input_size=900, hidden_size=650, output_size=10):
         super(Regression_STnet, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size//2)
-        self.fc3 = nn.Linear(hidden_size//2, output_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
+        self.fc3 = nn.Linear(hidden_size // 2, output_size)
         self.dropout = nn.Dropout(p=0.2)
 
     def forward(self, x):
@@ -51,7 +51,7 @@ class Regression_STnet(nn.Module):
         x = self.dropout(F.leaky_relu(self.fc2(x), 0.2))
         x = self.fc3(x)
         return x
-        
+
 
 class DummyRegression_STnet(nn.Module):
     def __init__(self, input_size=900, output_size=10):
@@ -60,7 +60,7 @@ class DummyRegression_STnet(nn.Module):
 
     def forward(self, x):
         return self.output
-    
+
 
 ### --------------- Training ---------------
 
@@ -154,7 +154,7 @@ def test(model, testloader, criterion, device):
 ### --------------- Main ---------------
 
 
-def main(path_saving="/import/pr_minos/jeremie/data"):
+def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
     # construct the argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -177,6 +177,13 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
         type=float,
         default=1e-3,
         help="Learning rate for the training",
+    )
+    parser.add_argument(
+        "-dummy",
+        "--dummy",
+        type=bool,
+        default=False,
+        help="Use dummy model for testing purpose",
     )
     args = vars(parser.parse_args())
 
@@ -205,8 +212,10 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     device = params["device"]
     print(f"Computation device: {device}\n")
 
-    # model = Regression_STnet()
-    model = DummyRegression_STnet()
+    if dummy:
+        model = DummyRegression_STnet()
+    else:
+        model = Regression_STnet()
     model.to(device)
 
     # npt_logger = NeptuneLogger(
@@ -228,7 +237,8 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     )
     print(f"{total_trainable_params:,} training parameters.\n")
     # optimizer
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    if not dummy:
+        optimizer = optim.Adam(model.parameters(), lr=lr)
     # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
     #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
     # )
@@ -248,9 +258,13 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     train_r2, valid_r2 = [], []
     for epoch in range(epochs):
         print(f"[INFO]: Epoch {epoch+1} of {epochs}")
-        train_epoch_loss, train_r2score = train(
-            model, train_loader, criterion, optimizer, device, epoch, run
-        )
+        if not dummy:
+            train_epoch_loss, train_r2score = train(
+                model, train_loader, criterion, optimizer, device, epoch, run
+            )
+        else:
+            train_epoch_loss, train_r2score = 0, 0
+
         valid_epoch_loss, valid_r2score = validate(
             model, valid_loader, criterion, device, run
         )
