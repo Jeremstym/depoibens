@@ -215,6 +215,7 @@ def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
     dummy = args["dummy"]
 
     if dummy:
+        device = torch.device("cpu")
         model = DummyRegression_STnet()
     else:
         model = Regression_STnet()
