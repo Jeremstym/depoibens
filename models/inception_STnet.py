@@ -216,10 +216,10 @@ def main(path_saving="/import/pr_minos/jeremie/data"):
     for epoch in range(epochs):
         print(f"[INFO]: Epoch {epoch+1} of {epochs}")
         train_epoch_loss, train_r2score = train(
-            model, train_loader, criterion, optimizer, device, epoch
+            model, train_loader, criterion, optimizer, device, epoch, run, npt_logger
         )
         valid_epoch_loss, valid_r2score = validate(
-            model, valid_loader, criterion, device
+            model, valid_loader, criterion, device, run, npt_logger
         )
         train_loss.append(train_epoch_loss)
         valid_loss.append(valid_epoch_loss)
