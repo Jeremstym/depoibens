@@ -112,7 +112,7 @@ def compute_biggest_std(embeddings_dict):
 
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
-    with open(path + "/embeddings_path2.pkl", "rb") as f:
+    with open(path + "/embeddings_dict2.pkl", "rb") as f:
         embeddings_dict = pkl.load(f)
     stds = compute_biggest_std(embeddings_dict)
     print(stds)
