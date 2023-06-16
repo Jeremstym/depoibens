@@ -110,12 +110,12 @@ def compute_biggest_std(embeddings_dict):
     stds = torch.std(stds, dim=1)
     return stds.topk(10, largest=True, sorted=True).indices
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    with open(path + "/embeddings_dict2.pkl", "rb") as f:
-        embeddings_dict = pkl.load(f)
-    stds = compute_biggest_std(embeddings_dict)
-    print(stds)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     with open(path + "/embeddings_dict2.pkl", "rb") as f:
+#         embeddings_dict = pkl.load(f)
+#     stds = compute_biggest_std(embeddings_dict)
+#     print(stds)
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
@@ -209,13 +209,13 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 #     return df
 
 
-# if __name__ == "__main__":
-#     path = "/import/pr_minos/jeremie/data"
-#     with open(path + "/std_genes_avg.pkl", "rb") as f:
-#         bestgene = list(pkl.load(f).index[:900])
-#     df = concat_tsv(path, bestgene)
-#     with open(path + "/tsv_concatened.pkl", "wb") as f:
-#         pkl.dump(df, f)
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    with open(path + "/std_genes_avg.pkl", "rb") as f:
+        bestgene = list(pkl.load(f).index)
+    df = concat_tsv(path, bestgene)
+    with open(path + "/tsv_concatened_allgenes.pkl", "wb") as f:
+        pkl.dump(df, f)
 
 ### ---------------- Create dataset ------------------
 
