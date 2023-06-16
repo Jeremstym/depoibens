@@ -38,28 +38,50 @@ from neptune.utils import stringify_unsupported
 ### --------------- Neural Network ---------------
 
 
+# class Regression_STnet(nn.Module):
+#     def __init__(self, input_size=900, hidden_size=650, output_size=10):
+#         super(Regression_STnet, self).__init__()
+#         self.fc1 = nn.Linear(input_size, hidden_size)
+#         self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
+#         self.fc3 = nn.Linear(hidden_size // 2, output_size)
+#         self.dropout = nn.Dropout(p=0.2)
+
+#     def forward(self, x):
+#         x = self.dropout(F.gelu(self.fc1(x)))
+#         x = self.dropout(F.gelu(self.fc2(x)))
+#         x = self.fc3(x)
+#         return x
+
+
 class Regression_STnet(nn.Module):
-    def __init__(self, input_size=900, hidden_size=650, output_size=10):
+    def __init__(self, input_size=650, hidden_size=2048, output_size=2048, dropout=0.2):
         super(Regression_STnet, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
-        self.fc3 = nn.Linear(hidden_size // 2, output_size)
-        self.dropout = nn.Dropout(p=0.2)
+        self.p = dropout
+
+        self.layers = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.BatchNorm1d(hidden_size),
+            nn.GELU(),
+            nn.Dropout(self.p),
+            nn.Linear(hidden_size, hidden_size),
+            nn.BatchNorm1d(hidden_size),
+            nn.GELU(),
+            nn.Dropout(self.p),
+            nn.Linear(hidden_size, output_size),
+            # No activation function here because we're doing regression
+        )
 
     def forward(self, x):
-        x = self.dropout(F.gelu(self.fc1(x)))
-        x = self.dropout(F.leaky_relu(self.fc2(x), 0.2))
-        x = self.fc3(x)
-        return x
+        return self.layers(x)
 
 
 class DummyRegression_STnet(nn.Module):
     def __init__(self, output_size=10):
         super(DummyRegression_STnet, self).__init__()
-        self.output = torch.randint(low=0, high=30, size=(64, output_size))
+        self.output_size = output_size
 
     def forward(self, x):
-        return torch.randint(0,30, (x.shape[0], 10))
+        return torch.randint(0, 30, (x.shape[0], self.output_size))
 
 
 ### --------------- Training ---------------
@@ -157,18 +179,18 @@ def test(model, testloader, criterion, device):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-e",
-        "--epochs",
-        type=int,
-        default=20,
-        help="number of epochs to train our network for",
-    )
-    parser.add_argument(
         "-use_neptune",
         "--neptune",
         type=bool,
         default=False,
         help="Use neptune to log the training",
+    )
+    parser.add_argument(
+        "-e",
+        "--epochs",
+        type=int,
+        default=20,
+        help="number of epochs to train our network for",
     )
     parser.add_argument(
         "-lr",
@@ -187,16 +209,27 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
 
 
-def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
+def main(
+    path_saving="/import/pr_minos/jeremie/data",
+    lr=args["learning_rate"],
+    epochs=args["epochs"],
+    dummy=args["dummy"],
+    dropout=args["dropout"],
+    input_size=900,
+    output_size=2048,
+):
     params = {
-        "lr": args["learning_rate"],
-        "bs": 64,
-        "tbs": 16,
+        "lr": lr,
+        "bacth_size": 128,
+        "test_bacth_size": 16,
         # "input_sz": 32 * 32 * 3,
         # "n_classes": 10,
         "model_filename": "STNet-regression",
         "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
-        "epochs": args["epochs"],
+        "epochs": epochs,
+        "dropout": 0.5,
+        "input_size": input_size,
+        "output_size": output_size,
     }
     if args["neptune"]:
         run = neptune.init_run(
@@ -213,13 +246,11 @@ def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
     device = params["device"]
     print(f"Computation device: {device}\n")
 
-    dummy = args["dummy"]
-
     if dummy:
         device = torch.device("cpu")
         model = DummyRegression_STnet()
     else:
-        model = Regression_STnet()
+        model = Regression_STnet(dropout=dropout)
     model.to(device)
 
     # npt_logger = NeptuneLogger(
@@ -253,8 +284,10 @@ def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
 
     # create dataloader
     train_loader, valid_loader, test_loader = create_dataloader(
-        train_batch_size=params["bs"],
-        test_batch_size=params["tbs"],
+        train_batch_size=params["bacth_size"],
+        test_batch_size=params["test_bacth_size"],
+        input_size=params["input_size"],
+        output_size=params["output_size"],
     )
 
     # start training

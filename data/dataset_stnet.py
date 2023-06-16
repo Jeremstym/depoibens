@@ -34,8 +34,9 @@ BATCH_SIZE = 64
 VALID_SPLIT = 0.2
 NUM_WORKERS = 4
 
-tsv_path = "/projects/minos/jeremie/data/tsv_concatened3.pkl"
+tsv_path = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
+selection_tensor_path = "/projects/minos/jeremie/data/features_std.pkl"
 
 
 ### ---------------- Customized Inception model ------------------------
@@ -111,6 +112,7 @@ def change_device_embedding(embeddings_dict):
 #     stds = torch.std(stds, dim=0)
 #     return stds.topk(10, largest=True, sorted=True).indices
 
+
 def list_stds(embeddings_dict):
     stds = []
     for key in tqdm(embeddings_dict.keys()):
@@ -119,13 +121,14 @@ def list_stds(embeddings_dict):
     stds = torch.std(stds, dim=0)
     return stds.argsort(descending=True)
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    with open(path + "/embeddings_dict2.pkl", "rb") as f:
-        embeddings_dict = pkl.load(f)
-    stds = list_stds(embeddings_dict)
-    with open(path + "/features_std.pkl", "wb") as f:
-        pkl.dump(stds, f)
+
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     with open(path + "/embeddings_dict2.pkl", "rb") as f:
+#         embeddings_dict = pkl.load(f)
+#     stds = list_stds(embeddings_dict)
+#     with open(path + "/features_std.pkl", "wb") as f:
+#         pkl.dump(stds, f)
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
@@ -232,14 +235,19 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 
 class Phenotypes(data.Dataset):
     def __init__(
-        self, tsv_concatened, embeddings_dict, nb_genes=900, embd_size=2048
+        self,
+        tsv_concatened,
+        embeddings_dict,
+        selection_tensor,
+        nb_genes=900,
+        embd_size=2048,
     ) -> None:
         super().__init__()
         self.genotypes = tsv_concatened.drop("tissue", axis=1)[
             tsv_concatened.columns[:nb_genes]
         ]
         self.embeddings_dict = embeddings_dict
-        self.selection_list = [552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]
+        self.selection_list = selection_tensor[:embd_size].sort().values.tolist()
 
     def __len__(self):
         return len(self.embeddings_dict)
@@ -258,6 +266,9 @@ class Phenotypes(data.Dataset):
 def create_dataloader(
     tsv_path=tsv_path,
     embeddings_path=embeddings_path,
+    selection_tensor_path=selection_tensor_path,
+    input_size=900,
+    output_size=2048,
     train_batch_size=BATCH_SIZE,
     num_workers=NUM_WORKERS,
     test_patient="BC23270",
@@ -270,6 +281,8 @@ def create_dataloader(
         tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
+    with open(selection_tensor_path, "rb") as f:
+        selection_tensor = pkl.load(f)
 
     # # number if validation images
     # train_dataset_size = len(tsv_concatened)
@@ -292,9 +305,27 @@ def create_dataloader(
         embedding_validation = {k: embeddings_dict[k] for k in validation_list}
         embeddings_test = {k: embeddings_dict[k] for k in test_list}
 
-        trainset = Phenotypes(tsv_train, embeddings_train)
-        validationset = Phenotypes(tsv_validation, embedding_validation)
-        testset = Phenotypes(tsv_test, embeddings_test)
+        trainset = Phenotypes(
+            tsv_train,
+            embeddings_train,
+            selection_tensor,
+            nb_genes=input_size,
+            embd_size=output_size,
+        )
+        validationset = Phenotypes(
+            tsv_validation,
+            embedding_validation,
+            selection_tensor,
+            nb_genes=input_size,
+            embd_size=output_size,
+        )
+        testset = Phenotypes(
+            tsv_test,
+            embeddings_test,
+            selection_tensor,
+            nb_genes=input_size,
+            embd_size=output_size,
+        )
         trainloader = data.DataLoader(
             trainset, batch_size=train_batch_size, shuffle=True, num_workers=num_workers
         )
