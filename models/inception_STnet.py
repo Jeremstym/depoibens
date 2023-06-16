@@ -283,17 +283,19 @@ def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
             f"Validation loss: {valid_epoch_loss:.3f}, validation r2: {valid_r2score:.3f}"
         )
         # save the best model till now if we have the least loss in the current epoch
-        save_best_model(
-            path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
-        )
+        if not dummy:
+            save_best_model(
+                path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
+            )
         # scheduler.step(valid_epoch_loss)
         print("-" * 50)
 
     run.stop()
-    # save the trained model weights for a final time
-    save_model(path_saving, epochs, model, optimizer, criterion)
-    # save the loss and accuracy plots
-    save_plots(path_saving, train_r2, valid_r2, train_loss, valid_loss)
+    if not dummy:
+        # save the trained model weights for a final time
+        save_model(path_saving, epochs, model, optimizer, criterion)
+        # save the loss and accuracy plots
+        save_plots(path_saving, train_r2, valid_r2, train_loss, valid_loss)
     print("TRAINING COMPLETE")
 
 
