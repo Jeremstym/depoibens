@@ -54,9 +54,9 @@ class Regression_STnet(nn.Module):
 
 
 class DummyRegression_STnet(nn.Module):
-    def __init__(self, bs=64, output_size=10):
+    def __init__(self, output_size=10):
         super(DummyRegression_STnet, self).__init__()
-        self.output = torch.randint(low=0, high=30, size=(bs, output_size))
+        self.output = torch.randint(low=0, high=30, size=(1, output_size))
 
     def forward(self, x):
         return self.output
@@ -153,9 +153,8 @@ def test(model, testloader, criterion, device):
 
 ### --------------- Main ---------------
 
-
-def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
-    # construct the argument parser
+# construct the argument parser
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-e",
@@ -187,6 +186,8 @@ def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
     )
     args = vars(parser.parse_args())
 
+
+def main(path_saving="/import/pr_minos/jeremie/data", dummy=False):
     params = {
         "lr": args["learning_rate"],
         "bs": 64,
