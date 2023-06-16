@@ -102,20 +102,30 @@ def change_device_embedding(embeddings_dict):
         embeddings_dict[key] = embeddings_dict[key].to("cpu")
     return embeddings_dict
 
-def compute_biggest_std(embeddings_dict):
+
+# def compute_biggest_std(embeddings_dict):
+#     stds = []
+#     for key in embeddings_dict.keys():
+#         stds.append(embeddings_dict[key])
+#     stds = torch.stack(stds)
+#     stds = torch.std(stds, dim=0)
+#     return stds.topk(10, largest=True, sorted=True).indices
+
+def list_stds(embeddings_dict):
     stds = []
-    for key in embeddings_dict.keys():
+    for key in tqdm(embeddings_dict.keys()):
         stds.append(embeddings_dict[key])
     stds = torch.stack(stds)
-    stds = torch.std(stds, dim=1)
-    return stds.topk(10, largest=True, sorted=True).indices
+    stds = torch.std(stds, dim=0)
+    return stds.argsort(descending=True)
 
-# if __name__ == "__main__":
-#     path = "/import/pr_minos/jeremie/data"
-#     with open(path + "/embeddings_dict2.pkl", "rb") as f:
-#         embeddings_dict = pkl.load(f)
-#     stds = compute_biggest_std(embeddings_dict)
-#     print(stds)
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    with open(path + "/embeddings_dict2.pkl", "rb") as f:
+        embeddings_dict = pkl.load(f)
+    stds = list_stds(embeddings_dict)
+    with open(path + "/features_std.pkl", "wb") as f:
+        pkl.dump(stds, f)
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
@@ -209,26 +219,26 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 #     return df
 
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    with open(path + "/std_genes_avg.pkl", "rb") as f:
-        bestgene = list(pkl.load(f).index)
-    df = concat_tsv(path, bestgene)
-    with open(path + "/tsv_concatened_allgenes.pkl", "wb") as f:
-        pkl.dump(df, f)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     with open(path + "/std_genes_avg.pkl", "rb") as f:
+#         bestgene = list(pkl.load(f).index)
+#     df = concat_tsv(path, bestgene)
+#     with open(path + "/tsv_concatened_allgenes.pkl", "wb") as f:
+#         pkl.dump(df, f)
 
 ### ---------------- Create dataset ------------------
 
 
 class Phenotypes(data.Dataset):
-    def __init__(self, tsv_concatened, embeddings_dict) -> None:
+    def __init__(
+        self, tsv_concatened, embeddings_dict, nb_genes=900, embd_size=2048
+    ) -> None:
         super().__init__()
-        self.genotypes = tsv_concatened.drop("tissue", axis=1)
+        self.genotypes = tsv_concatened.drop("tissue", axis=1)[
+            tsv_concatened.columns[:nb_genes]
+        ]
         self.embeddings_dict = embeddings_dict
-        # self.model = premodel
-        # self.model.to(device)
-        # self.model.eval()
-        # self.device = device
         self.selection_list = [552, 1382, 1171, 699, 663, 1502, 588, 436, 1222, 617]
 
     def __len__(self):
@@ -237,8 +247,8 @@ class Phenotypes(data.Dataset):
     def __getitem__(self, idx_number: int):
         index = list(self.embeddings_dict.keys())[idx_number]
         return (
-            torch.tensor(self.genotypes.loc[index].values),
-            self.embeddings_dict[index][0, self.selection_list],
+            torch.tensor(self.genotypes.loc[index].values),  # (nb_genes,)
+            self.embeddings_dict[index][0, self.selection_list],  # (embd_size,)
         )
 
 
