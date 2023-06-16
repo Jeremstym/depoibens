@@ -237,7 +237,7 @@ def create_dataloader(
     train_batch_size=BATCH_SIZE,
     num_workers=NUM_WORKERS,
     test_patient="BC23270",
-    test_batch_size=4,
+    test_batch_size=16,
 ) -> data.DataLoader:
     """
     Create dataloader for images
