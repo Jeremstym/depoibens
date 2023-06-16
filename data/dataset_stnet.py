@@ -111,7 +111,7 @@ def compute_biggest_std(embeddings_dict):
     return stds.topk(10, largest=True, sorted=True).indices
 
 if __name__ == "__main__":
-    with open(embeddings_path, "rb") as f:
+    with open("embeddings_path2.pkl", "rb") as f:
         embeddings_dict = pkl.load(f)
     stds = compute_biggest_std(embeddings_dict)
     print(stds)
