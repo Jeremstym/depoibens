@@ -102,6 +102,19 @@ def change_device_embedding(embeddings_dict):
         embeddings_dict[key] = embeddings_dict[key].to("cpu")
     return embeddings_dict
 
+def compute_biggest_std(embeddings_dict):
+    stds = []
+    for key in embeddings_dict.keys():
+        stds.append(embeddings_dict[key])
+    stds = torch.stack(stds)
+    stds = torch.std(stds, dim=1)
+    return stds.topk(10, largest=True, sorted=True).indices
+
+if __name__ == "__main__":
+    with open(embeddings_path, "rb") as f:
+        embeddings_dict = pkl.load(f)
+    stds = compute_biggest_std(embeddings_dict)
+    print(stds)
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
