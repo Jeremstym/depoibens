@@ -207,6 +207,13 @@ if __name__ == "__main__":
         help="Learning rate for the training",
     )
     parser.add_argument(
+        "-dropout",
+        "--dropout",
+        type=float,
+        default=0.5,
+        help="Dropout rate for the training",
+    )
+    parser.add_argument(
         "-dummy",
         "--dummy",
         type=bool,
