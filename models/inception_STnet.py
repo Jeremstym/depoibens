@@ -15,6 +15,7 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import argparse
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -342,8 +343,24 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
-
+    lr_list = np.geomspace(1e-3, 1e-5, num=10)
+    dropout_list = np.linspace(0.1, 0.7, num=7)
+    input_size_list = [900, 1000, 1100, 1200, 1300, 1400, 1500]
+    output_size_list = [2048, 1024, 512, 256, 128, 64, 32, 10]
+    # main()
+    print("Iterate on dropout")
+    for dp in dropout_list:
+        main(dropout=dp)
+    print("Iterate on input size")
+    for input_size in input_size_list:
+        main(input_size=input_size)
+    print("Iterate on output size")
+    for output_size in output_size_list:
+        main(output_size=output_size)
+    print("Iterate on learning rate")
+    for lr in lr_list:
+        main(lr=lr)
+    print("End of the script")
 
 # if __name__ == "__main__":
 #     train_loader, test_loader = create_dataloader(
