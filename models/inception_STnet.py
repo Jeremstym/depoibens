@@ -110,15 +110,15 @@ def train(
             counter += 1
             genotypes = genotypes.float()
             genotypes = genotypes.to(device)
-            images_embd = images_embd.squeeze()
             images_embd = images_embd.to(device)
             optimizer.zero_grad()
-            outputs = model(genotypes)
+            outputs = model(genotypes).squeeze()
             loss = criterion(outputs, images_embd)
             metric_unif.update(outputs, images_embd)
             metric_wght.update(outputs, images_embd)
             if run and counter % 30 == 0:
                 run["train/batch/loss"].append(loss.item())
+                run["train/batch/r2score_unif"].append(metric_unif.compute().item())
                 run["train/batch/r2score_wght"].append(metric_wght.compute().item())
             loss.backward()
             optimizer.step()
