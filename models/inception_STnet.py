@@ -55,7 +55,7 @@ from neptune.utils import stringify_unsupported
 
 
 class Regression_STnet(nn.Module):
-    def __init__(self, input_size=650, hidden_size=2048, output_size=2048, dropout=0.2):
+    def __init__(self, input_size=900, hidden_size=2048, output_size=2048, dropout=0.2):
         super(Regression_STnet, self).__init__()
         self.p = dropout
 
@@ -264,7 +264,9 @@ def main(
         device = torch.device("cpu")
         model = DummyRegression_STnet()
     else:
-        model = Regression_STnet(dropout=dropout)
+        model = Regression_STnet(
+            input_size=input_size, output_size=output_size, dropout=dropout
+        )
     model.to(device)
 
     # npt_logger = NeptuneLogger(
