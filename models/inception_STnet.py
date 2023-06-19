@@ -244,7 +244,7 @@ def main(
         "model_filename": "STNet-regression",
         "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "epochs": epochs,
-        "dropout": 0.5,
+        "dropout": dropout,
         "input_size": input_size,
         "output_size": output_size,
     }
@@ -356,7 +356,7 @@ def main(
 
 if __name__ == "__main__":
     lr_list = np.geomspace(1e-3, 1e-5, num=10)
-    dropout_list = np.linspace(0.1, 0.7, num=7)
+    dropout_list = np.linspace(0.2, 0.7, num=6)
     input_size_list = [900, 1000, 1100, 1200, 1300, 1400, 1500]
     output_size_list = [2048, 1024, 512, 256, 128, 64, 32, 10]
     # main()
