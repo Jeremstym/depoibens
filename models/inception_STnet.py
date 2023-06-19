@@ -110,6 +110,7 @@ def train(
             counter += 1
             genotypes = genotypes.float()
             genotypes = genotypes.to(device)
+            images_embd = images_embd.squeeze()
             images_embd = images_embd.to(device)
             optimizer.zero_grad()
             outputs = model(genotypes)
