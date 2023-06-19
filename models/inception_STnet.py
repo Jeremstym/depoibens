@@ -152,6 +152,7 @@ def validate(model, dataloader, criterion, device, run=None):
             counter += 1
             genotypes = genotypes.float()
             genotypes = genotypes.to(device)
+            images_embd = images_embd.squeeze(1)
             images_embd = images_embd.to(device)
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
