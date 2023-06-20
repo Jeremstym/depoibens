@@ -358,14 +358,14 @@ if __name__ == "__main__":
     lr_list = np.geomspace(1e-3, 1e-5, num=10)
     dropout_list = np.linspace(0.2, 0.7, num=6)
     input_size_list = [900, 1000, 1100, 1200, 1300, 1400, 1500]
-    output_size_list = [2048, 1024, 512, 256, 128, 64, 32, 10]
+    output_size_list = [1024, 512, 256, 128, 64, 32, 10]
     # main()
-    print("Iterate on dropout")
-    for dp in dropout_list:
-        main(dropout=dp)
-    print("Iterate on input size")
-    for input_size in input_size_list:
-        main(input_size=input_size)
+    # print("Iterate on dropout")
+    # for dp in dropout_list:
+    #     main(dropout=dp)
+    # print("Iterate on input size")
+    # for input_size in input_size_list:
+    #     main(input_size=input_size)
     print("Iterate on output size")
     for output_size in output_size_list:
         main(output_size=output_size)
