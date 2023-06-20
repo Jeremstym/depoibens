@@ -246,12 +246,8 @@ class Phenotypes(data.Dataset):
         self.genotypes = tsv_concatened.drop("tissue", axis=1)[
             tsv_concatened.columns[:nb_genes]
         ]
-        print(embd_size)
-        print(selection_tensor.shape)
-        print(selection_tensor[:,:embd_size].shape)
-        raise ValueError
         self.embeddings_dict = embeddings_dict
-        self.selection_list = selection_tensor[:embd_size].sort(descending=True).values.tolist()
+        self.selection_list = selection_tensor[:,:embd_size].sort(descending=True).values.tolist()
         print(self.selection_list)
 
     def __len__(self):
