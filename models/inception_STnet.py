@@ -233,6 +233,7 @@ def main(
     dummy=args["dummy"],
     dropout=args["dropout"],
     input_size=900,
+    hidden_size=2048,
     output_size=2048,
 ):
     params = {
@@ -246,6 +247,7 @@ def main(
         "epochs": epochs,
         "dropout": dropout,
         "input_size": input_size,
+        "hidden_size": hidden_size,
         "output_size": output_size,
     }
     if args["neptune"]:
@@ -268,7 +270,10 @@ def main(
         model = DummyRegression_STnet()
     else:
         model = Regression_STnet(
-            input_size=input_size, output_size=output_size, dropout=dropout
+            input_size=input_size,
+            hidden_size=hidden_size,
+            output_size=output_size,
+            dropout=dropout,
         )
     model.to(device)
 
