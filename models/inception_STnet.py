@@ -55,11 +55,12 @@ from neptune.utils import stringify_unsupported
 
 
 class Regression_STnet(nn.Module):
-    def __init__(self, input_size=900, hidden_size=2048, output_size=2048, dropout=0.2):
+    def __init__(self, input_size=900, hidden_size=2048, output_size=2048, dropout=0.2, batch_norm=True):
         super(Regression_STnet, self).__init__()
         self.p = dropout
 
         self.layers = nn.Sequential(
+            nn.BatchNorm1d(input_size) if batch_norm else nn.Identity(),
             nn.Linear(input_size, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.GELU(),
@@ -223,6 +224,13 @@ if __name__ == "__main__":
         default=False,
         help="Use dummy model for testing purpose",
     )
+    parser.add_argument(
+        "-batch_norm",
+        "--batch_norm",
+        type=bool,
+        default=True,
+        help="Use batch normalization for input",
+    )
     args = vars(parser.parse_args())
 
 
@@ -274,6 +282,7 @@ def main(
             hidden_size=hidden_size,
             output_size=output_size,
             dropout=dropout,
+            batch_norm=args["batch_norm"],
         )
     model.to(device)
 
