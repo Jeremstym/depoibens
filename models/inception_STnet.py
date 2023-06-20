@@ -308,6 +308,7 @@ def main(
         input_size=params["input_size"],
         output_size=params["output_size"],
     )
+    print(params["output_size"])
 
     # start training
     train_loss, valid_loss = [], []
