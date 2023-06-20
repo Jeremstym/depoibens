@@ -247,8 +247,8 @@ class Phenotypes(data.Dataset):
             tsv_concatened.columns[:nb_genes]
         ]
         self.embeddings_dict = embeddings_dict
-        self.selection_list = selection_tensor[:embd_size].sort().values.tolist()
-        print(embd_size)
+        self.selection_list = selection_tensor[:embd_size].sort(descending=True).values.tolist()
+        print(self.selection_list)
 
     def __len__(self):
         return len(self.embeddings_dict)
