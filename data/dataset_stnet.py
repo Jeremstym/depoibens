@@ -248,7 +248,7 @@ class Phenotypes(data.Dataset):
         ]
         print(embd_size)
         print(selection_tensor.shape)
-        print(selection_tensor[:embd_size].shape)
+        print(selection_tensor[:,:embd_size].shape)
         raise ValueError
         self.embeddings_dict = embeddings_dict
         self.selection_list = selection_tensor[:embd_size].sort(descending=True).values.tolist()
