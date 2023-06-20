@@ -248,7 +248,7 @@ class Phenotypes(data.Dataset):
         ]
         self.embeddings_dict = embeddings_dict
         self.selection_list = selection_tensor[:embd_size].sort().values.tolist()
-        print(len(self.selection_list))
+        print(self.selection_list)
 
     def __len__(self):
         return len(self.embeddings_dict)
