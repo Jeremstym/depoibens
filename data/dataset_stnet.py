@@ -254,7 +254,7 @@ class Phenotypes(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.embeddings_dict.keys())[idx_number]
-        print(len(self.embeddings_dict[index][0, self.selection_list]))
+        print(self.embeddings_dict[index][0, self.selection_list].size())
         return (
             torch.tensor(self.genotypes.loc[index].values),  # (nb_genes,)
             self.embeddings_dict[index][0, self.selection_list],  # (embd_size,)
