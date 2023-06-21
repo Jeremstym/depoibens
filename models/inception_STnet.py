@@ -248,7 +248,7 @@ def main(
     dummy=args["dummy"],
     dropout=args["dropout"],
     input_size=200,
-    hidden_size=842,
+    hidden_size=2048,
     output_size=10,
 ):
     params = {
