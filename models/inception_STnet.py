@@ -207,14 +207,14 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=1e-3,
+        default=1e-4,
         help="Learning rate for the training",
     )
     parser.add_argument(
         "-dropout",
         "--dropout",
         type=float,
-        default=0.5,
+        default=0.6,
         help="Dropout rate for the training",
     )
     parser.add_argument(
@@ -231,6 +231,13 @@ if __name__ == "__main__":
         default=True,
         help="Use batch normalization for input",
     )
+    parser.add_argument(
+        "-bs",
+        "--batch_size",
+        type=int,
+        default=256,
+        help="Batch size for the training",
+    )
     args = vars(parser.parse_args())
 
 
@@ -240,13 +247,13 @@ def main(
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=900,
-    hidden_size=2048,
-    output_size=2048,
+    input_size=200,
+    hidden_size=842,
+    output_size=10,
 ):
     params = {
         "lr": lr,
-        "bacth_size": 128,
+        "bacth_size": args["batch_size"],
         "test_bacth_size": 16,
         # "input_sz": 32 * 32 * 3,
         # "n_classes": 10,
