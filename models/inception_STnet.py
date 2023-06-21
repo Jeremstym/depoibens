@@ -247,7 +247,7 @@ def main(
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=200,
+    input_size=900,
     hidden_size=842,
     output_size=10,
 ):
