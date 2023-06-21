@@ -369,8 +369,8 @@ def main(
             )
         # scheduler.step(valid_epoch_loss)
         print("-" * 50)
-
-    run.stop()
+    if run:
+        run.stop()
     if not dummy:
         # save the trained model weights for a final time
         save_model(path_saving, epochs, model, optimizer, criterion)
