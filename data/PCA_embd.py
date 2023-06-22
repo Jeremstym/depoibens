@@ -27,8 +27,8 @@ path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
 path_to_model = "/projects/minos/jeremie/data/outputs/final_model.pth"
 
-# PATIENT = "BT23944_E2"
-PATIENT = "BT23450_E1"
+PATIENT = "BT23944_E2"
+# PATIENT = "BT23450_E1"
 
 ### ------------------- Preprocessing -------------------
 
