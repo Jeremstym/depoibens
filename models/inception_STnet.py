@@ -409,7 +409,7 @@ def main(
             )
         print("TRAINING COMPLETE")
     else:
-        test(model, test_loader, criterion, device, run)
+        test(model, test_loader, criterion, device)
 
 
 if __name__ == "__main__":
