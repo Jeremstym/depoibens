@@ -415,6 +415,7 @@ def main(
             input_size=params["input_size"],
             output_size=params["output_size"],
         )
+        criterion = nn.MSELoss()
         test(model, test_loader, criterion, device)
 
 
