@@ -65,7 +65,7 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # load model
     model = Regression_STnet(
-        input_size=200, output_size=10, dropout=0.6, batch_norm=False
+        input_size=200, output_size=10, dropout=0.6, batch_norm=True
     )
     print(f"Loading model...")
     model.load_state_dict(torch.load(path_to_model)["model_state_dict"])
