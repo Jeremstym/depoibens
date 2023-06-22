@@ -36,6 +36,7 @@ def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT) -> np.ndarray:
     """
     Function to get the embeddings of a given patient.
     """
+    print("Loading embeddings dict...")
     with open(path_to_dict, "rb") as f:
         embeddings_dict = pkl.load(f)
 
@@ -50,6 +51,7 @@ def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT) -> pd.DataFrame:
     """
     Function to get the embeddings of a given patient.
     """
+    print("Loading embeddings tsv...")
     with open(path_to_tsv, "rb") as f:
         tsv = pkl.load(f)
 
@@ -65,6 +67,7 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
     model = Regression_STnet(
         input_size=200, output_size=10, dropout=0.6, batch_norm=False
     )
+    print(f"Loading model...")
     model.load_state_dict(torch.load(path_to_model)["model_state_dict"])
     model.to(device)
     model.eval()
@@ -110,11 +113,13 @@ def plot_pca(data_pca: np.ndarray, name:str, color_index:int) -> None:
 
 
 if __name__ == "__main__":
+    print("Loading std...")
     with open(path_to_std, "rb") as f:
         std_tsv = pkl.load(f)
     tsv = get_embeddings_from_tsv(path_to_tsv)
     tsv = tsv[std_tsv.index[:200]]
     tsv_embed = embedding_tsv(tsv)
+    print("Loading features...")
     with open(path_to_features, "rb") as f:
         features = pkl.load(f).to("cpu").tolist()
     embds = get_embeddings_from_dict(path_to_dict)
