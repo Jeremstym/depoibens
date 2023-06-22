@@ -191,6 +191,7 @@ def test(model, testloader, criterion, device):
         for genotypes, images_embd in testloader:
             genotypes = genotypes.to(device)
             genotypes = genotypes.float()
+            images_embd = images_embd.squeeze(1)
             images_embd = images_embd.to(device)
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
