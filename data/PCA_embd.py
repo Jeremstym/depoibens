@@ -121,7 +121,7 @@ if __name__ == "__main__":
     tsv_embed = embedding_tsv(tsv)
     print("Loading features...")
     with open(path_to_features, "rb") as f:
-        features = pkl.load(f).to("cpu").tolist()
+        features = pkl.load(f).squeeze(0).to("cpu").tolist()
     embds = get_embeddings_from_dict(path_to_dict)
     embds = embds[features[:10]]
 
