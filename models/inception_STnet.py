@@ -23,7 +23,9 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from torcheval.metrics import R2Score
 from data.dataset_stnet import create_dataloader
-from utils import SaveBestModel, save_model, save_plots
+
+if __name__ == "__main__":
+    from utils import SaveBestModel, save_model, save_plots
 
 import PIL
 from PIL import Image
