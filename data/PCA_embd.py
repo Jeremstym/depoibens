@@ -44,7 +44,7 @@ def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT) -> np.ndarray:
     dict_df = {spot: embeddings_dict[spot].squeeze(0) for spot in list_patient}
 
     df = pd.DataFrame(dict_df).T
-    return df.values.astype(np.float32)
+    return df
 
 
 def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT) -> pd.DataFrame:
