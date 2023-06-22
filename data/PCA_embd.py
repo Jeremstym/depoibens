@@ -131,7 +131,7 @@ if __name__ == "__main__":
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title("PCA of ST-Net dataset")
-    plt.savefig("/users/biocomp/stym/PCA.png")
+    plt.savefig("/users/biocomp/stym/PCA2.png")
     # plt.show()
 
 ### Optional savings below ###
