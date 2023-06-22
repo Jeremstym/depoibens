@@ -130,7 +130,7 @@ if __name__ == "__main__":
     plot_pca(pca(tsv_embed), "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
-    plt.title("PCA of ST-Net dataset")
+    plt.title(f"PCA of ST-Net dataset {PATIENT}")
     plt.savefig("/projects/minos/jeremie/data/outputs/PCA2.png")
     # plt.show()
 
