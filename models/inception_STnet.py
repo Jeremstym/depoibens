@@ -409,6 +409,12 @@ def main(
             )
         print("TRAINING COMPLETE")
     else:
+        _, _, test_loader = create_dataloader(
+            train_batch_size=params["bacth_size"],
+            test_batch_size=params["test_bacth_size"],
+            input_size=params["input_size"],
+            output_size=params["output_size"],
+        )
         test(model, test_loader, criterion, device)
 
 
