@@ -188,19 +188,19 @@ if __name__ == "__main__":
 
 ### ------------------- Brouillon -------------------
 
-from sklearn import datasets
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+# from sklearn import datasets
+# from sklearn.decomposition import PCA
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-iris = datasets.load_iris()
+# iris = datasets.load_iris()
 
-X = iris.data
-y = iris.target
-target_names = iris.target_names
+# X = iris.data
+# y = iris.target
+# target_names = iris.target_names
 
-pca = PCA(n_components=2)
-X_r = pca.fit_transform(X)
+# pca = PCA(n_components=2)
+# X_r = pca.fit_transform(X)
 
-X_r[y==1]
+# X_r[y==1]
