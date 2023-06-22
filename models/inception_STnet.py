@@ -193,58 +193,58 @@ def test(model, testloader, criterion, device):
 ### --------------- Main ---------------
 
 # construct the argument parser
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-use_neptune",
-        "--neptune",
-        type=bool,
-        default=False,
-        help="Use neptune to log the training",
-    )
-    parser.add_argument(
-        "-e",
-        "--epochs",
-        type=int,
-        default=20,
-        help="number of epochs to train our network for",
-    )
-    parser.add_argument(
-        "-lr",
-        "--learning_rate",
-        type=float,
-        default=0.0006,
-        help="Learning rate for the training",
-    )
-    parser.add_argument(
-        "-dropout",
-        "--dropout",
-        type=float,
-        default=0.6,
-        help="Dropout rate for the training",
-    )
-    parser.add_argument(
-        "-dummy",
-        "--dummy",
-        type=bool,
-        default=False,
-        help="Use dummy model for testing purpose",
-    )
-    parser.add_argument(
-        "-batch_norm",
-        "--batch_norm",
-        type=bool,
-        default=True,
-        help="Use batch normalization for input",
-    )
-    parser.add_argument(
-        "-bs",
-        "--batch_size",
-        type=int,
-        default=256,
-        help="Batch size for the training",
-    )
-    args = vars(parser.parse_args())
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-use_neptune",
+    "--neptune",
+    type=bool,
+    default=False,
+    help="Use neptune to log the training",
+)
+parser.add_argument(
+    "-e",
+    "--epochs",
+    type=int,
+    default=20,
+    help="number of epochs to train our network for",
+)
+parser.add_argument(
+    "-lr",
+    "--learning_rate",
+    type=float,
+    default=0.0006,
+    help="Learning rate for the training",
+)
+parser.add_argument(
+    "-dropout",
+    "--dropout",
+    type=float,
+    default=0.6,
+    help="Dropout rate for the training",
+)
+parser.add_argument(
+    "-dummy",
+    "--dummy",
+    type=bool,
+    default=False,
+    help="Use dummy model for testing purpose",
+)
+parser.add_argument(
+    "-batch_norm",
+    "--batch_norm",
+    type=bool,
+    default=True,
+    help="Use batch normalization for input",
+)
+parser.add_argument(
+    "-bs",
+    "--batch_size",
+    type=int,
+    default=256,
+    help="Batch size for the training",
+)
+args = vars(parser.parse_args())
 
 
 def main(
