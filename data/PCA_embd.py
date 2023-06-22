@@ -4,6 +4,12 @@
 # Perform PCA on data embeddings
 
 import os
+
+print(os.getcwd())
+import sys
+
+# setting path
+sys.path.append("../")
 import pickle as pkl
 import numpy as np
 import pandas as pd
