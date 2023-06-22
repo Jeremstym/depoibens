@@ -130,7 +130,7 @@ if __name__ == "__main__":
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title("PCA of ST-Net dataset")
-    plt.show()
+    plt.savefig("/outputs/PCA.png")
 
 ### Optional savings below ###
 ### To add to the pca function ###
