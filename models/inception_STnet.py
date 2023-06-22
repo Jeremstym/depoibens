@@ -57,7 +57,14 @@ from neptune.utils import stringify_unsupported
 
 
 class Regression_STnet(nn.Module):
-    def __init__(self, input_size=900, hidden_size=2048, output_size=2048, dropout=0.2, batch_norm=True):
+    def __init__(
+        self,
+        input_size=900,
+        hidden_size=2048,
+        output_size=2048,
+        dropout=0.2,
+        batch_norm=True,
+    ):
         super(Regression_STnet, self).__init__()
         self.p = dropout
 
@@ -67,11 +74,11 @@ class Regression_STnet(nn.Module):
             # nn.BatchNorm1d(hidden_size),
             nn.GELU(),
             nn.Dropout(self.p),
-            nn.Linear(hidden_size, 2*hidden_size),
+            nn.Linear(hidden_size, 2 * hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.GELU(),
             nn.Dropout(self.p),
-            nn.Linear(2*hidden_size, hidden_size),
+            nn.Linear(2 * hidden_size, hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.GELU(),
             nn.Dropout(self.p),
@@ -179,6 +186,7 @@ def validate(model, dataloader, criterion, device, run=None):
 def test(model, testloader, criterion, device):
     model.eval()
     test_loss = 0.0
+    metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with torch.no_grad():
         for genotypes, images_embd in testloader:
             genotypes = genotypes.to(device)
@@ -187,7 +195,10 @@ def test(model, testloader, criterion, device):
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             test_loss += loss.item() * genotypes.size(0)
-        print(f"Testing Loss:{test_loss/len(testloader)}")
+            metric_wght.update(outputs, images_embd)
+        print(
+            f"Testing Loss:{test_loss/len(testloader)}, Score:{metric_wght.compute().item()}"
+        )
 
 
 ### --------------- Main ---------------
@@ -256,6 +267,7 @@ def main(
     input_size=200,
     hidden_size=2048,
     output_size=10,
+    test=False,
 ):
     params = {
         "lr": lr,
@@ -289,6 +301,21 @@ def main(
     if dummy:
         device = torch.device("cpu")
         model = DummyRegression_STnet()
+    elif test:
+        model = Regression_STnet(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            output_size=output_size,
+            dropout=dropout,
+            batch_norm=args["batch_norm"],
+        )
+        model.load_state_dict(
+            torch.load("/projects/minos/jeremie/data/outputs/final_model.pth")[
+                "model_state_dict"
+            ]
+        )
+        model.to(device)
+        model.eval()
     else:
         model = Regression_STnet(
             input_size=input_size,
@@ -297,7 +324,7 @@ def main(
             dropout=dropout,
             batch_norm=args["batch_norm"],
         )
-    model.to(device)
+        model.to(device)
 
     # npt_logger = NeptuneLogger(
     #     run=run,
@@ -309,79 +336,84 @@ def main(
     # )
 
     # run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
-
-    # total parameters and trainable parameters
-    total_params = sum(p.numel() for p in model.parameters())
-    print(f"{total_params:,} total parameters.")
-    total_trainable_params = sum(
-        p.numel() for p in model.parameters() if p.requires_grad
-    )
-    print(f"{total_trainable_params:,} training parameters.\n")
-    # optimizer
-    if not dummy:
-        optimizer = optim.Adam(model.parameters(), lr=lr)
-    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-    #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
-    # )
-    # loss function
-    criterion = nn.MSELoss()
-    # initialize SaveBestModel class
-    save_best_model = SaveBestModel()
-
-    # create dataloader
-    train_loader, valid_loader, test_loader = create_dataloader(
-        train_batch_size=params["bacth_size"],
-        test_batch_size=params["test_bacth_size"],
-        input_size=params["input_size"],
-        output_size=params["output_size"],
-    )
-
-    # start training
-    train_loss, valid_loss = [], []
-    train_r2_unif, valid_r2_unif = [], []
-    train_r2_wght, valid_r2_wght = [], []
-    for epoch in range(epochs):
-        print(f"[INFO]: Epoch {epoch+1} of {epochs}")
+    if not test:
+        # total parameters and trainable parameters
+        total_params = sum(p.numel() for p in model.parameters())
+        print(f"{total_params:,} total parameters.")
+        total_trainable_params = sum(
+            p.numel() for p in model.parameters() if p.requires_grad
+        )
+        print(f"{total_trainable_params:,} training parameters.\n")
+        # optimizer
         if not dummy:
-            train_epoch_loss, train_r2score_wght, train_r2score_unif = train(
-                model, train_loader, criterion, optimizer, device, epoch, run
-            )
-        else:
-            train_epoch_loss, train_r2score_wght, train_r2score_unif = 0, 0, 0
+            optimizer = optim.Adam(model.parameters(), lr=lr)
+        # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
+        # )
+        # loss function
+        criterion = nn.MSELoss()
+        # initialize SaveBestModel class
+        save_best_model = SaveBestModel()
 
-        valid_epoch_loss, valid_r2score_wght, valid_r2score_unif = validate(
-            model, valid_loader, criterion, device, run
+        # create dataloader
+        train_loader, valid_loader, test_loader = create_dataloader(
+            train_batch_size=params["bacth_size"],
+            test_batch_size=params["test_bacth_size"],
+            input_size=params["input_size"],
+            output_size=params["output_size"],
         )
-        train_loss.append(train_epoch_loss)
-        valid_loss.append(valid_epoch_loss)
-        train_r2_unif.append(train_r2score_unif)
-        valid_r2_unif.append(valid_r2score_unif)
-        train_r2_wght.append(train_r2score_wght)
-        valid_r2_wght.append(valid_r2score_wght)
-        print(
-            f"Training loss: {train_epoch_loss:.3f}, training r2_wght: {train_r2score_wght:.3f}, training r2_unif: {train_r2score_unif:.3f}"
-        )
-        print(
-            f"Validation loss: {valid_epoch_loss:.3f}, validation r2_wght: {valid_r2score_wght:.3f}, validation r2_unif: {valid_r2score_unif:.3f}"
-        )
-        # save the best model till now if we have the least loss in the current epoch
-        if not dummy:
-            save_best_model(
-                path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
+
+        # start training
+        train_loss, valid_loss = [], []
+        train_r2_unif, valid_r2_unif = [], []
+        train_r2_wght, valid_r2_wght = [], []
+        for epoch in range(epochs):
+            print(f"[INFO]: Epoch {epoch+1} of {epochs}")
+            if not dummy:
+                train_epoch_loss, train_r2score_wght, train_r2score_unif = train(
+                    model, train_loader, criterion, optimizer, device, epoch, run
+                )
+            else:
+                train_epoch_loss, train_r2score_wght, train_r2score_unif = 0, 0, 0
+
+            valid_epoch_loss, valid_r2score_wght, valid_r2score_unif = validate(
+                model, valid_loader, criterion, device, run
             )
-        # scheduler.step(valid_epoch_loss)
-        print("-" * 50)
-    if run:
-        run.stop()
-    if not dummy:
-        # save the trained model weights for a final time
-        save_model(path_saving, epochs, model, optimizer, criterion)
-        # save the loss and accuracy plots
-        save_plots(path_saving, train_r2_wght, valid_r2_wght, train_loss, valid_loss)
-    print("TRAINING COMPLETE")
+            train_loss.append(train_epoch_loss)
+            valid_loss.append(valid_epoch_loss)
+            train_r2_unif.append(train_r2score_unif)
+            valid_r2_unif.append(valid_r2score_unif)
+            train_r2_wght.append(train_r2score_wght)
+            valid_r2_wght.append(valid_r2score_wght)
+            print(
+                f"Training loss: {train_epoch_loss:.3f}, training r2_wght: {train_r2score_wght:.3f}, training r2_unif: {train_r2score_unif:.3f}"
+            )
+            print(
+                f"Validation loss: {valid_epoch_loss:.3f}, validation r2_wght: {valid_r2score_wght:.3f}, validation r2_unif: {valid_r2score_unif:.3f}"
+            )
+            # save the best model till now if we have the least loss in the current epoch
+            if not dummy:
+                save_best_model(
+                    path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
+                )
+            # scheduler.step(valid_epoch_loss)
+            print("-" * 50)
+        if run:
+            run.stop()
+        if not dummy:
+            # save the trained model weights for a final time
+            save_model(path_saving, epochs, model, optimizer, criterion)
+            # save the loss and accuracy plots
+            save_plots(
+                path_saving, train_r2_wght, valid_r2_wght, train_loss, valid_loss
+            )
+        print("TRAINING COMPLETE")
+    else:
+        test(model, test_loader, criterion, device, run)
+
 
 if __name__ == "__main__":
-    main()
+    main(test=True)
 
 # if __name__ == "__main__":
 #     lr_list = np.geomspace(1e-3, 1e-5, num=10)
