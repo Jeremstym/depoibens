@@ -420,7 +420,7 @@ def main(
 
 
 if __name__ == "__main__":
-    main(test=True)
+    main(if_test=True)
 
 # if __name__ == "__main__":
 #     lr_list = np.geomspace(1e-3, 1e-5, num=10)
