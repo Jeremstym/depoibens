@@ -267,7 +267,7 @@ def main(
     input_size=200,
     hidden_size=2048,
     output_size=10,
-    test=False,
+    is_test=False,
 ):
     params = {
         "lr": lr,
@@ -301,7 +301,7 @@ def main(
     if dummy:
         device = torch.device("cpu")
         model = DummyRegression_STnet()
-    elif test:
+    elif is_test:
         model = Regression_STnet(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -336,7 +336,7 @@ def main(
     # )
 
     # run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
-    if not test:
+    if not is_test:
         # total parameters and trainable parameters
         total_params = sum(p.numel() for p in model.parameters())
         print(f"{total_params:,} total parameters.")
