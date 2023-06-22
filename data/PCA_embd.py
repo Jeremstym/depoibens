@@ -32,7 +32,7 @@ PATIENT = "BT23944_E2"
 ### ------------------- Preprocessing -------------------
 
 
-def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT) -> np.ndarray:
+def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT) -> pd.DataFrame:
     """
     Function to get the embeddings of a given patient.
     """
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     with open(path_to_features, "rb") as f:
         features = pkl.load(f).squeeze(0).to("cpu").tolist()
     embds = get_embeddings_from_dict(path_to_dict)
-    embds = embds[features[:10]]
+    embds = embds[features[:10]].values
 
     plot_pca(pca(embds), "PCA on data", 0)
     plot_pca(pca(tsv_embed), "PCA on Regression output", 1)
