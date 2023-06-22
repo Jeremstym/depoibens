@@ -74,7 +74,7 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
 
     # get embeddings
     # embeddings = model["model_state_dict"]["fc2.weight"].cpu().numpy()
-    tsv_tensor = torch.tensor(tsv.values, dtype="float32").to(device)
+    tsv_tensor = torch.tensor(tsv.values, dtype=torch.float32).to(device)
     embeddings = model(tsv_tensor)
     embeddings = embeddings.detach().cpu().numpy()
 
