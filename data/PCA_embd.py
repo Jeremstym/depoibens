@@ -130,9 +130,9 @@ if __name__ == "__main__":
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title("PCA of ST-Net dataset")
-    # plt.savefig("/import/pr_minos/jeremie/data/outputs/PCA.png")
-    plt.show()
-    
+    plt.savefig("/users/biocomp/stym/PCA.png")
+    # plt.show()
+
 ### Optional savings below ###
 ### To add to the pca function ###
 # # save PCA data
