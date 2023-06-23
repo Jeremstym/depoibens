@@ -63,7 +63,7 @@ class Regression_STnet(nn.Module):
         hidden_size=2048,
         output_size=2048,
         dropout=0.2,
-        batch_norm=True,
+        batch_norm=False,
     ):
         super(Regression_STnet, self).__init__()
         self.p = dropout
@@ -246,7 +246,7 @@ parser.add_argument(
     "-batch_norm",
     "--batch_norm",
     type=bool,
-    default=True,
+    default=False,
     help="Use batch normalization for input",
 )
 parser.add_argument(
