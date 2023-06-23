@@ -270,6 +270,13 @@ parser.add_argument(
     default=256,
     help="Batch size for the training",
 )
+parser.add_argument(
+    "-name",
+    "--model-name",
+    type=str,
+    default="STNet-regression",
+    help="Name of the model",
+)
 args = vars(parser.parse_args())
 
 
@@ -290,7 +297,7 @@ def main(
         "test_bacth_size": 16,
         # "input_sz": 32 * 32 * 3,
         # "n_classes": 10,
-        "model_filename": "STNet-regression",
+        "model_filename": args["model_name"],
         "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "epochs": epochs,
         "dropout": dropout,
