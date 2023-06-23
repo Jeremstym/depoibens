@@ -118,6 +118,8 @@ def train(
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with tqdm(dataloader, unit="batch") as pbar:
         running_loss = 0.0
+        running_r2score_wght = 0.0
+        running_r2score_unif = 0.0
         counter = 0
         pbar.set_description(f"Epoch {current_epoch+1}")
         for genotypes, images_embd in pbar:
@@ -138,6 +140,8 @@ def train(
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
+            running_r2score_unif += metric_unif.compute().item()
+            running_r2score_wght += metric_wght.compute().item()
             pbar.set_postfix(loss=loss.item(), score=metric_wght.compute().item())
             # if i % 100 == 99:
             #     print(
@@ -147,10 +151,12 @@ def train(
             #     running_loss = 0.0
         # print("Finished Training")
         epoch_loss = running_loss / counter
+        epoch_r2score_wght = running_r2score_wght / counter
+        epoch_r2score_unif = running_r2score_unif / counter
         if run:
             run["train/epoch/loss"].append(epoch_loss)
-            run["train/epoch/r2score_wght"].append(metric_wght.compute().item())
-            run["train/epoch/r2score_unif"].append(metric_unif.compute().item())
+            run["train/epoch/r2score_wght"].append(epoch_r2score_wght)
+            run["train/epoch/r2score_unif"].append(epoch_r2score_unif)
         return epoch_loss, metric_wght.compute().item(), metric_unif.compute().item()
 
 
@@ -158,6 +164,8 @@ def validate(model, dataloader, criterion, device, run=None):
     model.eval()
     print("Validation")
     valid_running_loss = 0.0
+    running_r2score_wght = 0.0
+    running_r2score_unif = 0.0
     counter = 0
     metric_unif = R2Score(multioutput="uniform_average").to(device)
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
@@ -173,19 +181,24 @@ def validate(model, dataloader, criterion, device, run=None):
             valid_running_loss += loss.item()
             metric_unif.update(outputs, images_embd)
             metric_wght.update(outputs, images_embd)
+            running_r2score_wght += metric_wght.compute().item()
+            running_r2score_unif += metric_unif.compute().item()
         epoch_loss = valid_running_loss / counter
+        epoch_r2score_wght = running_r2score_wght / counter
+        epoch_r2score_unif = running_r2score_unif / counter
         if run:
             run["valid/epoch/loss"].append(epoch_loss)
-            run["valid/epoch/r2score_wght"].append(metric_wght.compute().item())
-            run["valid/epoch/r2score_unif"].append(metric_unif.compute().item())
+            run["valid/epoch/r2score_wght"].append(epoch_r2score_wght)
+            run["valid/epoch/r2score_unif"].append(epoch_r2score_unif)
         print(f"Validation Loss:{epoch_loss}")
-        print(f"Validation Score:{metric_wght.compute().item()}")
-        return epoch_loss, metric_wght.compute().item(), metric_unif.compute().item()
+        print(f"Validation Score:{epoch_r2score_wght}")
+        return epoch_loss, epoch_r2score_wght, epoch_r2score_unif
 
 
 def test(model, testloader, criterion, device):
     model.eval()
     test_loss = 0.0
+    test_r2score_wght = 0.0
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with torch.no_grad():
         for genotypes, images_embd in testloader:
@@ -197,8 +210,9 @@ def test(model, testloader, criterion, device):
             loss = criterion(outputs, images_embd)
             test_loss += loss.item() * genotypes.size(0)
             metric_wght.update(outputs, images_embd)
+            test_r2score_wght += metric_wght.compute().item() * genotypes.size(0)
         print(
-            f"Testing Loss:{test_loss/len(testloader)}, Score:{metric_wght.compute().item()}"
+            f"Testing Loss:{test_loss/len(testloader)}, Score:{test_r2score_wght/len(testloader)}"
         )
 
 
