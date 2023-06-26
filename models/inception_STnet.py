@@ -67,6 +67,8 @@ class Regression_STnet(nn.Module):
     ):
         super(Regression_STnet, self).__init__()
         self.p = dropout
+        if batch_norm:
+            print("Using batch norm")
 
         self.layers = nn.Sequential(
             nn.BatchNorm1d(input_size) if batch_norm else nn.Identity(),
