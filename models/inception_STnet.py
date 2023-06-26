@@ -382,7 +382,7 @@ def main(
         #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
         # )
         # loss function
-        criterion = nn.MSELoss()
+        criterion = nn.PoissonNLLLoss()
         # initialize SaveBestModel class
         save_best_model = SaveBestModel()
 
