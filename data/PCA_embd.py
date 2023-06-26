@@ -84,10 +84,11 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
 
 ### ------------------- PCA -------------------
 
-def pca(data, n_components=2) -> np.ndarray:
+def pca(data_0, data_1, n_components=2) -> np.ndarray:
     """
     Function to perform PCA on the data
     """   
+    data = np.concatenate((data_0, data_1), axis=0)
     print(f"Loaded data: {data.shape}")
 
     # standardize data
@@ -98,7 +99,9 @@ def pca(data, n_components=2) -> np.ndarray:
     pca = PCA(n_components=n_components)
     data_pca = pca.fit_transform(data_std)
     print(f"PCA data: {data_pca.shape}")
-    return data_pca
+    data_pca_0 = data_pca[:data_0.shape[0]]
+    data_pca_1 = data_pca[data_0.shape[0]:]
+    return data_pca_0, data_pca_1
 
 
 def plot_pca(data_pca: np.ndarray, name:str, color_index:int) -> None:
@@ -126,12 +129,13 @@ if __name__ == "__main__":
     embds = get_embeddings_from_dict(path_to_dict)
     embds = embds[features[:10]].values
 
-    plot_pca(pca(embds), "PCA on data", 0)
-    plot_pca(pca(tsv_embed), "PCA on Regression output", 1)
+    pca_res0, pca_res1 = pca(embds, tsv_embed)
+    plot_pca(pca_res0, "PCA on data", 0)
+    plot_pca(pca_res1, "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title(f"PCA of ST-Net dataset {PATIENT}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA.png")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_correct.png")
     # plt.show()
 
 ### Optional savings below ###
@@ -190,19 +194,17 @@ if __name__ == "__main__":
 
 ### ------------------- Brouillon -------------------
 
-# from sklearn import datasets
-# from sklearn.decomposition import PCA
-# import matplotlib.pyplot as plt
-# import numpy as np
-# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn import datasets
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-# iris = datasets.load_iris()
+iris = datasets.load_iris()
 
-# X = iris.data
-# y = iris.target
-# target_names = iris.target_names
+X = iris.data
+y = iris.target
+target_names = iris.target_names
 
-# pca = PCA(n_components=2)
-# X_r = pca.fit_transform(X)
-
-# X_r[y==1]
+pca = PCA(n_components=2)
+X_r = pca.fit_transform(X)
