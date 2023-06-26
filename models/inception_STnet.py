@@ -296,7 +296,7 @@ def main(
     dummy=args["dummy"],
     dropout=args["dropout"],
     input_size=900,
-    hidden_size=3060,
+    hidden_size=2524,
     output_size=2048,
     is_test=args["test"],
 ):
