@@ -32,7 +32,7 @@ class SaveBestModel:
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": criterion,
                 },
-                path + "/outputs/final_model.pth",
+                path + "/outputs/best_model.pth",
             )
 
 
