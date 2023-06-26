@@ -295,9 +295,9 @@ def main(
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=900,
-    hidden_size=2524,
-    output_size=2048,
+    input_size=200,
+    hidden_size=1024,
+    output_size=50,
     is_test=args["test"],
 ):
     params = {
