@@ -92,12 +92,12 @@ def pca(data_0, data_1, n_components=2) -> np.ndarray:
     print(f"Loaded data: {data.shape}")
 
     # standardize data
-    data_std = StandardScaler().fit_transform(data)
-    print(f"Standardized data: {data_std.shape}")
+    # data_std = StandardScaler().fit_transform(data)
+    # print(f"Standardized data: {data_std.shape}")
 
     # perform PCA
     pca = PCA(n_components=n_components)
-    data_pca = pca.fit_transform(data_std)
+    data_pca = pca.fit_transform(data)
     print(f"PCA data: {data_pca.shape}")
     data_pca_0 = data_pca[:data_0.shape[0]]
     data_pca_1 = data_pca[data_0.shape[0]:]
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title(f"PCA of ST-Net dataset {PATIENT}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_correct.png")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_unormalized.png")
     # plt.show()
 
 ### Optional savings below ###
