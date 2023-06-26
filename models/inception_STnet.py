@@ -277,6 +277,13 @@ parser.add_argument(
     default="STNet-regression",
     help="Name of the model",
 )
+parser.add_argument(
+    "-test",
+    "--test",
+    type=bool,
+    default=False,
+    help="Test the model",
+)
 args = vars(parser.parse_args())
 
 
@@ -289,7 +296,7 @@ def main(
     input_size=200,
     hidden_size=2048,
     output_size=10,
-    is_test=False,
+    is_test=args["test"],
 ):
     params = {
         "lr": lr,
@@ -442,7 +449,7 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    main()   
 
 # if __name__ == "__main__":
 #     lr_list = np.geomspace(1e-3, 1e-5, num=10)
