@@ -69,7 +69,7 @@ class Regression_STnet(nn.Module):
         self.p = dropout
 
         self.layers = nn.Sequential(
-            # nn.BatchNorm1d(input_size) if batch_norm else nn.Identity(),
+            nn.BatchNorm1d(input_size) if batch_norm else nn.Identity(),
             nn.Linear(input_size, hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.GELU(),
@@ -293,9 +293,9 @@ def main(
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=200,
-    hidden_size=2048,
-    output_size=10,
+    input_size=900,
+    hidden_size=4096,
+    output_size=2048,
     is_test=args["test"],
 ):
     params = {
