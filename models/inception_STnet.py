@@ -69,7 +69,7 @@ class Regression_STnet(nn.Module):
         self.p = dropout
 
         self.layers = nn.Sequential(
-            nn.BatchNorm1d(input_size) if batch_norm else nn.Identity(),
+            # nn.BatchNorm1d(input_size) if batch_norm else nn.Identity(),
             nn.Linear(input_size, hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.GELU(),
