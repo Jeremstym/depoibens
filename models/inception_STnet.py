@@ -125,7 +125,7 @@ def train(
         running_r2score_wght = 0.0
         running_r2score_unif = 0.0
         counter = 0
-        reg_loss = 0
+        # reg_loss = 0
         pbar.set_description(f"Epoch {current_epoch+1}")
         for genotypes, images_embd in pbar:
             counter += 1
@@ -135,10 +135,10 @@ def train(
             images_embd = images_embd.to(device)
             optimizer.zero_grad()
             outputs = model(genotypes)
-            reg_loss += nn.L1Loss(size_average=False)(outputs, images_embd)
-            factor = PENALIZATION
+            # reg_loss += nn.L1Loss(size_average=False)(outputs, images_embd)
+            # factor = PENALIZATION
             loss = criterion(outputs, images_embd)
-            loss += factor * reg_loss
+            # loss += factor * reg_loss
             metric_unif.update(outputs, images_embd)
             metric_wght.update(outputs, images_embd)
             if run and counter % 30 == 0:
@@ -247,14 +247,14 @@ parser.add_argument(
     "-lr",
     "--learning_rate",
     type=float,
-    default=0.0006,
+    default=0.001,
     help="Learning rate for the training",
 )
 parser.add_argument(
     "-dropout",
     "--dropout",
     type=float,
-    default=0.6,
+    default=0.5,
     help="Dropout rate for the training",
 )
 parser.add_argument(
@@ -301,9 +301,9 @@ def main(
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=200,
-    hidden_size=1024,
-    output_size=50,
+    input_size=900,
+    hidden_size=3056,
+    output_size=2048,
     is_test=args["test"],
 ):
     params = {
@@ -347,7 +347,7 @@ def main(
             batch_norm=args["batch_norm"],
         )
         model.load_state_dict(
-            torch.load("/projects/minos/jeremie/data/outputs/best_model_poisson.pth")[
+            torch.load("/projects/minos/jeremie/data/outputs/best_model2.pth")[
                 "model_state_dict"
             ]
         )
