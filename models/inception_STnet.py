@@ -382,7 +382,7 @@ def main(
         #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
         # )
         # loss function
-        criterion = nn.PoissonNLLLoss(log_input=False, full=True)
+        criterion = nn.MSELoss()
         # initialize SaveBestModel class
         save_best_model = SaveBestModel()
 
@@ -446,7 +446,7 @@ def main(
             input_size=params["input_size"],
             output_size=params["output_size"],
         )
-        criterion = nn.PoissonNLLLoss(log_input=False, full=True)
+        criterion = nn.MSELoss()
         test(model, test_loader, criterion, device)
 
 
