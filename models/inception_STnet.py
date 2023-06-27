@@ -207,11 +207,9 @@ def test(model, testloader, criterion, device):
     model.eval()
     test_loss = 0.0
     test_r2score_wght = 0.0
-    counter = 0
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with torch.no_grad():
         for genotypes, images_embd in testloader:
-            counter += 1
             genotypes = genotypes.to(device)
             genotypes = genotypes.float()
             images_embd = images_embd.squeeze(1)
@@ -220,10 +218,9 @@ def test(model, testloader, criterion, device):
             loss = criterion(outputs, images_embd)
             test_loss += loss.item() * genotypes.size(0)
             metric_wght.update(outputs, images_embd)
-            # test_r2score_wght += metric_wght.compute().item() * genotypes.size(0)
-            test_r2score_wght += metric_wght.compute().item()
+            test_r2score_wght += metric_wght.compute().item() * genotypes.size(0)
         print(
-            f"Testing Loss:{test_loss/counter}, Score:{test_r2score_wght/counter}"
+            f"Testing Loss:{test_loss/len(testloader)}, Score:{test_r2score_wght/len(testloader)}"
         )
 
 
