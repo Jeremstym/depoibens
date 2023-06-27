@@ -38,6 +38,8 @@ import neptune
 from neptune_pytorch import NeptuneLogger
 from neptune.utils import stringify_unsupported
 
+PENALIZATION = 0.5
+
 ### --------------- Neural Network ---------------
 
 
@@ -123,6 +125,7 @@ def train(
         running_r2score_wght = 0.0
         running_r2score_unif = 0.0
         counter = 0
+        reg_loss = 0
         pbar.set_description(f"Epoch {current_epoch+1}")
         for genotypes, images_embd in pbar:
             counter += 1
@@ -132,7 +135,10 @@ def train(
             images_embd = images_embd.to(device)
             optimizer.zero_grad()
             outputs = model(genotypes)
+            reg_loss += nn.L1Loss(size_average=False)(outputs, images_embd)
+            factor = PENALIZATION
             loss = criterion(outputs, images_embd)
+            loss += factor * reg_loss
             metric_unif.update(outputs, images_embd)
             metric_wght.update(outputs, images_embd)
             if run and counter % 30 == 0:
