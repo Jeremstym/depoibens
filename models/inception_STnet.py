@@ -145,7 +145,7 @@ def train(
                 run["train/batch/loss"].append(loss.item())
                 run["train/batch/r2score_unif"].append(metric_unif.compute().item())
                 run["train/batch/r2score_wght"].append(metric_wght.compute().item())
-            loss.backward()
+            loss.backward(retain_graph=True)
             optimizer.step()
             running_loss += loss.item()
             running_r2score_unif += metric_unif.compute().item()
