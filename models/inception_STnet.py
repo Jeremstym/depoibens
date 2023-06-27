@@ -247,14 +247,14 @@ parser.add_argument(
     "-lr",
     "--learning_rate",
     type=float,
-    default=0.001,
+    default=0.0001,
     help="Learning rate for the training",
 )
 parser.add_argument(
     "-dropout",
     "--dropout",
     type=float,
-    default=0.5,
+    default=0.6,
     help="Dropout rate for the training",
 )
 parser.add_argument(
@@ -301,9 +301,9 @@ def main(
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=900,
-    hidden_size=3056,
-    output_size=2048,
+    input_size=200,
+    hidden_size=2048,
+    output_size=10,
     is_test=args["test"],
 ):
     params = {
@@ -347,7 +347,7 @@ def main(
             batch_norm=args["batch_norm"],
         )
         model.load_state_dict(
-            torch.load("/projects/minos/jeremie/data/outputs/best_model2.pth")[
+            torch.load("/projects/minos/jeremie/data/outputs/best_model3.pth")[
                 "model_state_dict"
             ]
         )
