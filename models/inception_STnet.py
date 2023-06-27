@@ -218,7 +218,7 @@ def test(model, testloader, criterion, device):
             images_embd = images_embd.to(device)
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
-            test_loss += loss.item() * genotypes.size(0)
+            test_loss += loss.item()
             metric_wght.update(outputs, images_embd)
             # test_r2score_wght += metric_wght.compute().item() * genotypes.size(0)
             test_r2score_wght += metric_wght.compute().item()
