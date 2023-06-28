@@ -32,7 +32,7 @@ class SaveBestModel:
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": criterion,
                 },
-                path + "/outputs/best_model2_nobn.pth",
+                path + "/outputs/best_model_pearson.pth",
             )
 
 
@@ -48,7 +48,7 @@ def save_model(path, epochs, model, optimizer, criterion):
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": criterion,
         },
-        path + "/outputs/final_model2_nobn.pth",
+        path + "/outputs/final_model_pearson.pth",
     )
 
 
@@ -63,7 +63,7 @@ def save_plots(path, train_score, valid_score, train_loss, valid_loss):
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig(path + "/outputs/r2_weighted2_nobn.png")
+    plt.savefig(path + "/outputs/r2_weighted_pearson.png")
 
     # loss plots
     plt.figure(figsize=(10, 7))
@@ -72,4 +72,4 @@ def save_plots(path, train_score, valid_score, train_loss, valid_loss):
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.legend()
-    plt.savefig(path + "/outputs/loss2_nobn.png")
+    plt.savefig(path + "/outputs/loss_pearson.png")
