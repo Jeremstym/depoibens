@@ -75,7 +75,7 @@ class Regression_STnet(nn.Module):
             nn.GELU(),
             nn.Dropout(self.p),
             nn.Linear(hidden_size, 2 * hidden_size),
-            nn.BatchNorm1d(hidden_size),
+            nn.BatchNorm1d(2 * hidden_size),
             nn.GELU(),
             nn.Dropout(self.p),
             nn.Linear(2 * hidden_size, hidden_size),
