@@ -145,11 +145,11 @@ if __name__ == "__main__":
     embds = get_embeddings_from_dict(path_to_dict)
     embds = embds[features[:2048]].values
 
-    # pca_res0, pca_res1 = pca(embds, tsv_embed)
-    pca_data, pca_fit = pca(embds)
-    pca_tsv = pca_fit.transform(tsv_embed)
-    plot_pca(pca_data, "PCA on data", 0)
-    plot_pca(pca_tsv, "PCA on Regression output", 1)
+    pca_res0, pca_res1 = pca(embds, tsv_embed)
+    # pca_data, pca_fit = pca(embds)
+    # pca_tsv = pca_fit.transform(tsv_embed)
+    plot_pca(pca_res0, "PCA on data", 0)
+    plot_pca(pca_res1, "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title(f"PCA of ST-Net dataset {PATIENT}")
