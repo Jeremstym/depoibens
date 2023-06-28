@@ -104,13 +104,13 @@ def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
         data = data_0
         print(f"Loaded data: {data.shape}")
     # standardize data
-    # data_std = StandardScaler().fit_transform(data)
+    data_std = StandardScaler().fit_transform(data)
     # print(f"Standardized data: {data_std.shape}")
 
     # perform PCA
     pca = PCA(n_components=n_components)
-    pca_fit = pca.fit(data)
-    data_pca = pca_fit.transform(data)
+    pca_fit = pca.fit(data_std)
+    data_pca = pca_fit.transform(data_std)
     print(f"PCA data: {data_pca.shape}")
     if data_1 is not None:
         data_pca_0 = data_pca[: data_0.shape[0]]
