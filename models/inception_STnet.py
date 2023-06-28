@@ -149,7 +149,7 @@ def train(
             # running_r2score_unif += metric_unif.compute().item()
             running_pearson_coef += pearson_coef.item()
             running_r2score_wght += metric_wght.compute().item()
-            pbar.set_postfix(loss=loss.item(), score=metric_wght.compute().item())
+            pbar.set_postfix(loss=loss.item(), score=metric_wght.compute().item(), pearson=pearson_coef.item())
             # if i % 100 == 99:
             #     print(
             #         "[%d, %5d] loss: %.3f"
@@ -208,6 +208,7 @@ def validate(model, dataloader, criterion, device, run=None):
             # run["valid/epoch/r2score_unif"].append(epoch_r2score_unif)
         print(f"Validation Loss:{epoch_loss}")
         print(f"Validation Score:{epoch_r2score_wght}")
+        print(f"Validation Pearson:{epoch_pearson_coef}")
         return epoch_loss, epoch_r2score_wght, epoch_pearson_coef
 
 
