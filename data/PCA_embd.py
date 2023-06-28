@@ -82,12 +82,14 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
     print(f"Embeddings: {embeddings.shape}")
     return embeddings
 
+
 ### ------------------- PCA -------------------
+
 
 def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
     """
     Function to perform PCA on the data
-    """   
+    """
     if data_1 is not None:
         data = np.concatenate((data_0, data_1), axis=0)
         print(f"Loaded data: {data.shape}")
@@ -104,14 +106,14 @@ def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
     data_pca = pca_fit.transform(data)
     print(f"PCA data: {data_pca.shape}")
     if data_1 is not None:
-        data_pca_0 = data_pca[:data_0.shape[0]]
-        data_pca_1 = data_pca[data_0.shape[0]:]
+        data_pca_0 = data_pca[: data_0.shape[0]]
+        data_pca_1 = data_pca[data_0.shape[0] :]
         return data_pca_0, data_pca_1
-    else:   
+    else:
         return data_pca, pca_fit
 
 
-def plot_pca(data_pca: np.ndarray, name:str, color_index:int) -> None:
+def plot_pca(data_pca: np.ndarray, name: str, color_index: int) -> None:
     colors = ["turquoise", "darkorange"]
     plt.scatter(
         data_pca[:, 0],
