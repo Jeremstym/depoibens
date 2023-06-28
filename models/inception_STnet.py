@@ -22,17 +22,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torcheval.metrics import R2Score
+from torchmetrics import PearsonCorrCoef
 from data.dataset_stnet import create_dataloader
 
 if __name__ == "__main__":
     from utils import SaveBestModel, save_model, save_plots
-
-import PIL
-from PIL import Image
-import cv2
-import matplotlib.pyplot as plt
-import torchvision
-from torchvision import transforms
 
 import neptune
 from neptune_pytorch import NeptuneLogger
@@ -118,12 +112,12 @@ def train(
     model.train()
     print("Start Training")
     # for epoch in range(epochs):
-    metric_unif = R2Score(multioutput="uniform_average").to(device)
+    # metric_unif = R2Score(multioutput="uniform_average").to(device)
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with tqdm(dataloader, unit="batch") as pbar:
         running_loss = 0.0
         running_r2score_wght = 0.0
-        running_r2score_unif = 0.0
+        running_pearson_coef = 0.0
         counter = 0
         # reg_loss = 0
         pbar.set_description(f"Epoch {current_epoch+1}")
@@ -139,16 +133,21 @@ def train(
             # factor = PENALIZATION
             loss = criterion(outputs, images_embd)
             # loss += factor * reg_loss
-            metric_unif.update(outputs, images_embd)
+            # metric_unif.update(outputs, images_embd)
+            pearson = PearsonCorrCoef(num_outputs=genotypes.size(0)).to(device)
+            pearson_coefs = pearson(outputs.T, images_embd.T)
+            pearson_coef = torch.mean(pearson_coefs)
             metric_wght.update(outputs, images_embd)
             if run and counter % 30 == 0:
+                # run["train/batch/r2score_unif"].append(metric_unif.compute().item())
                 run["train/batch/loss"].append(loss.item())
-                run["train/batch/r2score_unif"].append(metric_unif.compute().item())
+                run["train/batch/pearson"].append(pearson_coef.item())
                 run["train/batch/r2score_wght"].append(metric_wght.compute().item())
             loss.backward(retain_graph=True)
             optimizer.step()
             running_loss += loss.item()
-            running_r2score_unif += metric_unif.compute().item()
+            # running_r2score_unif += metric_unif.compute().item()
+            running_pearson_coef += pearson_coef.item()
             running_r2score_wght += metric_wght.compute().item()
             pbar.set_postfix(loss=loss.item(), score=metric_wght.compute().item())
             # if i % 100 == 99:
@@ -160,12 +159,14 @@ def train(
         # print("Finished Training")
         epoch_loss = running_loss / counter
         epoch_r2score_wght = running_r2score_wght / counter
-        epoch_r2score_unif = running_r2score_unif / counter
+        epoch_pearson_coef = running_pearson_coef / counter
+        # epoch_r2score_unif = running_r2score_unif / counter
         if run:
             run["train/epoch/loss"].append(epoch_loss)
             run["train/epoch/r2score_wght"].append(epoch_r2score_wght)
-            run["train/epoch/r2score_unif"].append(epoch_r2score_unif)
-        return epoch_loss, metric_wght.compute().item(), metric_unif.compute().item()
+            run["train/epoch/pearson"].append(epoch_pearson_coef)
+            # run["train/epoch/r2score_unif"].append(epoch_r2score_unif)
+        return epoch_loss, epoch_r2score_wght, epoch_pearson_coef
 
 
 def validate(model, dataloader, criterion, device, run=None):
@@ -173,9 +174,10 @@ def validate(model, dataloader, criterion, device, run=None):
     print("Validation")
     valid_running_loss = 0.0
     running_r2score_wght = 0.0
-    running_r2score_unif = 0.0
+    running_pearson_coef = 0.0
+    # running_r2score_unif = 0.0
     counter = 0
-    metric_unif = R2Score(multioutput="uniform_average").to(device)
+    # metric_unif = R2Score(multioutput="uniform_average").to(device)
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with torch.no_grad():
         for genotypes, images_embd in dataloader:
@@ -187,26 +189,33 @@ def validate(model, dataloader, criterion, device, run=None):
             outputs = model(genotypes)
             loss = criterion(outputs, images_embd)
             valid_running_loss += loss.item()
-            metric_unif.update(outputs, images_embd)
+            # metric_unif.update(outputs, images_embd)
+            pearson = PearsonCorrCoef(num_outputs=genotypes.size(0)).to(device)
+            pearson_coefs = pearson(outputs.T, images_embd.T)
+            pearson_coef = torch.mean(pearson_coefs)
             metric_wght.update(outputs, images_embd)
             running_r2score_wght += metric_wght.compute().item()
-            running_r2score_unif += metric_unif.compute().item()
+            # running_r2score_unif += metric_unif.compute().item()
+            running_pearson_coef += pearson_coef.item()
         epoch_loss = valid_running_loss / counter
         epoch_r2score_wght = running_r2score_wght / counter
-        epoch_r2score_unif = running_r2score_unif / counter
+        epoch_pearson_coef = running_pearson_coef / counter
+        # epoch_r2score_unif = running_r2score_unif / counter
         if run:
             run["valid/epoch/loss"].append(epoch_loss)
             run["valid/epoch/r2score_wght"].append(epoch_r2score_wght)
-            run["valid/epoch/r2score_unif"].append(epoch_r2score_unif)
+            run["valid/epoch/pearson"].append(epoch_pearson_coef)
+            # run["valid/epoch/r2score_unif"].append(epoch_r2score_unif)
         print(f"Validation Loss:{epoch_loss}")
         print(f"Validation Score:{epoch_r2score_wght}")
-        return epoch_loss, epoch_r2score_wght, epoch_r2score_unif
+        return epoch_loss, epoch_r2score_wght, epoch_pearson_coef
 
 
 def test(model, testloader, criterion, device):
     model.eval()
     test_loss = 0.0
     test_r2score_wght = 0.0
+    test_pearson_coef = 0.0
     counter = 0
     metric_wght = R2Score(multioutput="variance_weighted").to(device)
     with torch.no_grad():
@@ -220,10 +229,14 @@ def test(model, testloader, criterion, device):
             loss = criterion(outputs, images_embd)
             test_loss += loss.item()
             metric_wght.update(outputs, images_embd)
+            pearson = PearsonCorrCoef(num_outputs=genotypes.size(0)).to(device)
+            pearson_coefs = pearson(outputs.T, images_embd.T)
+            pearson_coef = torch.mean(pearson_coefs)
             # test_r2score_wght += metric_wght.compute().item() * genotypes.size(0)
             test_r2score_wght += metric_wght.compute().item()
+            test_pearson_coef += pearson_coef.item()
         print(
-            f"Testing Loss:{test_loss/counter}, Score:{test_r2score_wght/counter}"
+            f"Testing Loss:{test_loss/counter}, Score:{test_r2score_wght/counter}, Pearson:{test_pearson_coef/counter}"
         )
 
 
@@ -460,7 +473,7 @@ def main(
 
 
 if __name__ == "__main__":
-    main()   
+    main()
 
 # if __name__ == "__main__":
 #     lr_list = np.geomspace(1e-3, 1e-5, num=10)
