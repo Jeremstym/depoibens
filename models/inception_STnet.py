@@ -419,31 +419,31 @@ def main(
 
         # start training
         train_loss, valid_loss = [], []
-        train_r2_unif, valid_r2_unif = [], []
+        train_pearson_list, valid_pearson_list = [], []
         train_r2_wght, valid_r2_wght = [], []
         for epoch in range(epochs):
             print(f"[INFO]: Epoch {epoch+1} of {epochs}")
             if not dummy:
-                train_epoch_loss, train_r2score_wght, train_r2score_unif = train(
+                train_epoch_loss, train_r2score_wght, train_pearson = train(
                     model, train_loader, criterion, optimizer, device, epoch, run
                 )
             else:
-                train_epoch_loss, train_r2score_wght, train_r2score_unif = 0, 0, 0
+                train_epoch_loss, train_r2score_wght, train_pearson = 0, 0, 0
 
-            valid_epoch_loss, valid_r2score_wght, valid_r2score_unif = validate(
+            valid_epoch_loss, valid_r2score_wght, valid_pearson = validate(
                 model, valid_loader, criterion, device, run
             )
             train_loss.append(train_epoch_loss)
             valid_loss.append(valid_epoch_loss)
-            train_r2_unif.append(train_r2score_unif)
-            valid_r2_unif.append(valid_r2score_unif)
+            train_pearson_list.append(train_pearson)
+            valid_pearson_list.append(valid_pearson)
             train_r2_wght.append(train_r2score_wght)
             valid_r2_wght.append(valid_r2score_wght)
             print(
-                f"Training loss: {train_epoch_loss:.3f}, training r2_wght: {train_r2score_wght:.3f}, training r2_unif: {train_r2score_unif:.3f}"
+                f"Training loss: {train_epoch_loss:.3f}, training r2_wght: {train_r2score_wght:.3f}, training r2_unif: {train_pearson:.3f}"
             )
             print(
-                f"Validation loss: {valid_epoch_loss:.3f}, validation r2_wght: {valid_r2score_wght:.3f}, validation r2_unif: {valid_r2score_unif:.3f}"
+                f"Validation loss: {valid_epoch_loss:.3f}, validation r2_wght: {valid_r2score_wght:.3f}, validation r2_unif: {valid_pearson:.3f}"
             )
             # save the best model till now if we have the least loss in the current epoch
             if not dummy:
