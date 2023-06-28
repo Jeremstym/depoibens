@@ -25,7 +25,7 @@ path_to_features = "/projects/minos/jeremie/data/features_std.pkl"
 path_to_dict = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
-path_to_model = "/projects/minos/jeremie/data/outputs/final_model.pth"
+path_to_model = "/projects/minos/jeremie/data/outputs/best_model4_norm.pth"
 
 PATIENT = "BT23944_E2"
 # PATIENT = "BT23450_E1"
@@ -84,24 +84,31 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
 
 ### ------------------- PCA -------------------
 
-def pca(data_0, data_1, n_components=2) -> np.ndarray:
+def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
     """
     Function to perform PCA on the data
     """   
-    data = np.concatenate((data_0, data_1), axis=0)
-    print(f"Loaded data: {data.shape}")
-
+    if data_1 is not None:
+        data = np.concatenate((data_0, data_1), axis=0)
+        print(f"Loaded data: {data.shape}")
+    else:
+        data = data_0
+        print(f"Loaded data: {data.shape}")
     # standardize data
     # data_std = StandardScaler().fit_transform(data)
     # print(f"Standardized data: {data_std.shape}")
 
     # perform PCA
     pca = PCA(n_components=n_components)
-    data_pca = pca.fit_transform(data)
+    pca_fit = pca.fit(data)
+    data_pca = pca_fit.transform(data)
     print(f"PCA data: {data_pca.shape}")
-    data_pca_0 = data_pca[:data_0.shape[0]]
-    data_pca_1 = data_pca[data_0.shape[0]:]
-    return data_pca_0, data_pca_1
+    if data_1 is not None:
+        data_pca_0 = data_pca[:data_0.shape[0]]
+        data_pca_1 = data_pca[data_0.shape[0]:]
+        return data_pca_0, data_pca_1
+    else:   
+        return data_pca, pca_fit
 
 
 def plot_pca(data_pca: np.ndarray, name:str, color_index:int) -> None:
@@ -121,21 +128,23 @@ if __name__ == "__main__":
     with open(path_to_std, "rb") as f:
         std_tsv = pkl.load(f)
     tsv = get_embeddings_from_tsv(path_to_tsv)
-    tsv = tsv[std_tsv.index[:200]]
+    tsv = tsv[std_tsv.index[:900]]
     tsv_embed = embedding_tsv(tsv)
     print("Loading features...")
     with open(path_to_features, "rb") as f:
         features = pkl.load(f).squeeze(0).to("cpu").tolist()
     embds = get_embeddings_from_dict(path_to_dict)
-    embds = embds[features[:10]].values
+    embds = embds[features[:2048]].values
 
-    pca_res0, pca_res1 = pca(embds, tsv_embed)
-    plot_pca(pca_res0, "PCA on data", 0)
-    plot_pca(pca_res1, "PCA on Regression output", 1)
+    # pca_res0, pca_res1 = pca(embds, tsv_embed)
+    pca_data, pca_fit = pca(embds)
+    pca_tsv = pca_fit.transform(tsv_embed)
+    plot_pca(pca_data, "PCA on data", 0)
+    plot_pca(pca_tsv, "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title(f"PCA of ST-Net dataset {PATIENT}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_unormalized.png")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final.png")
     # plt.show()
 
 ### Optional savings below ###
