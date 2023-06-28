@@ -368,7 +368,7 @@ def main(
             batch_norm=args["batch_norm"],
         )
         model.load_state_dict(
-            torch.load("/projects/minos/jeremie/data/outputs/best_model_pearson.pth")[
+            torch.load("/projects/minos/jeremie/data/outputs/best_model4.pth")[
                 "model_state_dict"
             ]
         )
