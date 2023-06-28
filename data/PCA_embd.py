@@ -27,6 +27,8 @@ path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
 path_to_model = "/projects/minos/jeremie/data/outputs/best_model4_norm.pth"
 
+INPUT_SIZE = 900
+OUTPUT_SIZE = 2048
 PATIENT = "BT23944_E2"
 # PATIENT = "BT23450_E1"
 
@@ -66,7 +68,7 @@ def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # load model
     model = Regression_STnet(
-        input_size=200, output_size=10, dropout=0.6, batch_norm=True
+        input_size=INPUT_SIZE, output_size=OUTPUT_SIZE, dropout=0.6, batch_norm=True
     )
     print(f"Loading model...")
     model.load_state_dict(torch.load(path_to_model)["model_state_dict"])
