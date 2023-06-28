@@ -25,7 +25,7 @@ path_to_features = "/projects/minos/jeremie/data/features_std.pkl"
 path_to_dict = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
-path_to_model = "/projects/minos/jeremie/data/outputs/best_model4.pth"
+path_to_model = "/projects/minos/jeremie/data/outputs/best_model4_norm.pth"
 
 INPUT_SIZE = 900
 OUTPUT_SIZE = 2048
