@@ -453,10 +453,10 @@ def main(
             train_r2_wght.append(train_r2score_wght)
             valid_r2_wght.append(valid_r2score_wght)
             print(
-                f"Training loss: {train_epoch_loss:.3f}, training r2_wght: {train_r2score_wght:.3f}, training r2_unif: {train_pearson:.3f}"
+                f"Training loss: {train_epoch_loss:.3f}, training r2_wght: {train_r2score_wght:.3f}, training pearson: {train_pearson:.3f}"
             )
             print(
-                f"Validation loss: {valid_epoch_loss:.3f}, validation r2_wght: {valid_r2score_wght:.3f}, validation r2_unif: {valid_pearson:.3f}"
+                f"Validation loss: {valid_epoch_loss:.3f}, validation r2_wght: {valid_r2score_wght:.3f}, validation pearson: {valid_pearson:.3f}"
             )
             # save the best model till now if we have the least loss in the current epoch
             if not dummy:
