@@ -453,6 +453,7 @@ def main(
 
     test_frame = pd.DataFrame(columns=["test_loss", "r2_score", "pearson"])
     for test_patient in list_patients:
+        print(f"Test patient: {test_patient}")
         # create dataloader
         train_loader, valid_loader, test_loader = create_dataloader(
             train_batch_size=params["bacth_size"],
