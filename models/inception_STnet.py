@@ -35,6 +35,31 @@ from neptune_pytorch import NeptuneLogger
 from neptune.utils import stringify_unsupported
 
 PENALIZATION = 0.5
+list_patients = [
+    "BC23209",
+    "BT23268",
+    "BT23288",
+    "BT23567",
+    "BT23944",
+    "BC23270",
+    "BT23269",
+    "BT23377",
+    "BT23810",
+    "BT24044",
+    "BC23803",
+    "BT23272",
+    "BT23450",
+    "BT23895",
+    "BT24223",
+    "BC24105",
+    "BT23277",
+    "BT23506",
+    "BT23901",
+    "BC24220",
+    "BT23287",
+    "BT23508",
+    "BT23903",
+]
 
 ### --------------- Neural Network ---------------
 
@@ -252,6 +277,11 @@ def test(model, testloader, criterion, device):
         print(
             f"Testing Loss:{test_loss/counter}, Score:{test_r2score_wght/counter}, Pearson:{test_pearson_coef/counter}"
         )
+        return (
+            test_loss / counter,
+            test_r2score_wght / counter,
+            test_pearson_coef / counter,
+        )
 
 
 ### --------------- Main ---------------
@@ -334,7 +364,7 @@ def main(
     input_size=900,
     hidden_size=3056,
     output_size=2048,
-    is_test=args["test"],
+    is_single_test=args["test"],
 ):
     params = {
         "lr": lr,
@@ -368,7 +398,7 @@ def main(
     if dummy:
         device = torch.device("cpu")
         model = DummyRegression_STnet()
-    elif is_test:
+    elif is_single_test:
         model = Regression_STnet(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -403,31 +433,33 @@ def main(
     # )
 
     # run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
-    if not is_test:
-        # total parameters and trainable parameters
-        total_params = sum(p.numel() for p in model.parameters())
-        print(f"{total_params:,} total parameters.")
-        total_trainable_params = sum(
-            p.numel() for p in model.parameters() if p.requires_grad
-        )
-        print(f"{total_trainable_params:,} training parameters.\n")
-        # optimizer
-        if not dummy:
-            optimizer = optim.Adam(model.parameters(), lr=lr)
-        # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
-        # )
-        # loss function
-        criterion = nn.MSELoss()
-        # initialize SaveBestModel class
-        save_best_model = SaveBestModel()
+    # total parameters and trainable parameters
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"{total_params:,} total parameters.")
+    total_trainable_params = sum(
+        p.numel() for p in model.parameters() if p.requires_grad
+    )
+    print(f"{total_trainable_params:,} training parameters.\n")
+    # optimizer
+    if not dummy:
+        optimizer = optim.Adam(model.parameters(), lr=lr)
+    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+    #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
+    # )
+    # loss function
+    criterion = nn.MSELoss()
+    # initialize SaveBestModel class
+    save_best_model = SaveBestModel()
 
+    test_frame = pd.DataFrame(columns=["test_loss", "r2_score", "pearson"])
+    for test_patient in list_patients:
         # create dataloader
         train_loader, valid_loader, test_loader = create_dataloader(
             train_batch_size=params["bacth_size"],
             test_batch_size=params["test_bacth_size"],
             input_size=params["input_size"],
             output_size=params["output_size"],
+            test_patient=test_patient,
         )
 
         # start training
@@ -461,7 +493,12 @@ def main(
             # save the best model till now if we have the least loss in the current epoch
             if not dummy:
                 save_best_model(
-                    path_saving, valid_epoch_loss, epoch, model, optimizer, criterion
+                    path_saving,
+                    valid_epoch_loss,
+                    epoch,
+                    model,
+                    optimizer,
+                    criterion,
                 )
             # scheduler.step(valid_epoch_loss)
             print("-" * 50)
@@ -475,15 +512,15 @@ def main(
                 path_saving, train_r2_wght, valid_r2_wght, train_loss, valid_loss
             )
         print("TRAINING COMPLETE")
-    else:
-        _, _, test_loader = create_dataloader(
-            train_batch_size=params["bacth_size"],
-            test_batch_size=params["test_bacth_size"],
-            input_size=params["input_size"],
-            output_size=params["output_size"],
-        )
-        criterion = nn.MSELoss()
-        test(model, test_loader, criterion, device)
+
+        # test the model
+        if not dummy:
+            test_loss, r2_test, pearson_test = test(model, test_loader, criterion, device)
+            test_frame.loc[test_patient] = [test_loss, r2_test, pearson_test]
+            print("TESTING COMPLETE")
+    
+    print(test_frame)
+    test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
 
 
 if __name__ == "__main__":
