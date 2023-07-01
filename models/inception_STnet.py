@@ -441,8 +441,7 @@ def main(
     )
     print(f"{total_trainable_params:,} training parameters.\n")
     # optimizer
-    if not dummy:
-        optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
     #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
     # )
@@ -471,6 +470,7 @@ def main(
             batch_norm=args["batch_norm"],
         )
         model.to(device)
+        optimizer = optim.Adam(model.parameters(), lr=lr)
         # start training
         train_loss, valid_loss = [], []
         train_pearson_list, valid_pearson_list = [], []
