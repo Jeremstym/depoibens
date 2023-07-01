@@ -395,10 +395,10 @@ def main(
     device = params["device"]
     print(f"Computation device: {device}\n")
 
-    if dummy:
-        device = torch.device("cpu")
-        model = DummyRegression_STnet()
-    elif is_single_test:
+    # if dummy:
+    #     device = torch.device("cpu")
+    #     model = DummyRegression_STnet()
+    if is_single_test:
         model = Regression_STnet(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -462,7 +462,15 @@ def main(
             output_size=params["output_size"],
             test_patient=test_patient,
         )
-
+        # initiate model
+        model = Regression_STnet(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            output_size=output_size,
+            dropout=dropout,
+            batch_norm=args["batch_norm"],
+        )
+        model.to(device)
         # start training
         train_loss, valid_loss = [], []
         train_pearson_list, valid_pearson_list = [], []
@@ -516,10 +524,12 @@ def main(
 
         # test the model
         if not dummy:
-            test_loss, r2_test, pearson_test = test(model, test_loader, criterion, device)
+            test_loss, r2_test, pearson_test = test(
+                model, test_loader, criterion, device
+            )
             test_frame.loc[test_patient] = [test_loss, r2_test, pearson_test]
             print("TESTING COMPLETE")
-    
+
     print(test_frame)
     test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
 
