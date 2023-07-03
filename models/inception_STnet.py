@@ -532,6 +532,9 @@ def main(
 
     print(test_frame)
     test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
+    # additional save of the test results
+    with open("/projects/minos/jeremie/data/outputs/test_results.pkl", "w") as f:
+        pkl.dump(test_frame, f)
 
 
 if __name__ == "__main__":
