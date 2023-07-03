@@ -373,7 +373,7 @@ def main(
         # "input_sz": 32 * 32 * 3,
         # "n_classes": 10,
         "model_filename": args["model_name"],
-        "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+        # "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "epochs": epochs,
         "dropout": dropout,
         "input_size": input_size,
@@ -392,7 +392,7 @@ def main(
     lr = params["lr"]
     epochs = params["epochs"]
     # computation device
-    device = params["device"]
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Computation device: {device}\n")
 
     # if dummy:
