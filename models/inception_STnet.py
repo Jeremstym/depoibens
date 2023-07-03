@@ -370,7 +370,7 @@ def main(
     params = {
         "lr": lr,
         "bacth_size": args["batch_size"],
-        "test_bacth_size": 16,
+        "test_bacth_size": args["batch_size"],
         # "input_sz": 32 * 32 * 3,
         # "n_classes": 10,
         "model_filename": args["model_name"],
