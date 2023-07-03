@@ -269,7 +269,11 @@ def test(model, testloader, criterion, device):
             metric_wght = r2(outputs.T, images_embd.T)
             # metric_wght.update(outputs, images_embd)
             pearson = PearsonCorrCoef(num_outputs=genotypes.size(0)).to(device)
-            pearson_coefs = pearson(outputs.T, images_embd.T)
+            pearson_coefs = (
+                pearson(outputs.T, images_embd.T)
+                if genotypes.shape[1] > 1
+                else pearson(outputs[:, 0], images_embd[:, 0])
+            )
             pearson_coef = torch.mean(pearson_coefs)
             # test_r2score_wght += metric_wght.compute().item() * genotypes.size(0)
             test_r2score_wght += metric_wght.item()
