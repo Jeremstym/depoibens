@@ -354,6 +354,8 @@ parser.add_argument(
 )
 args = vars(parser.parse_args())
 
+### --------------- Main ---------------
+
 
 def main(
     path_saving="/import/pr_minos/jeremie/data",
@@ -370,10 +372,7 @@ def main(
         "lr": lr,
         "bacth_size": args["batch_size"],
         "test_bacth_size": args["batch_size"],
-        # "input_sz": 32 * 32 * 3,
-        # "n_classes": 10,
         "model_filename": args["model_name"],
-        # "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "epochs": epochs,
         "dropout": dropout,
         "input_size": input_size,
@@ -423,16 +422,6 @@ def main(
         )
         model.to(device)
 
-    # npt_logger = NeptuneLogger(
-    #     run=run,
-    #     model=model,
-    #     log_model_diagram=True,
-    #     log_gradients=True,
-    #     log_parameters=True,
-    #     log_freq=30,
-    # )
-
-    # run[npt_logger.base_namespace]["hyperparams"] = stringify_unsupported(params)
     # total parameters and trainable parameters
     total_params = sum(p.numel() for p in model.parameters())
     print(f"{total_params:,} total parameters.")
@@ -442,9 +431,6 @@ def main(
     print(f"{total_trainable_params:,} training parameters.\n")
     # optimizer
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-    #     optimizer, mode="min", factor=0.1, patience=10, verbose=True
-    # )
     # loss function
     criterion = nn.MSELoss()
     # initialize SaveBestModel class
