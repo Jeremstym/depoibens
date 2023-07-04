@@ -34,7 +34,6 @@ import neptune
 from neptune_pytorch import NeptuneLogger
 from neptune.utils import stringify_unsupported
 
-PENALIZATION = 0.5
 list_patients = [
     "BC23209",
     "BT23268",
