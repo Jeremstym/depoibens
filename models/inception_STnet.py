@@ -457,6 +457,7 @@ def main(
         )
         model.to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
+
         # start training
         train_loss, valid_loss = [], []
         train_pearson_list, valid_pearson_list = [], []
@@ -495,7 +496,6 @@ def main(
                     optimizer,
                     criterion,
                 )
-            # scheduler.step(valid_epoch_loss)
             print("-" * 50)
         if run:
             run.stop()
@@ -518,10 +518,6 @@ def main(
 
     print(test_frame)
     test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
-    # additional save of the test results
-    with open("/projects/minos/jeremie/data/outputs/test_results.pkl", "w") as f:
-        pkl.dump(test_frame, f)
-
 
 if __name__ == "__main__":
     main()
