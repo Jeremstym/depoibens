@@ -20,7 +20,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.optim import lr_scheduler
+import torch.utils.data as data
 
 # from torcheval.metrics import R2Score
 from torchmetrics import R2Score
@@ -241,6 +241,40 @@ def test(model, testloader, criterion, device):
         )
 
 
+def test_selected_model(
+    path: str,
+    input_size: int,
+    output_size: int,
+    hidden_size: int,
+    batch_norm: bool,
+    testloader: data.DataLoader,
+):
+    """
+    Test the model on a chosen test set
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # example:
+    # model.load_state_dict(
+    #     torch.load("/projects/minos/jeremie/data/outputs/best_model4_norm.pth")[
+    #         "model_state_dict"
+    #     ]
+    # )
+    model = Regression_STnet(
+        input_size=input_size,
+        output_size=output_size,
+        hidden_size=hidden_size,
+        batch_norm=batch_norm,
+    )
+    model.load_state_dict(torch.load(path)["model_state_dict"])
+    model = model.to(device)
+    model.eval()
+    criterion = nn.MSELoss()
+    test_loss, test_r2score_wght, test_pearson_coef = test(
+        model, testloader, criterion, device
+    )
+    return test_loss, test_r2score_wght, test_pearson_coef
+
+
 ### --------------- Main ---------------
 
 # construct the argument parser
@@ -351,34 +385,6 @@ def main(
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Computation device: {device}\n")
 
-    # if dummy:
-    #     device = torch.device("cpu")
-    #     model = DummyRegression_STnet()
-    if is_single_test:
-        model = Regression_STnet(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            output_size=output_size,
-            dropout=dropout,
-            batch_norm=args["batch_norm"],
-        )
-        model.load_state_dict(
-            torch.load("/projects/minos/jeremie/data/outputs/best_model4_norm.pth")[
-                "model_state_dict"
-            ]
-        )
-        model.to(device)
-        model.eval()
-    else:
-        model = Regression_STnet(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            output_size=output_size,
-            dropout=dropout,
-            batch_norm=args["batch_norm"],
-        )
-        model.to(device)
-
     # total parameters and trainable parameters
     total_params = sum(p.numel() for p in model.parameters())
     print(f"{total_params:,} total parameters.")
@@ -386,13 +392,17 @@ def main(
         p.numel() for p in model.parameters() if p.requires_grad
     )
     print(f"{total_trainable_params:,} training parameters.\n")
+
     # optimizer
     optimizer = optim.Adam(model.parameters(), lr=lr)
+
     # loss function
     criterion = nn.MSELoss()
+
     # initialize SaveBestModel class
     save_best_model = SaveBestModel()
 
+    # main loop
     test_frame = pd.DataFrame(columns=["test_loss", "r2_score", "pearson"])
     for test_patient in list_patients:
         print(f"Test patient: {test_patient}")
@@ -472,6 +482,9 @@ def main(
             )
             test_frame.loc[test_patient] = [test_loss, r2_test, pearson_test]
             print("TESTING COMPLETE")
+
+        if is_single_test:
+            break
 
     print(test_frame)
     test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
