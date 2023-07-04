@@ -103,9 +103,9 @@ def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
     else:
         data = data_0
         print(f"Loaded data: {data.shape}")
+
     # standardize data
     data_std = StandardScaler().fit_transform(data)
-    # print(f"Standardized data: {data_std.shape}")
 
     # perform PCA
     pca = PCA(n_components=n_components)
@@ -146,15 +146,12 @@ if __name__ == "__main__":
     embds = embds[features[:2048]].values
 
     pca_res0, pca_res1 = pca(embds, tsv_embed)
-    # pca_data, pca_fit = pca(embds)
-    # pca_tsv = pca_fit.transform(tsv_embed)
     plot_pca(pca_res0, "PCA on data", 0)
     plot_pca(pca_res1, "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
     plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final2.png")
-    # plt.show()
 
 ### Optional savings below ###
 ### To add to the pca function ###
