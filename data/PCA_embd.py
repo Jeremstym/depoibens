@@ -30,13 +30,13 @@ path_to_model = "/projects/minos/jeremie/data/outputs/best_model4_norm.pth"
 INPUT_SIZE = 900
 OUTPUT_SIZE = 2048
 HIDDEN_SIZE = 3056
-PATIENT = "BT23944_E2"
-# PATIENT = "BT23450_E1"
+PATIENT_TISSUE = "BT23944_E2"
+# PATIENT_TISSUE = "BT23450_E1"
 
 ### ------------------- Preprocessing -------------------
 
 
-def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT) -> pd.DataFrame:
+def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT_TISSUE) -> pd.DataFrame:
     """
     Function to get the embeddings of a given patient.
     """
@@ -51,7 +51,7 @@ def get_embeddings_from_dict(path_to_dict: str, patient=PATIENT) -> pd.DataFrame
     return df
 
 
-def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT) -> pd.DataFrame:
+def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT_TISSUE) -> pd.DataFrame:
     """
     Function to get the embeddings of a given patient.
     """
@@ -66,7 +66,7 @@ def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT) -> pd.DataFrame:
 ### ------------------- Embeddings with regression model -------------------
 # load data
 def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
     # load model
     model = Regression_STnet(
         input_size=INPUT_SIZE,
@@ -152,8 +152,8 @@ if __name__ == "__main__":
     plot_pca(pca_res1, "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
-    plt.title(f"PCA of ST-Net dataset {PATIENT}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final.png")
+    plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final2.png")
     # plt.show()
 
 ### Optional savings below ###
