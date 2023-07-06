@@ -87,16 +87,16 @@ def image_embedding(path: str, pre_trained: nn.Module, device=device):
 def embed_all_images(path: str, pre_trained=inception, device=device):
     embeddings_dict = {}
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
-        pbar = tqdm(glob(sub_path + "/*/*.jpg", recursive=True))
-        for path_image in pbar:
-            m = re.search("data/(.*)/(.*).jpg", path_image)
-            if m:
-                embeddings_dict[m.group(2)] = image_embedding(
-                    path_image, pre_trained, device
-                ).cpu()
-            else:
-                raise ValueError("Path not found")
-            pbar.set_description(f"Processing {m.group(2)}")
+        with tqdm(glob(sub_path + "/*/*.jpg", recursive=True), unit="spot") as pbar:
+            for path_image in pbar:
+                m = re.search("data/(.*)/(.*).jpg", path_image)
+                if m:
+                    embeddings_dict[m.group(2)] = image_embedding(
+                        path_image, pre_trained, device
+                    ).cpu()
+                else:
+                    raise ValueError("Path not found")
+                pbar.set_description(f"Processing {m.group(2)}")
     return embeddings_dict
 
 
@@ -117,7 +117,7 @@ def change_device_embedding(embeddings_dict):
 
 def list_stds(embeddings_dict):
     stds = []
-    for key in tqdm(embeddings_dict.keys()):
+    for key in tqdm(embeddings_dict.keys(), unit="spot"):
         stds.append(embeddings_dict[key])
     stds = torch.stack(stds)
     stds = torch.std(stds, dim=0)
