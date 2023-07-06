@@ -168,7 +168,7 @@ if __name__ == "__main__":
     plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
     plt.xlabel(f"PC1 - {explained_variance[0]}")
     plt.ylabel(f"PC2 - {explained_variance[1]}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_dino.png")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_dino1.png")
 
 ### Optional savings below ###
 ### To add to the pca function ###
