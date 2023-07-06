@@ -32,7 +32,7 @@ class SaveBestModel:
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": criterion,
                 },
-                path + "/outputs/best_model4_norm.pth",
+                path + "/outputs/best_model_dino.pth",
             )
 
 
@@ -48,7 +48,7 @@ def save_model(path, epochs, model, optimizer, criterion):
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": criterion,
         },
-        path + "/outputs/final_model4_norm.pth",
+        path + "/outputs/final_model_dino.pth",
     )
 
 
@@ -61,9 +61,9 @@ def save_plots(path, train_score, valid_score, train_loss, valid_loss):
     plt.plot(train_score, color="green", linestyle="-", label="train accuracy")
     plt.plot(valid_score, color="blue", linestyle="-", label="validataion accuracy")
     plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
+    plt.ylabel("R2 score")
     plt.legend()
-    plt.savefig(path + "/outputs/r2_weighted4_norm.png")
+    plt.savefig(path + "/outputs/r2_weighted_dino.png")
 
     # loss plots
     plt.figure(figsize=(10, 7))
@@ -72,4 +72,4 @@ def save_plots(path, train_score, valid_score, train_loss, valid_loss):
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.legend()
-    plt.savefig(path + "/outputs/loss4_norm.png")
+    plt.savefig(path + "/outputs/loss_dino.png")
