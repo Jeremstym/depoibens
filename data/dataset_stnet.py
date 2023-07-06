@@ -93,7 +93,7 @@ def embed_all_images(path: str, pre_trained=inception, device=device):
                 if m:
                     embeddings_dict[m.group(2)] = image_embedding(
                         path_image, pre_trained, device
-                    ).cpu()
+                    ).to("cpu")
                 else:
                     raise ValueError("Path not found")
                 pbar.set_description(f"Processing {m.group(2)}")
