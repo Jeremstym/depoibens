@@ -7,6 +7,7 @@ import os
 
 print(os.getcwd())
 import sys
+from glob import glob
 
 # setting path
 sys.path.append("../")
@@ -31,6 +32,11 @@ INPUT_SIZE = 900
 OUTPUT_SIZE = 2048
 HIDDEN_SIZE = 3056
 PATIENT_TISSUE = "BT23944_E2"
+
+general_path = "/projects/minos/jeremie/data/"
+path_list = glob(general_path + "/*/*/", recursive=True)
+PATIENT_TISSU_LIST = [os.path.basename(path[:-1]) for path in path_list]
+
 
 # PATIENT_TISSUE = "BT23450_E1"
 
@@ -226,35 +232,35 @@ def plot_pca(data_pca: np.ndarray, name: str, color_index: int) -> None:
 # pca = PCA(n_components=2)
 # X_r = pca.fit_transform(X)
 
-path = "/projects/minos/jeremie/data"
+# path = "/projects/minos/jeremie/data"
 
-from glob import glob
+# from glob import glob
 
-path_list = [
-    "/import/pr_minos/jeremie/data/BC23270/BC23270_D2/",
-    "/import/pr_minos/jeremie/data/BC23270/BC23270_E1/",
-    "/import/pr_minos/jeremie/data/BC23270/BC23270_E2/",
-    "/import/pr_minos/jeremie/data/BT23268/BT23268_C1/",
-    "/import/pr_minos/jeremie/data/BT23268/BT23268_C2/",
-    "/import/pr_minos/jeremie/data/BT23268/BT23268_D1/",
-    "/import/pr_minos/jeremie/data/BT23287/BT23287_C1/",
-    "/import/pr_minos/jeremie/data/BT23287/BT23287_C2/",
-    "/import/pr_minos/jeremie/data/BT23287/BT23287_D1/",
-    "/import/pr_minos/jeremie/data/BT23506/BT23506_C1/",
-    "/import/pr_minos/jeremie/data/BT23506/BT23506_C2/",
-    "/import/pr_minos/jeremie/data/BT23506/BT23506_D1/",
-    "/import/pr_minos/jeremie/data/BT23895/BT23895_C1/",
-    "/import/pr_minos/jeremie/data/BT23895/BT23895_C2/",
-    "/import/pr_minos/jeremie/data/BT23895/BT23895_D1/",
-    "/import/pr_minos/jeremie/data/BT24044/BT24044_D2/",
-    "/import/pr_minos/jeremie/data/BT24044/BT24044_E1/",
-    "/import/pr_minos/jeremie/data/BT24044/BT24044_E2/",
-    "/import/pr_minos/jeremie/data/BC23803/BC23803_D2/",
-    "/import/pr_minos/jeremie/data/BC23803/BC23803_E1/",
-    "/import/pr_minos/jeremie/data/BC23803/BC23803_E2/",
-    "/import/pr_minos/jeremie/data/BT23269/BT23269_C1/",
-    "/import/pr_minos/jeremie/data/BT23269/BT23269_C2/",
-]
+# path_list = [
+#     "/import/pr_minos/jeremie/data/BC23270/BC23270_D2/",
+#     "/import/pr_minos/jeremie/data/BC23270/BC23270_E1/",
+#     "/import/pr_minos/jeremie/data/BC23270/BC23270_E2/",
+#     "/import/pr_minos/jeremie/data/BT23268/BT23268_C1/",
+#     "/import/pr_minos/jeremie/data/BT23268/BT23268_C2/",
+#     "/import/pr_minos/jeremie/data/BT23268/BT23268_D1/",
+#     "/import/pr_minos/jeremie/data/BT23287/BT23287_C1/",
+#     "/import/pr_minos/jeremie/data/BT23287/BT23287_C2/",
+#     "/import/pr_minos/jeremie/data/BT23287/BT23287_D1/",
+#     "/import/pr_minos/jeremie/data/BT23506/BT23506_C1/",
+#     "/import/pr_minos/jeremie/data/BT23506/BT23506_C2/",
+#     "/import/pr_minos/jeremie/data/BT23506/BT23506_D1/",
+#     "/import/pr_minos/jeremie/data/BT23895/BT23895_C1/",
+#     "/import/pr_minos/jeremie/data/BT23895/BT23895_C2/",
+#     "/import/pr_minos/jeremie/data/BT23895/BT23895_D1/",
+#     "/import/pr_minos/jeremie/data/BT24044/BT24044_D2/",
+#     "/import/pr_minos/jeremie/data/BT24044/BT24044_E1/",
+#     "/import/pr_minos/jeremie/data/BT24044/BT24044_E2/",
+#     "/import/pr_minos/jeremie/data/BC23803/BC23803_D2/",
+#     "/import/pr_minos/jeremie/data/BC23803/BC23803_E1/",
+#     "/import/pr_minos/jeremie/data/BC23803/BC23803_E2/",
+#     "/import/pr_minos/jeremie/data/BT23269/BT23269_C1/",
+#     "/import/pr_minos/jeremie/data/BT23269/BT23269_C2/",
+# ]
 
-sub_folder_names = [os.path.basename(path[:-1]) for path in path_list]
-print(sub_folder_names)
+# sub_folder_names = [os.path.basename(path[:-1]) for path in path_list]
+# print(sub_folder_names)
