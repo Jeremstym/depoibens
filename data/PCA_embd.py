@@ -73,7 +73,7 @@ def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT_TISSUE) -> pd.Data
 ### ------------------- Embeddings with regression model -------------------
 # load data
 def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
-    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # load model
     model = Regression_STnet(
         input_size=INPUT_SIZE,
