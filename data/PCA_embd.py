@@ -33,8 +33,8 @@ path_dino_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
 MODEL_USED = "inception"
 INPUT_SIZE = 900
 if MODEL_USED == "inception":
-    OUTPUT_SIZE = 2048
-    HIDDEN_SIZE = 3056
+    OUTPUT_SIZE = 768 # ex: 2048
+    HIDDEN_SIZE = 1536 # ex: 3056
 elif MODEL_USED == "dino":
     OUTPUT_SIZE = 768
     HIDDEN_SIZE = 1536
