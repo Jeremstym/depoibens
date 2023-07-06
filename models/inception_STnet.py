@@ -385,6 +385,13 @@ def main(
     print(f"Computation device: {device}\n")
 
     # total parameters and trainable parameters
+    model = Regression_STnet(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            output_size=output_size,
+            dropout=dropout,
+            batch_norm=args["batch_norm"],
+        )
     total_params = sum(p.numel() for p in model.parameters())
     print(f"{total_params:,} total parameters.")
     total_trainable_params = sum(
