@@ -235,8 +235,8 @@ import re
 
 text = " ".join(path_list)
 
-pattern = re.compile(r"([A-Z]+)-([A-Z]+)")
-tissues = pattern.findall(text)
+pattern = "data/(.*?)/"
+tissues = re.findall(pattern, text)
 tissues = [t[0] for t in tissues]
 tissues = list(set(tissues))
 tissues.sort()
