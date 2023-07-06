@@ -27,7 +27,8 @@ path_to_dict = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 path_to_dino_dict = "/projects/minos/jeremie/data/dino_features.pkl"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
-path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
+path_inception_model = "/projects/minos/jeremie/data/outputs/best_model_inception.pth"
+path_dino_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
 
 MODEL_USED = "inception"
 INPUT_SIZE = 900
@@ -78,6 +79,12 @@ def get_embeddings_from_tsv(path_to_tsv: str, patient=PATIENT_TISSUE) -> pd.Data
 
 ### ------------------- Embeddings with regression model -------------------
 # load data
+if MODEL_USED == "inception":
+    path_to_model = path_inception_model
+elif MODEL_USED == "dino":
+    path_to_model = path_dino_model
+
+
 def embedding_tsv(tsv: pd.DataFrame, path_to_model=path_to_model) -> np.ndarray:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # load model
