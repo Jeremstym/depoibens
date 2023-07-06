@@ -31,6 +31,7 @@ INPUT_SIZE = 900
 OUTPUT_SIZE = 2048
 HIDDEN_SIZE = 3056
 PATIENT_TISSUE = "BT23944_E2"
+
 # PATIENT_TISSUE = "BT23450_E1"
 
 ### ------------------- Preprocessing -------------------
@@ -111,6 +112,7 @@ def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
     pca = PCA(n_components=n_components)
     pca_fit = pca.fit(data_std)
     data_pca = pca_fit.transform(data_std)
+    print(f"PCA explained variance: {pca_fit.explained_variance_ratio_}")
     print(f"PCA data: {data_pca.shape}")
     if data_1 is not None:
         data_pca_0 = data_pca[: data_0.shape[0]]
@@ -132,26 +134,26 @@ def plot_pca(data_pca: np.ndarray, name: str, color_index: int) -> None:
     )
 
 
-if __name__ == "__main__":
-    print("Loading std...")
-    with open(path_to_std, "rb") as f:
-        std_tsv = pkl.load(f)
-    tsv = get_embeddings_from_tsv(path_to_tsv)
-    tsv = tsv[std_tsv.index[:900]]
-    tsv_embed = embedding_tsv(tsv)
-    print("Loading features...")
-    with open(path_to_features, "rb") as f:
-        features = pkl.load(f).squeeze(0).to("cpu").tolist()
-    embds = get_embeddings_from_dict(path_to_dict)
-    embds = embds[features[:2048]].values
+# if __name__ == "__main__":
+#     print("Loading std...")
+#     with open(path_to_std, "rb") as f:
+#         std_tsv = pkl.load(f)
+#     tsv = get_embeddings_from_tsv(path_to_tsv)
+#     tsv = tsv[std_tsv.index[:900]]
+#     tsv_embed = embedding_tsv(tsv)
+#     print("Loading features...")
+#     with open(path_to_features, "rb") as f:
+#         features = pkl.load(f).squeeze(0).to("cpu").tolist()
+#     embds = get_embeddings_from_dict(path_to_dict)
+#     embds = embds[features[:2048]].values
 
-    pca_res0, pca_res1 = pca(embds, tsv_embed)
-    plot_pca(pca_res0, "PCA on data", 0)
-    plot_pca(pca_res1, "PCA on Regression output", 1)
-    print("Plotting PCA...")
-    plt.legend(loc="best", shadow=False, scatterpoints=1)
-    plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final2.png")
+#     pca_res0, pca_res1 = pca(embds, tsv_embed)
+#     plot_pca(pca_res0, "PCA on data", 0)
+#     plot_pca(pca_res1, "PCA on Regression output", 1)
+#     print("Plotting PCA...")
+#     plt.legend(loc="best", shadow=False, scatterpoints=1)
+#     plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
+#     plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final2.png")
 
 ### Optional savings below ###
 ### To add to the pca function ###
@@ -209,17 +211,33 @@ if __name__ == "__main__":
 
 ### ------------------- Brouillon -------------------
 
-from sklearn import datasets
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+# from sklearn import datasets
+# from sklearn.decomposition import PCA
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-iris = datasets.load_iris()
+# iris = datasets.load_iris()
 
-X = iris.data
-y = iris.target
-target_names = iris.target_names
+# X = iris.data
+# y = iris.target
+# target_names = iris.target_names
 
-pca = PCA(n_components=2)
-X_r = pca.fit_transform(X)
+# pca = PCA(n_components=2)
+# X_r = pca.fit_transform(X)
+
+path = "/projects/minos/jeremie/data"
+
+from glob import glob
+
+path_list = glob(path + "/*/*/")
+import re
+
+text = " ".join(path_list)
+
+pattern = re.compile(r"([A-Z]+)-([A-Z]+)")
+tissues = pattern.findall(text)
+tissues = [t[0] for t in tissues]
+tissues = list(set(tissues))
+tissues.sort()
+print(tissues)
