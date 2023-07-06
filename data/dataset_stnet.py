@@ -127,9 +127,8 @@ def list_stds(embeddings_dict):
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
     dino_dict = embed_all_images(path, dino, device)
-    dino_list = list_stds(dino_dict)
     with open(path + "/dino_features.pkl", "wb") as f:
-        pkl.dump(dino_list, f)
+        pkl.dump(dino_dict, f)
     
     
 # if __name__ == "__main__":
