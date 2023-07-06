@@ -22,8 +22,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 
-# from torcheval.metrics import R2Score
-from torchmetrics import R2Score
+from torcheval.metrics import R2Score
+# from torchmetrics import R2Score
 from torchmetrics import PearsonCorrCoef
 from data.dataset_stnet import create_dataloader
 
