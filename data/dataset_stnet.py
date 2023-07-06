@@ -43,6 +43,7 @@ selection_tensor_path = "/projects/minos/jeremie/data/features_std.pkl"
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 inception = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
+dino = torch.hub.load("facebookresearch/dino:main", "dino_vitb16")
 
 
 class Identity(nn.Module):
@@ -55,9 +56,6 @@ class Identity(nn.Module):
 
 inception.fc = Identity()
 
-# inception.to(device)
-# inception.eval()
-
 ### ---------------- Pre-processing for images ------------------
 
 # selection_tensor = torch.tensor(
@@ -66,7 +64,7 @@ inception.fc = Identity()
 # selection_tensor = selection_tensor.to(device)
 
 
-def image_embedding(path):
+def image_embedding(path: str, pre_trained: nn.Module, device=device):
     cell = Image.open(path)
     preprocess = transforms.Compose(
         [
@@ -79,19 +77,23 @@ def image_embedding(path):
     input_tensor = preprocess(cell)
     input_batch = input_tensor.unsqueeze(0)  # create a mini-batch of 1 sample
     input_batch = input_batch.to(device)
+    pre_trained.eval()
+    pre_trained.to(device)
     with torch.no_grad():
-        output = inception(input_batch)
+        output = pre_trained(input_batch)
     return output
 
 
-def embed_all_images(path):
+def embed_all_images(path: str, pre_trained=inception, device=device):
     embeddings_dict = {}
     for sub_path in tqdm(glob(path + "/*/", recursive=True)):
         pbar = tqdm(glob(sub_path + "/*/*.jpg", recursive=True))
         for path_image in pbar:
             m = re.search("data/(.*)/(.*).jpg", path_image)
             if m:
-                embeddings_dict[m.group(2)] = image_embedding(path_image)
+                embeddings_dict[m.group(2)] = image_embedding(
+                    path_image, pre_trained, device
+                ).cpu()
             else:
                 raise ValueError("Path not found")
             pbar.set_description(f"Processing {m.group(2)}")
@@ -122,6 +124,14 @@ def list_stds(embeddings_dict):
     return stds.argsort(descending=True)
 
 
+if __name__ == "__main__":
+    path = "/import/pr_minos/jeremie/data"
+    dino_dict = embed_all_images(path, dino, device)
+    dino_list = list_stds(dino_dict)
+    with open(path + "/dino_features.pkl", "wb") as f:
+        pkl.dump(dino_list, f)
+    
+    
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
 #     with open(path + "/embeddings_dict2.pkl", "rb") as f:
