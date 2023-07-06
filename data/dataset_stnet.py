@@ -247,7 +247,7 @@ class Phenotypes(data.Dataset):
         self,
         tsv_concatened,
         embeddings_dict,
-        selection_tensor,
+        selection_tensor=None,
         nb_genes=900,
         embd_size=2048,
     ) -> None:
@@ -256,9 +256,12 @@ class Phenotypes(data.Dataset):
             tsv_concatened.columns[:nb_genes]
         ]
         self.embeddings_dict = embeddings_dict
-        self.selection_list = (
-            selection_tensor[:, :embd_size].sort(descending=True).values.tolist()
-        )
+        if selection_tensor:
+            self.selection_list = (
+                selection_tensor[:, :embd_size].sort(descending=True).values.tolist()
+            )
+        else:
+            self.selection_list = list(range(embd_size))
 
     def __len__(self):
         return len(self.embeddings_dict)
@@ -277,7 +280,7 @@ class Phenotypes(data.Dataset):
 def create_dataloader(
     tsv_path=tsv_path,
     embeddings_path=embeddings_path,
-    selection_tensor_path=selection_tensor_path,
+    selection_tensor_path=None,
     input_size=900,
     output_size=2048,
     train_batch_size=BATCH_SIZE,
@@ -292,8 +295,11 @@ def create_dataloader(
         tsv_concatened = pkl.load(f)
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
-    with open(selection_tensor_path, "rb") as f:
-        selection_tensor = pkl.load(f)
+    if selection_tensor_path:
+        with open(selection_tensor_path, "rb") as f:
+            selection_tensor = pkl.load(f)
+    else:
+        selection_tensor = None
 
     # # number if validation images
     # train_dataset_size = len(tsv_concatened)
