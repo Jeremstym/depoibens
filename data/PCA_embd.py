@@ -26,7 +26,7 @@ path_to_features = "/projects/minos/jeremie/data/features_std.pkl"
 path_to_dict = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
-path_to_model = "/projects/minos/jeremie/data/outputs/best_model4_norm.pth"
+path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
 
 INPUT_SIZE = 900
 OUTPUT_SIZE = 2048
@@ -140,26 +140,26 @@ def plot_pca(data_pca: np.ndarray, name: str, color_index: int) -> None:
     )
 
 
-# if __name__ == "__main__":
-#     print("Loading std...")
-#     with open(path_to_std, "rb") as f:
-#         std_tsv = pkl.load(f)
-#     tsv = get_embeddings_from_tsv(path_to_tsv)
-#     tsv = tsv[std_tsv.index[:900]]
-#     tsv_embed = embedding_tsv(tsv)
-#     print("Loading features...")
-#     with open(path_to_features, "rb") as f:
-#         features = pkl.load(f).squeeze(0).to("cpu").tolist()
-#     embds = get_embeddings_from_dict(path_to_dict)
-#     embds = embds[features[:2048]].values
+if __name__ == "__main__":
+    print("Loading std...")
+    with open(path_to_std, "rb") as f:
+        std_tsv = pkl.load(f)
+    tsv = get_embeddings_from_tsv(path_to_tsv)
+    tsv = tsv[std_tsv.index[:900]]
+    tsv_embed = embedding_tsv(tsv)
+    print("Loading features...")
+    with open(path_to_features, "rb") as f:
+        features = pkl.load(f).squeeze(0).to("cpu").tolist()
+    embds = get_embeddings_from_dict(path_to_dict)
+    embds = embds[features[:2048]].values
 
-#     pca_res0, pca_res1 = pca(embds, tsv_embed)
-#     plot_pca(pca_res0, "PCA on data", 0)
-#     plot_pca(pca_res1, "PCA on Regression output", 1)
-#     print("Plotting PCA...")
-#     plt.legend(loc="best", shadow=False, scatterpoints=1)
-#     plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
-#     plt.savefig("/projects/minos/jeremie/data/outputs/PCA_final2.png")
+    pca_res0, pca_res1 = pca(embds, tsv_embed)
+    plot_pca(pca_res0, "PCA on data", 0)
+    plot_pca(pca_res1, "PCA on Regression output", 1)
+    print("Plotting PCA...")
+    plt.legend(loc="best", shadow=False, scatterpoints=1)
+    plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_dino.png")
 
 ### Optional savings below ###
 ### To add to the pca function ###
