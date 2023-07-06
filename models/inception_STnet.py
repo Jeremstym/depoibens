@@ -141,7 +141,7 @@ def train(
             pearson_coefs = pearson(outputs.T, images_embd.T)
             pearson_coef = torch.mean(pearson_coefs)
             r2 = R2Score(
-                num_outputs=genotypes.size(0), multioutput="variance_weighted"
+                multioutput="variance_weighted"
             ).to(device)
             metric_wght = r2(outputs.T, images_embd.T)
             if run and counter % 30 == 0:
@@ -187,7 +187,7 @@ def validate(model, dataloader, criterion, device, run=None):
             pearson_coefs = pearson(outputs.T, images_embd.T)
             pearson_coef = torch.mean(pearson_coefs)
             r2 = R2Score(
-                num_outputs=genotypes.size(0), multioutput="variance_weighted"
+                multioutput="variance_weighted"
             ).to(device)
             metric_wght = r2(outputs.T, images_embd.T)
             running_r2score_wght += metric_wght.item()
@@ -222,7 +222,7 @@ def test(model, testloader, criterion, device):
             loss = criterion(outputs, images_embd)
             test_loss += loss.item()
             r2 = R2Score(
-                num_outputs=genotypes.size(0), multioutput="variance_weighted"
+                multioutput="variance_weighted"
             ).to(device)
             metric_wght = r2(outputs.T, images_embd.T)
             pearson = PearsonCorrCoef(num_outputs=genotypes.size(0)).to(device)
