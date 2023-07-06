@@ -162,13 +162,14 @@ if __name__ == "__main__":
     tsv = tsv[std_tsv.index[:900]]
     tsv_embed = embedding_tsv(tsv)
     print("Loading features...")
-    # with open(path_to_features, "rb") as f:
-    #     features = pkl.load(f).squeeze(0).to("cpu").tolist()
+    if MODEL_USED == "inception":
+        with open(path_to_features, "rb") as f:
+            features = pkl.load(f).squeeze(0).to("cpu").tolist()
     if MODEL_USED == "inception":
         embds = get_embeddings_from_dict(path_to_dict)
+        embds = embds[features[:OUTPUT_SIZE]].values
     elif MODEL_USED == "dino":
         embds = get_embeddings_from_dict(path_to_dino_dict)
-    # embds = embds[features[:2048]].values
 
     pca_res0, pca_res1, explained_variance = pca(embds, tsv_embed)
     plot_pca(pca_res0, "PCA on data", 0)
