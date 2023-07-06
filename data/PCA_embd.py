@@ -29,8 +29,8 @@ path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
 path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
 
 INPUT_SIZE = 900
-OUTPUT_SIZE = 2048
-HIDDEN_SIZE = 3056
+OUTPUT_SIZE = 768
+HIDDEN_SIZE = 1536
 PATIENT_TISSUE = "BT23944_E2"
 
 general_path = "/projects/minos/jeremie/data/"
