@@ -29,7 +29,7 @@ path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
 path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
 
-MODEL_USED = "dino"
+MODEL_USED = "inception"
 INPUT_SIZE = 900
 if MODEL_USED == "inception":
     OUTPUT_SIZE = 2048
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
     plt.xlabel(f"PC1 - {explained_variance[0]}")
     plt.ylabel(f"PC2 - {explained_variance[1]}")
-    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_dino1.png")
+    plt.savefig("/projects/minos/jeremie/data/outputs/PCA_inception.png")
 
 ### Optional savings below ###
 ### To add to the pca function ###
