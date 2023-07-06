@@ -230,12 +230,37 @@ path = "/projects/minos/jeremie/data"
 
 from glob import glob
 
-path_list = glob(path + "/*/*/")
+path_list = [
+    "/import/pr_minos/jeremie/data/BC23270/BC23270_D2/",
+    "/import/pr_minos/jeremie/data/BC23270/BC23270_E1/",
+    "/import/pr_minos/jeremie/data/BC23270/BC23270_E2/",
+    "/import/pr_minos/jeremie/data/BT23268/BT23268_C1/",
+    "/import/pr_minos/jeremie/data/BT23268/BT23268_C2/",
+    "/import/pr_minos/jeremie/data/BT23268/BT23268_D1/",
+    "/import/pr_minos/jeremie/data/BT23287/BT23287_C1/",
+    "/import/pr_minos/jeremie/data/BT23287/BT23287_C2/",
+    "/import/pr_minos/jeremie/data/BT23287/BT23287_D1/",
+    "/import/pr_minos/jeremie/data/BT23506/BT23506_C1/",
+    "/import/pr_minos/jeremie/data/BT23506/BT23506_C2/",
+    "/import/pr_minos/jeremie/data/BT23506/BT23506_D1/",
+    "/import/pr_minos/jeremie/data/BT23895/BT23895_C1/",
+    "/import/pr_minos/jeremie/data/BT23895/BT23895_C2/",
+    "/import/pr_minos/jeremie/data/BT23895/BT23895_D1/",
+    "/import/pr_minos/jeremie/data/BT24044/BT24044_D2/",
+    "/import/pr_minos/jeremie/data/BT24044/BT24044_E1/",
+    "/import/pr_minos/jeremie/data/BT24044/BT24044_E2/",
+    "/import/pr_minos/jeremie/data/BC23803/BC23803_D2/",
+    "/import/pr_minos/jeremie/data/BC23803/BC23803_E1/",
+    "/import/pr_minos/jeremie/data/BC23803/BC23803_E2/",
+    "/import/pr_minos/jeremie/data/BT23269/BT23269_C1/",
+    "/import/pr_minos/jeremie/data/BT23269/BT23269_C2/",
+]
+
 import re
 
 text = " ".join(path_list)
 
-pattern = "data/(.*?)/(.*_[CDE][0-9]?)/"
+pattern = "/import/pr_minos/jeremie/data/(.*?)/"
 tissues = re.findall(pattern, text)
 tissues = [t[0] for t in tissues]
 tissues = list(set(tissues))
