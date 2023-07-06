@@ -256,13 +256,5 @@ path_list = [
     "/import/pr_minos/jeremie/data/BT23269/BT23269_C2/",
 ]
 
-import re
-
-text = " ".join(path_list)
-
-pattern = "/import/pr_minos/jeremie/data/(.*?)/.*?"
-tissues = re.findall(pattern, text)
-tissues = [t[0] for t in tissues]
-tissues = list(set(tissues))
-tissues.sort()
-print(tissues)
+sub_folder_names = [os.path.basename(path[:-1]) for path in path_list]
+print(sub_folder_names)
