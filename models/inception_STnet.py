@@ -338,8 +338,8 @@ parser.add_argument(
 parser.add_argument(
     "-test",
     "--test",
-    type=bool,
-    default=False,
+    type=int,
+    default=1,
     help="Test the model",
 )
 args = vars(parser.parse_args())
@@ -356,7 +356,7 @@ def main(
     input_size=900,
     hidden_size=3056,
     output_size=2048,
-    is_single_test=args["test"],
+    nb_test=args["test"],
 ):
     params = {
         "lr": lr,
@@ -402,6 +402,7 @@ def main(
     save_best_model = SaveBestModel()
 
     # main loop
+    count_test = 0
     test_frame = pd.DataFrame(columns=["test_loss", "r2_score", "pearson"])
     for test_patient in list_patients:
         print(f"Test patient: {test_patient}")
@@ -482,11 +483,12 @@ def main(
             test_frame.loc[test_patient] = [test_loss, r2_test, pearson_test]
             print("TESTING COMPLETE")
 
-        if is_single_test:
+        count_test += 1
+        if nb_test == count_test:
             break
 
     print(test_frame)
-    test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
+    # test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
 
 
 if __name__ == "__main__":
