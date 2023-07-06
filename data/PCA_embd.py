@@ -157,7 +157,10 @@ if __name__ == "__main__":
     print("Loading features...")
     # with open(path_to_features, "rb") as f:
     #     features = pkl.load(f).squeeze(0).to("cpu").tolist()
-    embds = get_embeddings_from_dict(path_to_dino_dict)
+    if MODEL_USED == "inception":
+        embds = get_embeddings_from_dict(path_to_dict)
+    elif MODEL_USED == "dino":
+        embds = get_embeddings_from_dict(path_to_dino_dict)
     # embds = embds[features[:2048]].values
 
     pca_res0, pca_res1, explained_variance = pca(embds, tsv_embed)
