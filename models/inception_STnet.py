@@ -412,9 +412,9 @@ def main(
     for test_patient in LIST_PATIENTS:
         print(f"Test patient: {test_patient}")
         # create dataloader
-        path_dino = "/projects/minos/jeremie/data/dino_features.pkl"
+        # path_dino = "/projects/minos/jeremie/data/dino_features.pkl"
         train_loader, valid_loader, test_loader = create_dataloader(
-            embeddings_path=path_dino,
+            # embeddings_path=path_dino,
             train_batch_size=params["bacth_size"],
             test_batch_size=params["test_bacth_size"],
             input_size=params["input_size"],
