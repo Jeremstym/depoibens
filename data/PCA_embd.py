@@ -29,9 +29,14 @@ path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_std = "/projects/minos/jeremie/data/std_genes_avg.pkl"
 path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
 
+MODEL_USED = "dino"
 INPUT_SIZE = 900
-OUTPUT_SIZE = 768
-HIDDEN_SIZE = 1536
+if MODEL_USED == "inception":
+    OUTPUT_SIZE = 2048
+    HIDDEN_SIZE = 3056
+elif MODEL_USED == "dino":
+    OUTPUT_SIZE = 768
+    HIDDEN_SIZE = 1536
 PATIENT_TISSUE = "BT23944_E2"
 
 general_path = "/projects/minos/jeremie/data/"
@@ -119,14 +124,15 @@ def pca(data_0, data_1=None, n_components=2) -> np.ndarray:
     pca = PCA(n_components=n_components)
     pca_fit = pca.fit(data_std)
     data_pca = pca_fit.transform(data_std)
-    print(f"PCA explained variance: {pca_fit.explained_variance_ratio_}")
+    explained_variance = pca_fit.explained_variance_ratio_
+    print(f"PCA explained variance: {explained_variance}")
     print(f"PCA data: {data_pca.shape}")
     if data_1 is not None:
         data_pca_0 = data_pca[: data_0.shape[0]]
         data_pca_1 = data_pca[data_0.shape[0] :]
-        return data_pca_0, data_pca_1
+        return data_pca_0, data_pca_1, explained_variance
     else:
-        return data_pca, pca_fit
+        return data_pca, pca_fit, explained_variance
 
 
 def plot_pca(data_pca: np.ndarray, name: str, color_index: int) -> None:
@@ -154,12 +160,14 @@ if __name__ == "__main__":
     embds = get_embeddings_from_dict(path_to_dino_dict)
     # embds = embds[features[:2048]].values
 
-    pca_res0, pca_res1 = pca(embds, tsv_embed)
+    pca_res0, pca_res1, explained_variance = pca(embds, tsv_embed)
     plot_pca(pca_res0, "PCA on data", 0)
     plot_pca(pca_res1, "PCA on Regression output", 1)
     print("Plotting PCA...")
     plt.legend(loc="best", shadow=False, scatterpoints=1)
     plt.title(f"PCA of ST-Net dataset {PATIENT_TISSUE}")
+    plt.xlabel(f"PC1 - {explained_variance[0]}")
+    plt.ylabel(f"PC2 - {explained_variance[1]}")
     plt.savefig("/projects/minos/jeremie/data/outputs/PCA_dino.png")
 
 ### Optional savings below ###
