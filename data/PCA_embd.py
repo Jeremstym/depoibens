@@ -260,7 +260,7 @@ import re
 
 text = " ".join(path_list)
 
-pattern = "/import/pr_minos/jeremie/data/(.*?)/"
+pattern = "/import/pr_minos/jeremie/data/(.*?)/.*?"
 tissues = re.findall(pattern, text)
 tissues = [t[0] for t in tissues]
 tissues = list(set(tissues))
