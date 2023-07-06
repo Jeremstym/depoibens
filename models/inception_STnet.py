@@ -32,7 +32,7 @@ import neptune
 from neptune_pytorch import NeptuneLogger
 from neptune.utils import stringify_unsupported
 
-list_patients = [
+LIST_PATIENTS = [
     "BC23209",
     "BT23268",
     "BT23288",
@@ -409,7 +409,7 @@ def main(
     # main loop
     count_test = 0
     test_frame = pd.DataFrame(columns=["test_loss", "r2_score", "pearson"])
-    for test_patient in list_patients:
+    for test_patient in LIST_PATIENTS:
         print(f"Test patient: {test_patient}")
         # create dataloader
         train_loader, valid_loader, test_loader = create_dataloader(
