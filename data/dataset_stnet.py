@@ -36,7 +36,7 @@ NUM_WORKERS = 4
 
 tsv_path = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
-embeddings_path2 = "/projects/minos/jeremie/data/dino_features.pkl"
+embeddings_path_dino = "/projects/minos/jeremie/data/dino_features.pkl"
 selection_tensor_path = "/projects/minos/jeremie/data/features_std.pkl"
 
 
