@@ -67,7 +67,7 @@ class Regression_STnet(nn.Module):
         input_size=900,
         hidden_size=2048,
         output_size=2048,
-        dropout=0.2,
+        dropout=0.6,
         batch_norm=True,
     ):
         super(Regression_STnet, self).__init__()
