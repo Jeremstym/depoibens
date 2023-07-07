@@ -18,6 +18,6 @@ import matplotlib.pyplot as plt
 
 import torch 
 
-model = torch.load("../models/outputs/best_model_dino.pth")
+model = torch.load("/projects/minos/jeremie/data/outputs/best_model_dino.pth")
 model.eval()
 print(model)
