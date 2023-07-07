@@ -534,7 +534,15 @@ if __name__ == "__main__":
 
 ### --------------- Brouillon ---------------
 
-# if __name__ == "__main__":
+# pre_df = torch.randn(10, 10)
+
+# df = pd.DataFrame(pre_df.numpy()) 
+# addi = torch.randn(2,10) 
+
+# df = df.append(pd.DataFrame(addi.numpy()))
+# df
+
+# # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
 #     with open(path + "/embeddings.pkl", "rb") as f:
 #         embeddings = pkl.load(f)
