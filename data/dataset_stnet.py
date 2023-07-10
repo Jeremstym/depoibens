@@ -274,6 +274,8 @@ class Phenotypes(data.Dataset):
             self.embeddings_dict[index][0, self.selection_list],  # (embd_size,)
         )
 
+    def get_index_name(self, idx_number: int):
+        return list(self.embeddings_dict.keys())[idx_number]
 
 ### ---------------- Create dataloader ------------------------
 
