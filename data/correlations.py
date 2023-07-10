@@ -73,19 +73,20 @@ def create_df_corr(
     df_corr = pd.DataFrame(columns=["loss", "r2", "pearson"])
     dataloader, dataset = data_loader(path_to_tsv, path_to_dino_dict)
 
-    for i, data in tqdm(enumerate(dataloader, 0)):
-        genotype, embd = data
-        genotype, embd = genotype.float(), embd.squeeze(1)
-        genotype, embd = genotype.to(device), embd.to(device)
+    with tqdm(enumerate(dataloader)) as pbar:
+        for i, data in pbar:
+            genotype, embd = data
+            genotype, embd = genotype.float(), embd.squeeze(1)
+            genotype, embd = genotype.to(device), embd.to(device)
 
-        outputs = model(genotype)
-        # print(outputs.shape, embd.shape)
-        loss = criterion(outputs, embd)
-        r2_score = r2(outputs.T, embd.T)
-        pearson_score = pearson(outputs.squeeze(0), embd.squeeze(0))
+            outputs = model(genotype)
+            # print(outputs.shape, embd.shape)
+            loss = criterion(outputs, embd)
+            r2_score = r2(outputs.T, embd.T)
+            pearson_score = pearson(outputs.squeeze(0), embd.squeeze(0))
 
-        idx_name = dataset.get_index_name(i)
-        df_corr.loc[idx_name] = [loss.item(), r2_score.item(), pearson_score.item()]
+            idx_name = dataset.get_index_name(i)
+            df_corr.loc[idx_name] = [loss.item(), r2_score.item(), pearson_score.item()]
 
     return df_corr
 
