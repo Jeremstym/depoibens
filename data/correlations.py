@@ -77,7 +77,7 @@ def create_df_corr(
         path_to_dino_dict,
         input_size=INPUT_SIZE,
         output_size=OUTPUT_SIZE,
-        batch_size=BATCH_SIZE,
+        train_batch_size=BATCH_SIZE,
         test_batch_size=BATCH_SIZE,
         num_workers=4,
         test_patient="BC23270"
