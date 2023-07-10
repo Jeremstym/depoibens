@@ -80,8 +80,8 @@ def create_df_corr(
 
         outputs = model(genotype)
         loss = criterion(outputs, embd)
-        r2_score = r2(outputs, embd)
-        pearson_score = pearson(outputs, embd)
+        r2_score = r2(outputs.T, embd.T)
+        pearson_score = pearson(outputs.T, embd.T)
 
         idx_name = dataloader.dataset.df.index[i]
         # idx_name = dataset.get_index_name(i)
