@@ -21,7 +21,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchmetrics import R2Score, PearsonCorrCoef
 from models.inception_STnet import Regression_STnet
-from dataset_stnet import Phenotypes
+from dataset_stnet import Phenotypes, create_dataloader
 
 INPUT_SIZE = 900
 OUTPUT_SIZE = 768
@@ -71,9 +71,19 @@ def create_df_corr(
     pearson = PearsonCorrCoef().to(device)
 
     df_corr = pd.DataFrame(columns=["loss", "r2", "pearson"])
-    dataloader, dataset = data_loader(path_to_tsv, path_to_dino_dict)
+    # dataloader, dataset = data_loader(path_to_tsv, path_to_dino_dict)
+    _, _, testloader = create_dataloader(
+        path_to_tsv,
+        path_to_dino_dict,
+        input_size=INPUT_SIZE,
+        output_size=OUTPUT_SIZE,
+        batch_size=BATCH_SIZE,
+        test_batch_size=BATCH_SIZE,
+        num_workers=4,
+        test_patient="BC23270"
+    )
 
-    with tqdm(enumerate(dataloader)) as pbar:
+    with tqdm(enumerate(testloader)) as pbar:
         for i, data in pbar:
             genotype, embd = data
             genotype, embd = genotype.float(), embd.squeeze(1)
@@ -85,7 +95,7 @@ def create_df_corr(
             r2_score = r2(outputs.T, embd.T)
             pearson_score = pearson(outputs.squeeze(0), embd.squeeze(0))
 
-            idx_name = dataset.get_index_name(i)
+            idx_name = testloader.dataset.get_index_name(i)
             df_corr.loc[idx_name] = [loss.item(), r2_score.item(), pearson_score.item()]
 
     return df_corr
@@ -95,5 +105,5 @@ if __name__ == "__main__":
     path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
     model = load_model(path_to_model)
     df_corr = create_df_corr(model)
-    df_corr.to_csv("/projects/minos/jeremie/data/outputs/correlations.csv")
+    df_corr.to_csv("/projects/minos/jeremie/data/outputs/test_correlations.csv")
     print(df_corr)
