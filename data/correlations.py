@@ -53,18 +53,22 @@ def data_loader(path_to_tsv: str, path_to_dino_dict: str) -> DataLoader:
         tsv = pkl.load(f)
 
     dataset = Phenotypes(tsv, dino_dict, nb_genes=INPUT_SIZE, embd_size=OUTPUT_SIZE)
-    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
+    dataloader = DataLoader(
+        dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4
+    )
 
     return dataloader, dataset
 
 
-def create_df_corr(model: nn.Module) -> pd.DataFrame:
+def create_df_corr(
+    model: nn.Module, path_to_dino_dict=path_to_dino_dict, path_to_tsv=path_to_tsv
+) -> pd.DataFrame:
     model.eval()
     model.to(device)
 
     criterion = nn.MSELoss()
-    r2 = R2Score(multioutput="variance_weighted")
-    pearson = PearsonCorrCoef()
+    r2 = R2Score(multioutput="variance_weighted").to(device)
+    pearson = PearsonCorrCoef().to(device)
 
     df_corr = pd.DataFrame(columns=["loss", "r2", "pearson"])
     dataloader, dataset = data_loader(path_to_tsv, path_to_dino_dict)
@@ -82,8 +86,12 @@ def create_df_corr(model: nn.Module) -> pd.DataFrame:
         # idx_name = dataset.get_index_name(i)
         df_corr.loc[idx_name] = [loss.item(), r2_score.item(), pearson_score.item()]
 
-    return df_corr 
+    return df_corr
+
 
 if __name__ == "__main__":
     path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
     model = load_model(path_to_model)
+    df_corr = create_df_corr(model)
+    df_corr.to_csv("/projects/minos/jeremie/data/outputs/correlations.csv")
+    print(df_corr)
