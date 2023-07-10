@@ -74,13 +74,14 @@ def create_df_corr(
     dataloader, dataset = data_loader(path_to_tsv, path_to_dino_dict)
 
     for i, data in tqdm(enumerate(dataloader, 0)):
-        inputs, labels = data
-        inputs, labels = inputs.to(device), labels.to(device)
+        genotype, embd = data
+        genotype, embd = genotype.float(), embd.squeeze(1)
+        genotype, embd = genotype.to(device), embd.to(device)
 
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        r2_score = r2(outputs, labels)
-        pearson_score = pearson(outputs, labels)
+        outputs = model(genotype)
+        loss = criterion(outputs, embd)
+        r2_score = r2(outputs, embd)
+        pearson_score = pearson(outputs, embd)
 
         idx_name = dataloader.dataset.df.index[i]
         # idx_name = dataset.get_index_name(i)
