@@ -80,7 +80,7 @@ def create_df_corr(
         train_batch_size=BATCH_SIZE,
         test_batch_size=BATCH_SIZE,
         num_workers=4,
-        test_patient="BC23270"
+        test_patient="BC23209"
     )
 
     with tqdm(enumerate(testloader), total=len(testloader)) as pbar:
