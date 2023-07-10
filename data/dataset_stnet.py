@@ -125,11 +125,11 @@ def list_stds(embeddings_dict):
     return stds.argsort(descending=True)
 
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    dino_dict = embed_all_images(path, dino, device)
-    with open(path + "/dino_features.pkl", "wb") as f:
-        pkl.dump(dino_dict, f)
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     dino_dict = embed_all_images(path, dino, device)
+#     with open(path + "/dino_features.pkl", "wb") as f:
+#         pkl.dump(dino_dict, f)
     
     
 # if __name__ == "__main__":
