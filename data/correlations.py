@@ -84,8 +84,7 @@ def create_df_corr(
         r2_score = r2(outputs.T, embd.T)
         pearson_score = pearson(outputs.squeeze(0), embd.squeeze(0))
 
-        idx_name = dataloader.dataset.df.index[i]
-        # idx_name = dataset.get_index_name(i)
+        idx_name = dataset.get_index_name(i)
         df_corr.loc[idx_name] = [loss.item(), r2_score.item(), pearson_score.item()]
 
     return df_corr
