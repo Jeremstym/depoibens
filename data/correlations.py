@@ -83,7 +83,7 @@ def create_df_corr(
         test_patient="BC23270"
     )
 
-    with tqdm(enumerate(testloader)) as pbar:
+    with tqdm(enumerate(testloader), total=len(testloader)) as pbar:
         for i, data in pbar:
             genotype, embd = data
             genotype, embd = genotype.float(), embd.squeeze(1)
