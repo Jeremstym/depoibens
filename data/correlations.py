@@ -115,7 +115,8 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
         inter_df["id"] = inter_df["id"].apply(lambda x: file_name + "_" + x)
         inter_df.set_index("id", inplace=True)
         df = pd.concat([df, inter_df])
-    return df
+        droppings = ["title", "lab", "tumor"]
+    return df.drop(droppings, axis=1)
 
 
 
