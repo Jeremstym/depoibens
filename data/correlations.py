@@ -84,7 +84,7 @@ def create_df_corr(
         train_batch_size=BATCH_SIZE,
         test_batch_size=BATCH_SIZE,
         num_workers=4,
-        test_patient="BC23209"
+        test_patient="BC23209",
     )
 
     with tqdm(enumerate(testloader), total=len(testloader)) as pbar:
@@ -104,12 +104,13 @@ def create_df_corr(
 
     return df_corr
 
+
 def concatenate_dfcomplete(path: str) -> pd.DataFrame:
     df = pd.DataFrame()
     os.chdir(path)
     file_pattern = "./*_complete.pkl"
     for file_name in glob(file_pattern):
-        inter_df = pd.read_pickle(file_name)        
+        inter_df = pd.read_pickle(file_name)
         file_name = file_name[2:12]
         inter_df.reset_index(inplace=True)
         inter_df["id"] = inter_df["id"].apply(lambda x: file_name + "_" + x)
@@ -117,7 +118,6 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
         df = pd.concat([df, inter_df])
         droppings = ["title", "lab", "tumor"]
     return df.drop(droppings, axis=1)
-
 
 
 ### ------------------- MAIN ----------------------
@@ -129,6 +129,12 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
 #     df_corr.to_csv("/projects/minos/jeremie/data/outputs/test_correlations.csv")
 #     print(df_corr)
 
+# if __name__ == "__main__":
+#     df = concatenate_dfcomplete(path_to_data)
+#     print(df)
+
 if __name__ == "__main__":
-    df = concatenate_dfcomplete(path_to_data)
-    print(df)
+    df_complete = concatenate_dfcomplete(path_to_data)
+    df_corr = pd.read_csv(path_to_csv, index_col=0)
+    df_corr = df_corr.join(df_complete, how="inner")
+    print(df_corr)
