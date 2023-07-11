@@ -27,9 +27,13 @@ INPUT_SIZE = 900
 OUTPUT_SIZE = 768
 HIDDEN_SIZE = 1536
 BATCH_SIZE = 1
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+TEST_PATIENT = "BC23209"
 path_to_dino_dict = "/projects/minos/jeremie/data/dino_features.pkl"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
+path_to_csv = "/projects/minos/jeremie/data/outputs/test_correlations.csv"
+path_to_data = "/projects/minos/jeremie/data/" + TEST_PATIENT
 
 
 def load_model(path_to_model: str) -> nn.Module:
@@ -100,10 +104,28 @@ def create_df_corr(
 
     return df_corr
 
+def concatenate_dfcomplete(path: str) -> pd.DataFrame:
+    df = pd.DataFrame()
+    for file_name in glob(os.path.join(path, ".*complete.pkl")):
+        inter_df = pd.read_pickle(file_name)        
+        print(inter_df)
+        inter_df.reset_index(inplace=True)
+        inter_df["id"] = inter_df["id"].apply(lambda x: file_name + "_" + x)
+        inter_df.set_index("id", inplace=True)
+        df = pd.concat([df, inter_df])
+    return df
+
+
+
+### ------------------- MAIN ----------------------
+
+# if __name__ == "__main__":
+#     path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
+#     model = load_model(path_to_model)
+#     df_corr = create_df_corr(model)
+#     df_corr.to_csv("/projects/minos/jeremie/data/outputs/test_correlations.csv")
+#     print(df_corr)
 
 if __name__ == "__main__":
-    path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
-    model = load_model(path_to_model)
-    df_corr = create_df_corr(model)
-    df_corr.to_csv("/projects/minos/jeremie/data/outputs/test_correlations.csv")
-    print(df_corr)
+    df = concatenate_dfcomplete(path_to_data)
+    print(df)
