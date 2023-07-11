@@ -109,9 +109,8 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
     os.chdir(path)
     file_pattern = "./*_complete.pkl"
     for file_name in glob(file_pattern):
-        file_name = file_name[2:12]
-        print(f"File name is{file_name}")
         inter_df = pd.read_pickle(file_name)        
+        file_name = file_name[2:12]
         inter_df.reset_index(inplace=True)
         inter_df["id"] = inter_df["id"].apply(lambda x: file_name + "_" + x)
         inter_df.set_index("id", inplace=True)
