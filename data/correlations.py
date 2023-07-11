@@ -106,7 +106,10 @@ def create_df_corr(
 
 def concatenate_dfcomplete(path: str) -> pd.DataFrame:
     df = pd.DataFrame()
-    for file_name in glob(os.path.join(path, ".*complete.pkl")):
+    os.chdir(path)
+    file_pattern = "./*_complete.pkl"
+    for file_name in glob(file_pattern):
+        file_name = file_name[2:12]
         print(f"File name is{file_name}")
         inter_df = pd.read_pickle(file_name)        
         inter_df.reset_index(inplace=True)
