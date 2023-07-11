@@ -137,4 +137,4 @@ if __name__ == "__main__":
     df_complete = concatenate_dfcomplete(path_to_data)
     df_corr = pd.read_csv(path_to_csv, index_col=0)
     df_corr = df_corr.join(df_complete, how="inner")
-    print(df_corr)
+    df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
