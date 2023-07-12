@@ -167,9 +167,9 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         green_box_3 = Image.new("RGBA", (150,150), (0, 255, 0, 95))
         green_box_2 = Image.new("RGBA", (150,150), (0, 255, 0, 50))
         green_box_1 = Image.new("RGBA", (150,150), (0, 255, 0, 30))
-        tissue_img.paste(green_box_3, (4000, 8000), green_box_3)
-        tissue_img.paste(green_box_2, (4000, 7800), green_box_2)
-        tissue_img.paste(green_box_1, (4000, 7600), green_box_1)
+        tissue_img.paste(green_box_3, (5000, 8000), green_box_3)
+        tissue_img.paste(green_box_2, (5000, 7800), green_box_2)
+        tissue_img.paste(green_box_1, (5000, 7600), green_box_1)
         tissue_img.save(tissue_name + "_score.png", "PNG")
 
 
