@@ -15,13 +15,16 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from PIL import Image
+import re
 
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchmetrics import R2Score, PearsonCorrCoef
 from models.inception_STnet import Regression_STnet
-from dataset_stnet import Phenotypes, create_dataloader
+from data.dataset_stnet import Phenotypes, create_dataloader
+from data.dataexploration import complete_processing
 
 INPUT_SIZE = 900
 OUTPUT_SIZE = 768
@@ -33,6 +36,7 @@ TEST_PATIENT = "BC23209"
 path_to_dino_dict = "/projects/minos/jeremie/data/dino_features.pkl"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_csv = "/projects/minos/jeremie/data/outputs/test_correlations.csv"
+path_to_score = "/projects/minos/jeremie/data/outputs/saptial_score.csv"
 path_to_data = "/projects/minos/jeremie/data/" + TEST_PATIENT
 
 
@@ -83,8 +87,8 @@ def create_df_corr(
         output_size=OUTPUT_SIZE,
         train_batch_size=BATCH_SIZE,
         test_batch_size=BATCH_SIZE,
+        test_patient=TEST_PATIENT,
         num_workers=4,
-        test_patient="BC23209",
     )
 
     with tqdm(enumerate(testloader), total=len(testloader)) as pbar:
@@ -119,6 +123,51 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
         droppings = ["title", "lab", "tumor"]
     return df.drop(droppings, axis=1)
 
+def color_score(score: float) -> float:
+    return 100 * round(score, 1)
+
+def color_spot(path: str, df_score: pd.DataFrame) -> None:
+
+    os.chdir(path)
+    file_pattern = "*_complete.pkl"
+    for df in glob(file_pattern):
+        df_complete = pd.read_pickle(df)
+        df_complete = complete_processing(df_complete)
+        tissue_img_loc = re.sub("_complete.pkl", ".jpg", df)
+        tissue_img = Image.open(tissue_img_loc)
+        tissue_img = tissue_img.convert("RGBA")
+        # tissue_img = cv2.imread(
+        #     path + "/" + file + "/" + tissue_img_loc, cv2.COLOR_BGR2RGB
+        # )
+        # os.mkdir(path + "/" + file + "/" + tissue_name)
+
+        tissue_name = re.sub("_complete.pkl", "", df)
+        for idx in df_complete.index:
+            crop_name = tissue_name + "_" + idx
+            # Note that the axis are purposely inversed below
+            coord = df_complete.loc[idx][["Y", "X"]].values
+            coord = list(map(round, list(coord)))
+            gaps = df_complete.loc[idx][["gapY", "gapX"]].values
+            gaps = list(map(round, list(gaps)))
+            posY = coord[0] + int(gaps[0] / 2)
+            posX = coord[1] - int(gaps[1] / 2)
+
+            score = df_score.loc[crop_name]["pearson"]
+            color = color_score(score)
+            green = (0, 255, 0, color - 10)
+            green_image = Image.new("RGBA", tissue_img.size, green)
+            # tissue_img = Image.alpha_composite(tissue_img, green_image)
+            tissue_img.paste(green_image, (posX, posY), green_image)
+        
+        tissue_img.save(tissue_name + "_score.jpg", "JPEG")
+            # img_crop = tissue_img[
+            #     coord[0] - int(gaps[0] / 2) : coord[0] + int(gaps[0] / 2),
+            #     coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
+            # ]
+            # cv2.imwrite(
+            #     path + "/" + file + "/" + tissue_name + "/" + crop_name + format,
+            #     img_crop,
+            # )
 
 ### ------------------- MAIN ----------------------
 
@@ -133,8 +182,48 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
 #     df = concatenate_dfcomplete(path_to_data)
 #     print(df)
 
+# if __name__ == "__main__":
+#     df_complete = concatenate_dfcomplete(path_to_data)
+#     df_corr = pd.read_csv(path_to_csv, index_col=0)
+#     df_corr = df_corr.join(df_complete, how="inner")
+#     df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
+
 if __name__ == "__main__":
-    df_complete = concatenate_dfcomplete(path_to_data)
-    df_corr = pd.read_csv(path_to_csv, index_col=0)
-    df_corr = df_corr.join(df_complete, how="inner")
-    df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
+    df_corr = pd.read_csv(path_to_csv)
+    color_spot(path_to_data, df_corr)
+    print("Done")
+
+
+### ------------------- Brouillon ----------------------
+
+# img = Image.new("RGB", (100, 100), color=(73, 0, 0))
+# img.show()
+
+# local_path = r"E:\ST-Net\data\hist2tscript\BRCA\BC23209"
+
+# img = Image.open(local_path + r"\BC23209_C2.jpg")
+# newsize = (300, 300)
+# img = img.resize(newsize)
+# Shows the image in image viewer
+# img.show()
+# img_array = np.array(img.getdata()).reshape(img.size[0], img.size[1], 3)
+
+# img_array.shape
+
+# img = img.convert("RGBA")
+# green = (0, 255, 0, 85)
+# x = 100  # x-coordinate of the top-left corner of the square
+# y = 200  # y-coordinate of the top-left corner of the square
+# size = 50  # size of the square in pixels
+
+# green_image = Image.new("RGBA", (size, size), green)
+# img.paste(green_image, (x, y), green_image)
+
+
+# img.show()
+
+# # Color the square with the transparent green color
+# pixels = img.load()
+# for i in range(x, x + size):
+#     for j in range(y, y + size):
+#         pixels[i, j] = green
