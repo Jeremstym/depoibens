@@ -123,12 +123,13 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
         droppings = ["title", "lab", "tumor"]
     return df.drop(droppings, axis=1)
 
+
 def color_score(score: float) -> int:
     res = 100 * round(score, 1)
     return int(res)
 
-def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
+def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     file_pattern = "*_complete.pkl"
     for df in glob(file_pattern):
@@ -158,19 +159,21 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
                 green = (0, 255, 0, color - 50)
-                green_image = Image.new("RGBA", tissue_img.size, green)
+                size = int((gaps[0] + gaps[1]) / 2)
+                green_image = Image.new("RGBA", (size, size), green)
                 # tissue_img = Image.alpha_composite(tissue_img, green_image)
                 tissue_img.paste(green_image, (posX, posY), green_image)
-            
+
         tissue_img.save(tissue_name + "_score.png", "PNG")
-            # img_crop = tissue_img[
-            #     coord[0] - int(gaps[0] / 2) : coord[0] + int(gaps[0] / 2),
-            #     coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
-            # ]
-            # cv2.imwrite(
-            #     path + "/" + file + "/" + tissue_name + "/" + crop_name + format,
-            #     img_crop,
-            # )
+        # img_crop = tissue_img[
+        #     coord[0] - int(gaps[0] / 2) : coord[0] + int(gaps[0] / 2),
+        #     coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
+        # ]
+        # cv2.imwrite(
+        #     path + "/" + file + "/" + tissue_name + "/" + crop_name + format,
+        #     img_crop,
+        # )
+
 
 ### ------------------- MAIN ----------------------
 
