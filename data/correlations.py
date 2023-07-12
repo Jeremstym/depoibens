@@ -159,8 +159,8 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 coord = list(map(round, list(coord)))
                 gaps = df_complete.loc[idx][["gapY", "gapX"]].values
                 gaps = list(map(round, list(gaps)))
-                posY = coord[0] - int(gaps[0] / 2)
-                posX = coord[1] + int(gaps[1] / 2)
+                posY = coord[0] + int(gaps[0] / 2)
+                posX = coord[1] - int(gaps[1] / 2)
 
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
