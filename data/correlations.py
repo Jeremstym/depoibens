@@ -127,9 +127,9 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
 def color_score(score: float) -> int:
     # res = 100 * round(score, 1)
     if score > 0.85:
-        res = 90
-    elif score > 0.70:
-        res = 60
+        res = 95
+    elif score > 0.60:
+        res = 50
     else:
         res = 30
     return int(res)
@@ -168,7 +168,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 size = int((gaps[0] + gaps[1]) / 2)
                 green_image = Image.new("RGBA", (size, size), green)
                 # tissue_img = Image.alpha_composite(tissue_img, green_image)
-                tissue_img.paste(green_image, (posX, posY), green_image)
+                tissue_img.paste(green_image, (posY, posX), green_image)
 
         tissue_img.save(tissue_name + "_score.png", "PNG")
         # img_crop = tissue_img[
