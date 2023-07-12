@@ -143,24 +143,26 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         # os.mkdir(path + "/" + file + "/" + tissue_name)
 
         tissue_name = re.sub("_complete.pkl", "", df)
-        for idx in df_complete.index:
-            crop_name = tissue_name + "_" + idx
-            # Note that the axis are purposely inversed below
-            coord = df_complete.loc[idx][["Y", "X"]].values
-            coord = list(map(round, list(coord)))
-            gaps = df_complete.loc[idx][["gapY", "gapX"]].values
-            gaps = list(map(round, list(gaps)))
-            posY = coord[0] + int(gaps[0] / 2)
-            posX = coord[1] - int(gaps[1] / 2)
+        with tqdm(df_complete.index, total=len(df_complete.index), unit="spot") as pbar:
+            pbar.set_description(f"Coloring spots of {tissue_name}")
+            for idx in pbar:
+                crop_name = tissue_name + "_" + idx
+                # Note that the axis are purposely inversed below
+                coord = df_complete.loc[idx][["Y", "X"]].values
+                coord = list(map(round, list(coord)))
+                gaps = df_complete.loc[idx][["gapY", "gapX"]].values
+                gaps = list(map(round, list(gaps)))
+                posY = coord[0] + int(gaps[0] / 2)
+                posX = coord[1] - int(gaps[1] / 2)
 
-            score = df_score.loc[crop_name]["pearson"]
-            color = color_score(score)
-            green = (0, 255, 0, color - 10)
-            green_image = Image.new("RGBA", tissue_img.size, green)
-            # tissue_img = Image.alpha_composite(tissue_img, green_image)
-            tissue_img.paste(green_image, (posX, posY), green_image)
-        
-        tissue_img.save(tissue_name + "_score.jpg", "JPEG")
+                score = df_score.loc[crop_name]["pearson"]
+                color = color_score(score)
+                green = (0, 255, 0, color - 10)
+                green_image = Image.new("RGBA", tissue_img.size, green)
+                # tissue_img = Image.alpha_composite(tissue_img, green_image)
+                tissue_img.paste(green_image, (posX, posY), green_image)
+            
+        tissue_img.save(tissue_name + "_score.jpg", "PNG")
             # img_crop = tissue_img[
             #     coord[0] - int(gaps[0] / 2) : coord[0] + int(gaps[0] / 2),
             #     coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
