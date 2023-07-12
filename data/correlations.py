@@ -130,7 +130,7 @@ def color_score(score: float) -> int:
         res = 90
     elif score > 0.70:
         res = 60
-    elif score > 0.50:
+    else:
         res = 30
     return int(res)
 
