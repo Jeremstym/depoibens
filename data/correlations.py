@@ -125,7 +125,13 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
 
 
 def color_score(score: float) -> int:
-    res = 100 * round(score, 1)
+    # res = 100 * round(score, 1)
+    if score > 0.85:
+        res = 90
+    elif score > 0.70:
+        res = 60
+    elif score > 0.50:
+        res = 30
     return int(res)
 
 
