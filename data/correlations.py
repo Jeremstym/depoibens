@@ -126,7 +126,7 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
 
 def color_score(score: float) -> int:
     # res = 100 * round(score, 1)
-    if score > 0.85:
+    if score > 0.80:
         res = 95
     elif score > 0.60:
         res = 50
@@ -144,11 +144,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         tissue_img_loc = re.sub("_complete.pkl", ".jpg", df)
         tissue_img = Image.open(tissue_img_loc)
         tissue_img = tissue_img.convert("RGBA")
-        # tissue_img = cv2.imread(
-        #     path + "/" + file + "/" + tissue_img_loc, cv2.COLOR_BGR2RGB
-        # )
-        # os.mkdir(path + "/" + file + "/" + tissue_name)
-
         tissue_name = re.sub("_complete.pkl", "", df)
         with tqdm(df_complete.index, total=len(df_complete.index), unit="spot") as pbar:
             pbar.set_description(f"Coloring spots of {tissue_name}")
@@ -164,21 +159,18 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
-                green = (0, 255, 0, color - 20)
+                green = (0, 255, 0, color)
                 size = int((gaps[0] + gaps[1]) / 2)
                 green_image = Image.new("RGBA", (size, size), green)
                 # tissue_img = Image.alpha_composite(tissue_img, green_image)
                 tissue_img.paste(green_image, (posX, posY), green_image)
-
+        green_box_3 = Image.new("RGBA", (50,50), (0, 255, 0, 95))
+        green_box_2 = Image.new("RGBA", (50,50), (0, 255, 0, 50))
+        green_box_1 = Image.new("RGBA", (50,50), (0, 255, 0, 30))
+        tissue_img.paste(green_box_3, (6000, 4000), green_box_3)
+        tissue_img.paste(green_box_2, (5900, 4000), green_box_2)
+        tissue_img.paste(green_box_1, (5800, 4000), green_box_1)
         tissue_img.save(tissue_name + "_score.png", "PNG")
-        # img_crop = tissue_img[
-        #     coord[0] - int(gaps[0] / 2) : coord[0] + int(gaps[0] / 2),
-        #     coord[1] - int(gaps[1] / 2) : coord[1] + int(gaps[1] / 2),
-        # ]
-        # cv2.imwrite(
-        #     path + "/" + file + "/" + tissue_name + "/" + crop_name + format,
-        #     img_crop,
-        # )
 
 
 ### ------------------- MAIN ----------------------
