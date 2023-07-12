@@ -123,8 +123,9 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
         droppings = ["title", "lab", "tumor"]
     return df.drop(droppings, axis=1)
 
-def color_score(score: float) -> float:
-    return 100 * round(score, 1)
+def color_score(score: float) -> int:
+    res = 100 * round(score, 1)
+    return int(res)
 
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
