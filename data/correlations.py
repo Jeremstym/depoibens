@@ -164,12 +164,12 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 green_image = Image.new("RGBA", (size, size), green)
                 # tissue_img = Image.alpha_composite(tissue_img, green_image)
                 tissue_img.paste(green_image, (posX, posY), green_image)
-        green_box_3 = Image.new("RGBA", (50,50), (0, 255, 0, 95))
-        green_box_2 = Image.new("RGBA", (50,50), (0, 255, 0, 50))
-        green_box_1 = Image.new("RGBA", (50,50), (0, 255, 0, 30))
-        tissue_img.paste(green_box_3, (8000, 4000), green_box_3)
-        tissue_img.paste(green_box_2, (7900, 4000), green_box_2)
-        tissue_img.paste(green_box_1, (7800, 4000), green_box_1)
+        green_box_3 = Image.new("RGBA", (150,150), (0, 255, 0, 95))
+        green_box_2 = Image.new("RGBA", (150,150), (0, 255, 0, 50))
+        green_box_1 = Image.new("RGBA", (150,150), (0, 255, 0, 30))
+        tissue_img.paste(green_box_3, (4000, 8000), green_box_3)
+        tissue_img.paste(green_box_2, (4000, 7800), green_box_2)
+        tissue_img.paste(green_box_1, (4000, 7600), green_box_1)
         tissue_img.save(tissue_name + "_score.png", "PNG")
 
 
