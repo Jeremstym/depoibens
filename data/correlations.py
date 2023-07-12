@@ -158,7 +158,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
-                green = (0, 255, 0, color - 50)
+                green = (0, 255, 0, color - 20)
                 size = int((gaps[0] + gaps[1]) / 2)
                 green_image = Image.new("RGBA", (size, size), green)
                 # tissue_img = Image.alpha_composite(tissue_img, green_image)
