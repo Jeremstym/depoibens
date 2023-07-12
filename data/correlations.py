@@ -189,7 +189,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 #     df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
 
 if __name__ == "__main__":
-    df_corr = pd.read_csv(path_to_csv)
+    df_corr = pd.read_csv(path_to_csv, index_col=0)
     color_spot(path_to_data, df_corr)
     print("Done")
 
