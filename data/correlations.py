@@ -15,7 +15,7 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import re
 
 import torch
@@ -170,6 +170,18 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         tissue_img.paste(green_box_3, (6000, 8500), green_box_3)
         tissue_img.paste(green_box_2, (6000, 8300), green_box_2)
         tissue_img.paste(green_box_1, (6000, 8100), green_box_1)
+
+        draw = ImageDraw.Draw(tissue_img)
+        font = ImageFont.truetype("arial.ttf", 100)
+
+        text3 = "Pearson > 0.80"
+        text2 = "Pearson > 0.60"
+        text1 = "Pearson < 0.60"
+
+        draw.text((6200, 8500), text3, font=font, fill=(0, 0, 0, 255))
+        draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255))
+        draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255))
+
         tissue_img.save(tissue_name + "_score.png", "PNG")
 
 
