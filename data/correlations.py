@@ -5,6 +5,7 @@
 
 import os
 import sys
+from io import BytesIO
 
 # setting path
 sys.path.append("../")
@@ -174,7 +175,9 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw = ImageDraw.Draw(tissue_img)
         # font = ImageFont.truetype("data/arial.ttf", 100)
         # default_font = ImageFont.load_default()
-        font = ImageFont.truetype(os.getcwd() + "/arial.ttf", 16)
+        with open('arial.ttf', 'rb') as file:
+            bytes_font = BytesIO(file.read())
+        font = ImageFont.truetype(bytes_font, 16)
 
         text3 = "Pearson > 0.80"
         text2 = "Pearson > 0.60"
