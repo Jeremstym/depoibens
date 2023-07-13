@@ -334,8 +334,8 @@ def complete_processing(df: pd.DataFrame) -> pd.DataFrame:
     df["gapY"] = df["Y"].shift(-1, fill_value=0) - df["Y"]
     df["gapX"] = df["X"].shift(-1, fill_value=0) - df["X"]
     df["gapX"] = df["idX"].apply(lambda x: df[df["idX"] == x]["gapX"].max())
-    df["gapX"] = df["gapX"].apply(lambda x: 300 if x < 250 else x)
-    df["gapY"] = df["gapY"].apply(lambda x: 300 if x < 250 else x)
+    df["gapX"] = df["gapX"].apply(lambda x: 250 if x < 250 else x)
+    df["gapY"] = df["gapY"].apply(lambda x: 250 if x < 250 else x)
 
     return df
 
