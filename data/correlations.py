@@ -165,9 +165,9 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 green_image = Image.new("RGBA", (size, size), green)
                 # tissue_img = Image.alpha_composite(tissue_img, green_image)
                 tissue_img.paste(green_image, (posX, posY), green_image)
-        green_box_3 = Image.new("RGBA", (150,150), (0, 255, 0, 95))
-        green_box_2 = Image.new("RGBA", (150,150), (0, 255, 0, 50))
-        green_box_1 = Image.new("RGBA", (150,150), (0, 255, 0, 30))
+        green_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
+        green_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 50))
+        green_box_1 = Image.new("RGBA", (150, 150), (0, 255, 0, 30))
         tissue_img.paste(green_box_3, (6000, 8500), green_box_3)
         tissue_img.paste(green_box_2, (6000, 8300), green_box_2)
         tissue_img.paste(green_box_1, (6000, 8100), green_box_1)
@@ -176,17 +176,17 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         # font = ImageFont.truetype("data/arial.ttf", 100)
         # default_font = ImageFont.load_default()
         path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
-        with open(path_arial, 'rb') as file:
+        with open(path_arial, "rb") as file:
             bytes_font = BytesIO(file.read())
-        font = ImageFont.truetype(bytes_font, 16)
+        font = ImageFont.truetype(bytes_font, 100)
 
         text3 = "Pearson > 0.80"
         text2 = "Pearson > 0.60"
         text1 = "Pearson < 0.60"
 
-        draw.text((6200, 8500), text3, font=font, fill=(0, 0, 0, 255))
-        draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255))
-        draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255))
+        draw.text((6200, 8500), text3, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
 
         tissue_img.save(tissue_name + "_score.png", "PNG")
 
