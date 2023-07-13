@@ -128,12 +128,12 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
 def color_score(score: float) -> int:
     # res = 100 * round(score, 1)
     if score > 0.80:
-        res = 95
+        res = (0, 255, 0, 95)
     elif score > 0.60:
-        res = 50
+        res = (0, 255, 0, 35)
     else:
-        res = 30
-    return int(res)
+        res = (255, 0, 0, 35)
+    return res
 
 
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
@@ -160,17 +160,16 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
-                green = (0, 255, 0, color)
                 size = int((gaps[0] + gaps[1]) / 2)
-                green_image = Image.new("RGBA", (size, size), green)
-                # tissue_img = Image.alpha_composite(tissue_img, green_image)
-                tissue_img.paste(green_image, (posX, posY), green_image)
-        green_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
-        green_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 50))
-        green_box_1 = Image.new("RGBA", (150, 150), (0, 255, 0, 30))
-        tissue_img.paste(green_box_3, (6000, 8500), green_box_3)
-        tissue_img.paste(green_box_2, (6000, 8300), green_box_2)
-        tissue_img.paste(green_box_1, (6000, 8100), green_box_1)
+                colored_image = Image.new("RGBA", (size, size), color)
+                # tissue_img = Image.alpha_composite(tissue_img, colored_image)
+                tissue_img.paste(colored_image, (posX, posY), colored_image)
+        colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
+        colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
+        colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
+        tissue_img.paste(colored_box_3, (6000, 8500), colored_box_3)
+        tissue_img.paste(colored_box_2, (6000, 8300), colored_box_2)
+        tissue_img.paste(colored_box_1, (6000, 8100), colored_box_1)
 
         draw = ImageDraw.Draw(tissue_img)
         # font = ImageFont.truetype("data/arial.ttf", 100)
