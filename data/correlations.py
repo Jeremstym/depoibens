@@ -175,8 +175,8 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw = ImageDraw.Draw(tissue_img)
         # font = ImageFont.truetype("data/arial.ttf", 100)
         # default_font = ImageFont.load_default()
-        os.chdir("/import/bc_users/biocomp/stym/depoibens/data")
-        with open('arial.ttf', 'rb') as file:
+        path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
+        with open(path_arial, 'rb') as file:
             bytes_font = BytesIO(file.read())
         font = ImageFont.truetype(bytes_font, 16)
 
