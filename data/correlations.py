@@ -172,7 +172,9 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         tissue_img.paste(green_box_1, (6000, 8100), green_box_1)
 
         draw = ImageDraw.Draw(tissue_img)
-        font = ImageFont.truetype("data/arial.ttf", 100)
+        # font = ImageFont.truetype("data/arial.ttf", 100)
+        default_font = ImageFont.load_default()
+        font = ImageFont.truetype("sans-serif.ttf", 16)
 
         text3 = "Pearson > 0.80"
         text2 = "Pearson > 0.60"
