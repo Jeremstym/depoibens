@@ -294,7 +294,11 @@ class Phenotype(data.Dataset):
             img_name = image[19:-4]
             img_preprocessed = self.preprocess(img)
             self.data = pd.concat(
-                [self.data, pd.DataFrame({"name": img_name, "image": img_preprocessed})]
+                [
+                    self.data,
+                    pd.DataFrame({"name": img_name, "image": img_preprocessed}),
+                ],
+                ignore_index=True,
             )
 
     def preprocess(self, image):
