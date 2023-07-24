@@ -26,7 +26,7 @@ from torchmetrics import R2Score, PearsonCorrCoef
 from data.dataset_stnet import create_dataloader
 
 if __name__ == "__main__":
-    from util_savings import SaveBestModel, save_model, save_plots
+    from utils.util_savings import SaveBestModel, save_model, save_plots
 
 import neptune
 from neptune_pytorch import NeptuneLogger
