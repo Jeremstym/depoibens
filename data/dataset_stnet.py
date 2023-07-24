@@ -42,7 +42,7 @@ selection_tensor_path = "/projects/minos/jeremie/data/features_std.pkl"
 
 ### ---------------- Customized Inception model ------------------------
 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 inception = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
 dino = torch.hub.load("facebookresearch/dino:main", "dino_vitb16")
 
@@ -204,6 +204,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
     return df
 
 
+
 # if __name__ == "__main__":
 #     path = "/projects/minos/jeremie/data"
 #     with open(path + "/std_genes_avg.pkl", "rb") as f:
@@ -243,7 +244,7 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
 ### ---------------- Create dataset ------------------
 
 
-class Phenotypes(data.Dataset):
+class Dataset_STnet(data.Dataset):
     def __init__(
         self,
         tsv_concatened,
@@ -276,6 +277,40 @@ class Phenotypes(data.Dataset):
 
     def get_index_name(self, idx_number: int):
         return list(self.embeddings_dict.keys())[idx_number]
+    
+class Phenotype(data.Dataset):
+    def __init__(
+        self,
+        path_to_image: str,
+        size=299,
+    ) -> None:
+        self.path = path_to_image
+        self.size = size
+        self.data = pd.DataFrame()
+        for image in glob("*/*/*.jpg"):
+            img = Image.open(image)
+            img_name = img[19:-4]
+            img_preprocessed = self.preprocess(img)
+            self.data = self.data.append({"name": img_name,"image": img_preprocessed}, ignore_index=True)
+
+    def preprocess(self, image):
+        size = self.size
+        preprocess = transforms.Compose(
+        [
+            transforms.Resize(size),
+            transforms.CenterCrop(size),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
+        preprocessed_image = preprocess(image)
+        return preprocessed_image
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx_number: int):
+        return self.data.iloc[idx_number]["image"]
 
 ### ---------------- Create dataloader ------------------------
 
@@ -325,21 +360,21 @@ def create_dataloader(
         embedding_validation = {k: embeddings_dict[k] for k in validation_list}
         embeddings_test = {k: embeddings_dict[k] for k in test_list}
 
-        trainset = Phenotypes(
+        trainset = Dataset_STnet(
             tsv_train,
             embeddings_train,
             selection_tensor,
             nb_genes=input_size,
             embd_size=output_size,
         )
-        validationset = Phenotypes(
+        validationset = Dataset_STnet(
             tsv_validation,
             embedding_validation,
             selection_tensor,
             nb_genes=input_size,
             embd_size=output_size,
         )
-        testset = Phenotypes(
+        testset = Dataset_STnet(
             tsv_test,
             embeddings_test,
             selection_tensor,
@@ -362,6 +397,28 @@ def create_dataloader(
 
     else:
         raise ValueError("test_patient must be specified")
+    
+
+def create_GAN_dataloader(
+        image_path:str,
+        train_batch_size=BATCH_SIZE,
+        test_patient="BC23270",
+        test_batch_size=16,
+        ) -> data.DataLoader:
+    
+    cell = Image.open(image_path)
+    preprocess = transforms.Compose(
+        [
+            transforms.Resize(299),
+            transforms.CenterCrop(299),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
+    input_image = preprocess(cell)
+
+
+
 
 
 # if __name__ == "__main__":
@@ -408,7 +465,7 @@ def create_dataloader(
 
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
-#     st_set = Phenotypes(path)
+#     st_set = Dataset_STnet(path)
 #     torch.save(st_set, path + "/st_set.pt")
 
 
