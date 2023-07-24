@@ -38,6 +38,7 @@ tsv_path = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
 embeddings_path_dino = "/projects/minos/jeremie/data/dino_features.pkl"
 selection_tensor_path = "/projects/minos/jeremie/data/features_std.pkl"
+path_to_image = "/projects/minos/jeremie/data"
 
 
 ### ---------------- Customized Inception model ------------------------
@@ -400,22 +401,18 @@ def create_dataloader(
     
 
 def create_GAN_dataloader(
-        image_path:str,
+        image_path=path_to_image,
         train_batch_size=BATCH_SIZE,
-        test_patient="BC23270",
-        test_batch_size=16,
+        # test_patient="BC23270",
+        # test_batch_size=16,
         ) -> data.DataLoader:
     
-    cell = Image.open(image_path)
-    preprocess = transforms.Compose(
-        [
-            transforms.Resize(299),
-            transforms.CenterCrop(299),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
+    trainset = Phenotype(image_path)
+    trainloader = data.DataLoader(
+        trainset, batch_size=train_batch_size, shuffle=True, num_workers=4
     )
-    input_image = preprocess(cell)
+    return trainloader
+    
 
 
 
