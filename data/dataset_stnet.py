@@ -291,7 +291,7 @@ class Phenotype(data.Dataset):
         os.chdir(self.path)
         for image in glob("*/*/*.jpg"):
             img = Image.open(image)
-            img_name = img[19:-4]
+            img_name = image[19:-4]
             img_preprocessed = self.preprocess(img)
             self.data = self.data.append(
                 {"name": img_name, "image": img_preprocessed}, ignore_index=True
