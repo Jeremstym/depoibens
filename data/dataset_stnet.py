@@ -288,6 +288,7 @@ class Phenotype(data.Dataset):
         self.path = path_to_image
         self.size = size
         self.data = pd.DataFrame()
+        os.chdir(self.path)
         for image in glob("*/*/*.jpg"):
             img = Image.open(image)
             img_name = img[19:-4]
