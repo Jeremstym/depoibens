@@ -287,14 +287,14 @@ class Phenotype(data.Dataset):
     ) -> None:
         self.path = path_to_image
         self.size = size
-        self.data = pd.DataFrame()
+        self.data = pd.DataFrame(columns=["name", "image"])
         os.chdir(self.path)
         for image in glob("*/*/*.jpg"):
             img = Image.open(image)
             img_name = image[19:-4]
             img_preprocessed = self.preprocess(img)
-            self.data = self.data.append(
-                {"name": img_name, "image": img_preprocessed}, ignore_index=True
+            self.data = pd.concat(
+                [self.data, pd.DataFrame({"name": img_name, "image": img_preprocessed})]
             )
 
     def preprocess(self, image):
