@@ -3,9 +3,11 @@
 
 import os
 import sys
-import time
+sys.path.append("../")
+
 import argparse
 import numpy as np
+import pandas as pd
 
 import torch
 import torch.nn as nn
@@ -14,7 +16,7 @@ import torchvision.utils as vutils
 
 from vanillaGAN import Generator, Discriminator, weights_init
 from data.dataset_stnet import create_GAN_dataloader
-from util_savings import save_model
+from utils.utils_GAN import save_model_generator, save_model_discriminator
 
 ### -------------- Constants ------------------
 
@@ -199,9 +201,8 @@ def main():
     ### -------------- Save models -----------------------
 
     # Save models
-    save_model(path_to_data, num_epochs, netG, optimizerG, criterion)
-    path_netD = "/projects/minos/jeremie/models/discriminator"
-    save_model(path_netD, num_epochs, netD, optimizerD, criterion)
+    save_model_generator(path_to_data, num_epochs, netG, optimizerG, criterion)
+    save_model_discriminator(path_to_data, num_epochs, netD, optimizerD, criterion)
 
     print("Done!")
 
