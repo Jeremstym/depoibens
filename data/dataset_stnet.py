@@ -296,7 +296,9 @@ class Phenotype(data.Dataset):
             self.data = pd.concat(
                 [
                     self.data,
-                    pd.DataFrame({"name": img_name, "image": img_preprocessed}).set_index("name"),
+                    pd.DataFrame(
+                        {"name": img_name, "image": img_preprocessed}
+                    ).set_index("name"),
                 ],
                 ignore_index=False,
             )
