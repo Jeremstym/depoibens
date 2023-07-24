@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 # Utils for GAN
 
@@ -8,8 +8,18 @@
 import os
 import torch
 import matplotlib.pyplot as plt
+from PIL import Image
 
 plt.style.use("ggplot")
+
+import numpy as np
+import pandas as pd
+
+import torch
+from torchvision import transforms
+from torch.utils.data import Dataset, DataLoader
+from torchvision.utils import save_image
+import torchvision.utils as vutils
 
 
 class SaveBestModel:
@@ -53,6 +63,7 @@ def save_model_generator(path, epochs, model, optimizer, criterion):
         path + "/outputs/netG.pth",
     )
 
+
 def save_model_discriminator(path, epochs, model, optimizer, criterion):
     """
     Function to save the trained model to disk.
@@ -67,3 +78,34 @@ def save_model_discriminator(path, epochs, model, optimizer, criterion):
         },
         path + "/outputs/netD.pth",
     )
+
+
+def plot_grid(real_batch, img_list, path_save) -> None:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    plt.figure(figsize=(15, 15))
+    plt.subplot(1, 2, 1)
+    plt.axis("off")
+    plt.title("Real Images")
+    plt.imshow(
+        np.transpose(
+            vutils.make_grid(
+                real_batch[0].to(device)[:64], padding=5, normalize=True
+            ).cpu(),  # normalize=True
+            (1, 2, 0),
+        )
+    )
+    plt.savefig("/outputs/real_images.png")
+
+    # Plot the fake images from the last epoch
+    plt.subplot(1, 2, 2)
+    plt.axis("off")
+    plt.title("Fake Images")
+    plt.imshow(
+        np.transpose(
+            vutils.make_grid(
+                img_list[-1],
+                (1, 2, 0),
+            )
+        )
+    )
+    plt.savefig("/outputs/fake_images.png")
