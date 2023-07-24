@@ -4,7 +4,7 @@
 import os
 import sys
 
-sys.path.append("../")
+sys.path.append("/import/bc_users/biocomp/stym/depoibens")
 
 import argparse
 import numpy as np
