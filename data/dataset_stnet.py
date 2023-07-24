@@ -131,8 +131,8 @@ def list_stds(embeddings_dict):
 #     dino_dict = embed_all_images(path, dino, device)
 #     with open(path + "/dino_features.pkl", "wb") as f:
 #         pkl.dump(dino_dict, f)
-    
-    
+
+
 # if __name__ == "__main__":
 #     path = "/import/pr_minos/jeremie/data"
 #     with open(path + "/embeddings_dict2.pkl", "rb") as f:
@@ -203,7 +203,6 @@ def concat_tsv(path: str, bestgene: list) -> pd.DataFrame:
         pbar.set_description(f"Processing {tissue_name}")
 
     return df
-
 
 
 # if __name__ == "__main__":
@@ -278,7 +277,8 @@ class Dataset_STnet(data.Dataset):
 
     def get_index_name(self, idx_number: int):
         return list(self.embeddings_dict.keys())[idx_number]
-    
+
+
 class Phenotype(data.Dataset):
     def __init__(
         self,
@@ -293,26 +293,31 @@ class Phenotype(data.Dataset):
             img = Image.open(image)
             img_name = img[19:-4]
             img_preprocessed = self.preprocess(img)
-            self.data = self.data.append({"name": img_name,"image": img_preprocessed}, ignore_index=True)
+            self.data = self.data.append(
+                {"name": img_name, "image": img_preprocessed}, ignore_index=True
+            )
 
     def preprocess(self, image):
         size = self.size
         preprocess = transforms.Compose(
-        [
-            transforms.Resize(size),
-            transforms.CenterCrop(size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
+            [
+                transforms.Resize(size),
+                transforms.CenterCrop(size),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
         preprocessed_image = preprocess(image)
         return preprocessed_image
-    
+
     def __len__(self):
         return len(self.data)
-    
+
     def __getitem__(self, idx_number: int):
         return self.data.iloc[idx_number]["image"]
+
 
 ### ---------------- Create dataloader ------------------------
 
@@ -399,24 +404,19 @@ def create_dataloader(
 
     else:
         raise ValueError("test_patient must be specified")
-    
+
 
 def create_GAN_dataloader(
-        image_path=path_to_image,
-        train_batch_size=BATCH_SIZE,
-        # test_patient="BC23270",
-        # test_batch_size=16,
-        ) -> data.DataLoader:
-    
+    image_path=path_to_image,
+    train_batch_size=BATCH_SIZE,
+    # test_patient="BC23270",
+    # test_batch_size=16,
+) -> data.DataLoader:
     trainset = Phenotype(image_path)
     trainloader = data.DataLoader(
         trainset, batch_size=train_batch_size, shuffle=True, num_workers=4
     )
     return trainloader
-    
-
-
-
 
 
 # if __name__ == "__main__":
