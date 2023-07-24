@@ -48,7 +48,7 @@ def save_model(path, epochs, model, optimizer, criterion):
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": criterion,
         },
-        path + "/outputs/final_model_inception.pth",
+        path + "/outputs/netG.pth",
     )
 
 
