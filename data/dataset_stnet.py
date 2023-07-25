@@ -288,6 +288,7 @@ class Phenotype(data.Dataset):
         self.path = path_to_image
         self.size = size
         self.dict = {}
+        self.dict_path = {}
         os.chdir(self.path)
         with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
             for image in pbar:
@@ -295,6 +296,7 @@ class Phenotype(data.Dataset):
                 img_name = image[19:-4]
                 img_preprocessed = self.preprocess(img)
                 self.dict[img_name] = img_preprocessed
+                self.dict_path[img_name] = image
 
     def preprocess(self, image):
         size = self.size
@@ -316,7 +318,8 @@ class Phenotype(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.dict.keys())[idx_number]
-        return self.dict[index]
+        # return self.dict[index]
+        return self.dict_path[index]
 
 
 ### ---------------- Create dataloader ------------------------
