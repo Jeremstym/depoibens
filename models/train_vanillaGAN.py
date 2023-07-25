@@ -120,6 +120,7 @@ def main():
     # For each epoch
     for epoch in range(num_epochs):
         with tqdm(enumerate(dataloader), total=len(dataloader), unit="batch") as pbar:
+            pbar.set_description(f"Epoch {epoch+1}/{num_epochs}")
             # For each batch in the dataloader
             for i, data in pbar:
                 ############################
