@@ -144,6 +144,7 @@ def main():
                 netD.zero_grad()
                 # Format batch
                 real_cpu = data[0].to(device)
+                print(real_cpu.size())
                 b_size = real_cpu.size(0)
                 label = torch.full(
                     (b_size,), real_label, dtype=torch.float, device=device
