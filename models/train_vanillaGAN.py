@@ -18,7 +18,6 @@ import torchvision.utils as vutils
 
 from vanillaGAN import Generator, Discriminator, weights_init
 from data.dataset_stnet import create_GAN_dataloader
-print(sys.path)
 from tools.utils_GAN import save_model_generator, save_model_discriminator, plot_grid
 
 ### -------------- Constants ------------------
