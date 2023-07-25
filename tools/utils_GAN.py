@@ -80,7 +80,22 @@ def save_model_discriminator(path, epochs, model, optimizer, criterion):
     )
 
 
-def plot_grid(real_batch, img_list, path_save) -> None:
+def plot_grid(img_batch, path_save: str, epoch: int) -> None:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    plt.figure(figsize=(8, 8))
+    plt.axis("off")
+    plt.title("Fake Images")
+    plt.imshow(
+        np.transpose(
+            vutils.make_grid(
+                img_batch[0].to(device)[:64], padding=5, normalize=True
+                (1, 2, 0),
+            )
+        )
+    )
+    plt.savefig(path_save + f"/GANresults/fake_images_epoch{epoch}.png")
+
+def plot_final_grid(real_batch, img_list, path_save) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 1)
@@ -89,8 +104,8 @@ def plot_grid(real_batch, img_list, path_save) -> None:
     plt.imshow(
         np.transpose(
             vutils.make_grid(
-                real_batch[0].to(device)[:64], padding=5, normalize=True
-            ).cpu(),  # normalize=True
+                real_batch[0].to(device)[:64], padding=2, normalize=True
+            ).cpu(),
             (1, 2, 0),
         )
     )
