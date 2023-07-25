@@ -114,7 +114,7 @@ class Discriminator(nn.Module):
         self.main = nn.Sequential(
             # input is 1 x 300 x 300
             nn.Conv2d(
-                in_channels=1,
+                in_channels=3,
                 out_channels=ndf,
                 kernel_size=4,
                 stride=2,
