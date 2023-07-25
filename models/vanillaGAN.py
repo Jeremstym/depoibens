@@ -47,6 +47,7 @@ class Generator(nn.Module):
         super().__init__()
         self.ngpu = ngpu
         self.main = nn.Sequential(
+            # input is 100 x 1 x 1
             nn.ConvTranspose2d(
                 in_channels=nz,
                 out_channels=ngf * 8,
@@ -73,7 +74,7 @@ class Generator(nn.Module):
                 in_channels=ngf * 4,
                 out_channels=ngf * 2,
                 kernel_size=32,
-                stride=4,
+                stride=2,
                 padding=1,
                 bias=False,
             ),
@@ -93,14 +94,14 @@ class Generator(nn.Module):
             # state size. (ngf) x 308 x 308
             nn.ConvTranspose2d(
                 in_channels=ngf,
-                out_channels=1,
+                out_channels=3,
                 kernel_size=1,
                 stride=1,
                 padding=4,
                 bias=False,
             ),
             nn.Tanh()
-            # output size. 1 x 300 x 300
+            # state size. 3 x 300 x 300
         )
 
     def forward(self, input):
