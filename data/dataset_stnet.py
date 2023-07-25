@@ -287,21 +287,13 @@ class Phenotype(data.Dataset):
     ) -> None:
         self.path = path_to_image
         self.size = size
-        self.data = pd.DataFrame()
+        self.dict = {}
         os.chdir(self.path)
         for image in glob("*/*/*.jpg"):
             img = Image.open(image)
             img_name = image[19:-4]
             img_preprocessed = self.preprocess(img)
-            self.data = pd.concat(
-                [
-                    self.data,
-                    pd.DataFrame(
-                        {"name": img_name, "image": img_preprocessed}
-                    ),
-                ],
-                ignore_index=False,
-            )
+            self.dict[img_name] = img_preprocessed
 
     def preprocess(self, image):
         size = self.size
@@ -319,10 +311,11 @@ class Phenotype(data.Dataset):
         return preprocessed_image
 
     def __len__(self):
-        return len(self.data)
+        return len(self.dict)
 
     def __getitem__(self, idx_number: int):
-        return self.data.iloc[idx_number]["image"]
+        index = list(self.dict.keys())[idx_number]
+        return self.dict[index]
 
 
 ### ---------------- Create dataloader ------------------------
