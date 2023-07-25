@@ -20,7 +20,7 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 
 from vanillaGAN import Generator, Discriminator, weights_init
-from data.dataset_stnet import create_GAN_dataloader
+# from data.dataset_stnet import create_GAN_dataloader
 from tools.utils_GAN import save_model_generator, save_model_discriminator, plot_grid
 
 ### -------------- Constants ------------------
