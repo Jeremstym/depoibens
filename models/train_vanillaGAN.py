@@ -4,6 +4,7 @@
 import os
 import sys
 import pickle as pkl
+
 sys.path.append("../")
 
 import argparse
@@ -62,8 +63,18 @@ num_epochs = args["epochs"]
 def main():
     ### -------------- Load data -------------------------------
 
-    with open("dataloaderGAN.pkl", "rb") as f:
-        dataloader = pkl.load(f)
+    preprocess = transforms.Compose(
+        [
+            transforms.Resize(299),
+            transforms.CenterCrop(299),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
+    dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=16, shuffle=True, num_workers=4
+    )
     print("Data loaded")
     ### -------------- Initialize models -----------------------
 
@@ -216,29 +227,14 @@ def main():
     save_model_discriminator(path_to_data, num_epochs, netD, optimizerD, criterion)
 
     ### -------------- Plot -----------------------
-    
+
     plot_grid(real_batch, img_list, path_to_data)
 
     print("Done!")
 
 
 if __name__ == "__main__":
-    # main()
-    preprocess = transforms.Compose(
-            [
-                transforms.Resize(299),
-                transforms.CenterCrop(299),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
-            ]
-        )
-    dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
-    dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=16, shuffle=True, num_workers=4
-    )
-    print(dataset)
+    main()
 
 # if __name__ == "__main__":
 #     # main()
