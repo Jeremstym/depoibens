@@ -287,7 +287,7 @@ class Phenotype(data.Dataset):
     ) -> None:
         self.path = path_to_image
         self.size = size
-        self.data = pd.DataFrame(columns=["name", "image"]).set_index("name")
+        self.data = pd.DataFrame()
         os.chdir(self.path)
         for image in glob("*/*/*.jpg"):
             img = Image.open(image)
