@@ -67,17 +67,21 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() and ngpu > 0 else "cpu")
 
     # Create the generator
+    print("Creating the generator...")
     netG = Generator(ngpu).to(device)
 
     # Handle multi-GPU if desired
+    print("Handle multi-GPU if desired...")
     if (device.type == "cuda") and (ngpu > 1):
         netG = nn.DataParallel(netG, list(range(ngpu)))
 
     # Apply the ``weights_init`` function to randomly initialize all weights
     #  to ``mean=0``, ``stdev=0.02``.
+    print("Apply the ``weights_init`` function to randomly initialize all weights...")
     netG.apply(weights_init)
 
     # Create the Discriminator
+    print("Creating the Discriminator...")
     netD = Discriminator(ngpu).to(device)
 
     # Handle multi-GPU if desired
@@ -86,6 +90,7 @@ def main():
 
     # Apply the ``weights_init`` function to randomly initialize all weights
     # like this: ``to mean=0, stdev=0.2``.
+    print("Apply the ``weights_init`` function to randomly initialize all weights...")
     netD.apply(weights_init)
 
     ### -------------- Loss function -----------------------
