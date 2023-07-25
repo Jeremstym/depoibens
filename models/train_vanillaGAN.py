@@ -21,7 +21,7 @@ import torchvision.transforms as transforms
 
 from vanillaGAN import Generator, Discriminator, weights_init
 # from data.dataset_stnet import create_GAN_dataloader
-from tools.utils_GAN import save_model_generator, save_model_discriminator, plot_grid
+from tools.utils_GAN import save_model_generator, save_model_discriminator, plot_grid, plot_final_grid
 
 ### -------------- Constants ------------------
 
@@ -229,6 +229,9 @@ def main():
 
                 iters += 1
 
+            # Save fake images
+            plot_grid(fake, path_to_data, epoch)
+
     ### -------------- Save models -----------------------
 
     # Save models
@@ -237,7 +240,7 @@ def main():
 
     ### -------------- Plot -----------------------
 
-    plot_grid(real_batch, img_list, path_to_data)
+    plot_final_grid(real_batch, img_list, path_to_data)
 
     print("Done!")
 
