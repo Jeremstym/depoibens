@@ -15,6 +15,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
+import torchvision.datasets as dset
+import torchvision.transforms as transforms
 
 from vanillaGAN import Generator, Discriminator, weights_init
 from data.dataset_stnet import create_GAN_dataloader
@@ -222,6 +224,23 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    dataloader = create_GAN_dataloader(image_path=path_to_data, train_batch_size=16)
-    with open("dataloaderGAN.pkl", "wb") as f:
-        pkl.dump(dataloader, f)
+    preprocess = transforms.Compose(
+            [
+                transforms.Resize(299),
+                transforms.CenterCrop(299),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
+    dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=16, shuffle=True, num_workers=4
+    )
+
+# if __name__ == "__main__":
+#     # main()
+#     dataloader = create_GAN_dataloader(image_path=path_to_data, train_batch_size=16)
+#     with open("dataloaderGAN.pkl", "wb") as f:
+#         pkl.dump(dataloader, f)
