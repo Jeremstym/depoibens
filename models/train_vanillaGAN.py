@@ -238,7 +238,7 @@ if __name__ == "__main__":
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=16, shuffle=True, num_workers=4
     )
-    print(dataset.class_to_idx)
+    print(dataset)
 
 # if __name__ == "__main__":
 #     # main()
