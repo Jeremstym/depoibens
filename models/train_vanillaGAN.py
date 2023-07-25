@@ -26,7 +26,7 @@ from tools.utils_GAN import save_model_generator, save_model_discriminator, plot
 
 # Path to data
 
-path_to_data = "/projects/minos/jeremie/data"
+path_to_data = "/projects/minos/jeremie/data/images"
 
 ## Hyperparameters
 nz = 100  # size of latent vector
