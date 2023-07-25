@@ -3,7 +3,7 @@
 
 import os
 import sys
-
+import pickle as pkl
 sys.path.append("../")
 
 import argparse
@@ -60,8 +60,9 @@ num_epochs = args["epochs"]
 def main():
     ### -------------- Load data -------------------------------
 
-    dataloader = create_GAN_dataloader(image_path=path_to_data, train_batch_size=16)
-
+    with open("dataloaderGAN.pkl", "rb") as f:
+        dataloader = pkl.load(f)
+    print("Data loaded")
     ### -------------- Initialize models -----------------------
 
     device = torch.device("cuda" if torch.cuda.is_available() and ngpu > 0 else "cpu")
@@ -220,4 +221,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    dataloader = create_GAN_dataloader(image_path=path_to_data, train_batch_size=16)
+    with open("dataloaderGAN.pkl", "wb") as f:
+        pkl.dump(dataloader, f)
