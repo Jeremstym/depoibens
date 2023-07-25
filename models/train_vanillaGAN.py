@@ -34,6 +34,8 @@ nz = 100  # size of latent vector
 ngf = 64  # size of feature maps in generator
 ndf = 64  # size of feature maps in discriminator
 
+BATCH_SIZE = 64  # Batch size during training
+
 # Learning rate for optimizers
 lr = 0.0002
 
@@ -73,7 +75,7 @@ def main():
     )
     dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
     dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=16, shuffle=True, num_workers=4
+        dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4
     )
     print("Data loaded")
     ### -------------- Initialize models -----------------------
