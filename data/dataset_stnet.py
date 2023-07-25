@@ -289,11 +289,12 @@ class Phenotype(data.Dataset):
         self.size = size
         self.dict = {}
         os.chdir(self.path)
-        for image in glob("*/*/*.jpg"):
-            img = Image.open(image)
-            img_name = image[19:-4]
-            img_preprocessed = self.preprocess(img)
-            self.dict[img_name] = img_preprocessed
+        with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
+            for image in pbar:
+                img = Image.open(image)
+                img_name = image[19:-4]
+                img_preprocessed = self.preprocess(img)
+                self.dict[img_name] = img_preprocessed
 
     def preprocess(self, image):
         size = self.size
