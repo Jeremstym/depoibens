@@ -252,8 +252,8 @@ if __name__ == "__main__":
 
     # Example error message
     try:
-        main()
         raise Exception("This is an error message!")
+        main()
     except Exception as e:
         logging.error(str(e))
 
