@@ -249,7 +249,7 @@ def main():
 
     ### -------------- Plot -----------------------
 
-    plot_final_grid(real_batch, img_list, path_to_data)
+    plot_final_grid(real_batch, img_list, path_save)
 
     print("Done!")
 
@@ -262,10 +262,8 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
-    # Example error message
     try:
         main()
-        # raise Exception("This is an error message!")
     except KeyboardInterrupt as keyb:
         logging.exception(str(keyb))
     except Exception as e:
