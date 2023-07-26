@@ -258,7 +258,7 @@ if __name__ == "__main__":
     # Set up logging
     logging.basicConfig(
         filename=path_to_log + "/training.log",
-        level=logging.DEBUG,
+        level=logging.ERROR,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
