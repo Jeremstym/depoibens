@@ -28,6 +28,7 @@ from tools.utils_GAN import save_model_generator, save_model_discriminator, plot
 # Path to data
 
 path_to_data = "/projects/minos/jeremie/data/images"
+path_to_log = "/projects/minos/jeremie/data/logs"
 
 ## Hyperparameters
 nz = 100  # size of latent vector
@@ -247,7 +248,7 @@ def main():
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(filename=path_to_data + '/logs/training.log', level=logging.ERROR)
+    logging.basicConfig(filename=path_to_data + '/training.log', level=logging.ERROR)
 
     # Example error message
     try:
