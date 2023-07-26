@@ -248,14 +248,14 @@ def main():
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(filename=path_to_log + '/training.log', level=logging.ERROR)
+    logging.basicConfig(filename=path_to_log + '/training.log', level=logging.DEBUG)
 
     # Example error message
     try:
-        raise Exception("This is an error message!")
         main()
+        # raise Exception("This is an error message!")
     except Exception as e:
-        logging.error(str(e))
+        logging.debug(str(e))
 
 # if __name__ == "__main__":
 #     # main()
