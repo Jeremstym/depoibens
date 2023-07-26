@@ -60,7 +60,7 @@ def save_model_generator(path, epochs, model, optimizer, criterion):
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": criterion,
         },
-        path + "/outputs/netG.pth",
+        path + "/final_outputs/netG.pth",
     )
 
 
@@ -76,7 +76,7 @@ def save_model_discriminator(path, epochs, model, optimizer, criterion):
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": criterion,
         },
-        path + "/outputs/netD.pth",
+        path + "/final_outputs/netD.pth",
     )
 
 
@@ -112,7 +112,7 @@ def plot_final_grid(real_batch, img_list, path_save) -> None:
             (1, 2, 0),
         )
     )
-    plt.savefig("/outputs/real_images.png")
+    plt.savefig("/final_outputs/real_images.png")
 
     # Plot the fake images from the last epoch
     plt.subplot(1, 2, 2)
@@ -126,4 +126,4 @@ def plot_final_grid(real_batch, img_list, path_save) -> None:
             )
         )
     )
-    plt.savefig("/outputs/fake_images.png")
+    plt.savefig("/final_outputs/fake_images.png")
