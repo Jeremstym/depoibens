@@ -5,6 +5,7 @@ import os
 import sys
 import pickle as pkl
 import logging
+
 sys.path.append("../")
 
 import argparse
@@ -20,8 +21,14 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 
 from vanillaGAN import Generator, Discriminator, weights_init
+
 # from data.dataset_stnet import create_GAN_dataloader
-from tools.utils_GAN import save_model_generator, save_model_discriminator, plot_grid, plot_final_grid
+from tools.utils_GAN import (
+    save_model_generator,
+    save_model_discriminator,
+    plot_grid,
+    plot_final_grid,
+)
 
 ### -------------- Constants ------------------
 
@@ -248,7 +255,11 @@ def main():
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(filename=path_to_log + '/training.log', level=logging.DEBUG)
+    logging.basicConfig(
+        filename=path_to_log + "/training.log",
+        level=logging.DEBUG,
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    )
 
     # Example error message
     try:
