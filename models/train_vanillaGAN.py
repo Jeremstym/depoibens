@@ -4,7 +4,7 @@
 import os
 import sys
 import pickle as pkl
-
+import logging
 sys.path.append("../")
 
 import argparse
@@ -246,7 +246,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Set up logging
+    logging.basicConfig(filename=path_to_data + '/training.log', level=logging.ERROR)
+
+    # Example error message
+    try:
+        main()
+    except Exception as e:
+        logging.error(str(e))
 
 # if __name__ == "__main__":
 #     # main()
