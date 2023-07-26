@@ -94,8 +94,8 @@ def plot_grid(img_batch, path_save: str, epoch: int) -> None:
             ).cpu(),
             (1, 2, 0),
         )
-    )
-    plt.savefig(path_save + f"/GANresults/fake_images_epoch{epoch}.png")
+    )        
+    plt.savefig(path_save + f"/GANresults/fake_images_epoch{epoch}.jpg")
 
 
 def plot_final_grid(real_batch, img_list, path_save) -> None:
