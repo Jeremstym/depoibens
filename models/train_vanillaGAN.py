@@ -36,6 +36,7 @@ from tools.utils_GAN import (
 
 path_to_data = "/projects/minos/jeremie/data/images"
 path_to_log = "/projects/minos/jeremie/data/logs"
+path_save = "/projects/minos/jeremie/data/GANresults"
 
 ## Hyperparameters
 nz = 100  # size of latent vector
@@ -238,13 +239,13 @@ def main():
                 iters += 1
 
             # Save fake images
-            plot_grid(fake, path_to_data, epoch)
+            plot_grid(fake, path_save, epoch)
 
     ### -------------- Save models -----------------------
 
     # Save models
-    save_model_generator(path_to_data, num_epochs, netG, optimizerG, criterion)
-    save_model_discriminator(path_to_data, num_epochs, netD, optimizerD, criterion)
+    save_model_generator(path_save, num_epochs, netG, optimizerG, criterion)
+    save_model_discriminator(path_save, num_epochs, netD, optimizerD, criterion)
 
     ### -------------- Plot -----------------------
 
