@@ -141,8 +141,14 @@ def main():
 
     real_batch = next(iter(dataloader))
 
+    # Sample data
+    fake = torch.randn(64, 3, 64, 64)
+    # Test plot_grid function
+    plot_grid(fake, path_save, 0)
+
     print("Starting Training Loop...")
     # For each epoch
+
     for epoch in range(num_epochs):
         with tqdm(enumerate(dataloader), total=len(dataloader), unit="batch") as pbar:
             pbar.set_description(f"Epoch {epoch+1}/{num_epochs}")
