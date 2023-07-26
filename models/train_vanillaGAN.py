@@ -254,6 +254,8 @@ if __name__ == "__main__":
     try:
         main()
         # raise Exception("This is an error message!")
+    except KeyboardInterrupt as keyb:
+        logging.debug(str(keyb))
     except Exception as e:
         logging.debug(str(e))
 
