@@ -118,7 +118,6 @@ def show_tensor_images(
         .to("cpu", torch.uint8)
         .numpy()
     )
-    unormalized_img = image_grid*0.5 + 0.5
     # plt.imshow(image_grid.permute(1, 2, 0).squeeze())
     # plt.show()
     Image.fromarray(image_grid).save(path_save + f"/fake_images_epoch{epoch}.jpg")
@@ -139,12 +138,13 @@ def show_final_grid(
     image_unflat = real_batch[0].detach().cpu().view(-1, *size)
     image_grid = (
         make_grid(image_unflat[:num_image], nrow=5)
+        .mul(0.5)
+        .add(0.5)
         .mul(255)
         .permute(1, 2, 0)
         .to("cpu", torch.uint8)
         .numpy()
     )
-    unormalized_img = image_grid*0.5 + 0.5
     Image.fromarray(image_grid).save(path_save + "/real_final_images.jpg")
 
     # Plot the fake images from the last epoch
@@ -154,12 +154,13 @@ def show_final_grid(
     image_unflat = img_list[-1].detach().cpu().view(-1, *size)
     image_grid = (
         make_grid(image_unflat[:num_image], nrow=5)
+        .mul(0.5)
+        .add(0.5)
         .mul(255)
         .permute(1, 2, 0)
         .to("cpu", torch.uint8)
         .numpy()
     )
-    unormalized_img = image_grid*0.5 + 0.5
     Image.fromarray(image_grid).save(path_save + "/fake_final_images.jpg")
 
 
