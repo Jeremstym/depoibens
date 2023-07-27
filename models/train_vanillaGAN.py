@@ -28,6 +28,7 @@ from tools.utils_GAN import (
     save_model_discriminator,
     plot_grid,
     plot_final_grid,
+    show_tensor_images,
 )
 
 ### -------------- Constants ------------------
@@ -39,11 +40,11 @@ path_to_log = "/projects/minos/jeremie/data/logs"
 path_save = "/projects/minos/jeremie/data/GANresults"
 
 ## Hyperparameters
-nz = 100  # size of latent vector
+nz = 64  # size of latent vector
 ngf = 64  # size of feature maps in generator
 ndf = 64  # size of feature maps in discriminator
 
-BATCH_SIZE = 64  # Batch size during training
+BATCH_SIZE = 128  # Batch size during training
 
 # Learning rate for optimizers
 lr = 0.0002
@@ -76,10 +77,11 @@ def main():
 
     preprocess = transforms.Compose(
         [
-            transforms.Resize(300),
+            transforms.Resize((300,300)),
             transforms.CenterCrop(300),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize((0.5,), (0.5,)),
         ]
     )
     dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
