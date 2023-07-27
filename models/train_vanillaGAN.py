@@ -11,7 +11,6 @@ sys.path.append("../")
 import argparse
 import numpy as np
 import pandas as pd
-import bioval as bv
 from tqdm import tqdm
 
 import torch
@@ -20,6 +19,7 @@ import torch.optim as optim
 import torchvision.utils as vutils
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
+from bioval.metrics.conditional_evaluation import ConditionalEvaluation
 
 from vanillaGAN import Generator, Discriminator, weights_init
 
@@ -217,6 +217,10 @@ def main():
                 # Update G
                 optimizerG.step()
 
+                # metrics bioval
+                topk = ConditionalEvaluation()
+                score = topk(fake, real_cpu)
+
                 # Output training stats
                 if i % 50 == 0:
                     pbar.set_postfix(
@@ -226,6 +230,29 @@ def main():
                         D_G_z1=D_G_z1,
                         D_G_z2=D_G_z2,
                     )
+                    logger = logging.getLogger("train")
+                    logger.setLevel(logging.INFO)
+                    formatter = logging.Formatter(
+                        "%(asctime)s | %(levelname)s | %(message)s"
+                    )
+                    file_handler = logging.FileHandler(
+                        os.path.join(path_save, "train.log")
+                    )
+                    file_handler.setFormatter(formatter)
+                    logger.info(
+                        "[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f, score: %.4f",
+                        epoch,
+                        num_epochs,
+                        i,
+                        len(dataloader),
+                        errD.item(),
+                        errG.item(),
+                        D_x,
+                        D_G_z1,
+                        D_G_z2,
+                        score,
+                    )
+
                     # print(
                     #     "[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f"
                     #     % (
