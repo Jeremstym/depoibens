@@ -41,7 +41,7 @@ path_to_log = "/projects/minos/jeremie/data/logs"
 path_save = "/projects/minos/jeremie/data/GANresults"
 
 ## Hyperparameters
-nz = 64  # size of latent vector
+nz = 100  # size of latent vector
 ngf = 64  # size of feature maps in generator
 ndf = 64  # size of feature maps in discriminator
 mean = (0.485, 0.456, 0.406) # normalize images
