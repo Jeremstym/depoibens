@@ -128,8 +128,7 @@ def show_final_grid(
     num_image=25,
     size=(1, 300, 300),
 ) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    
     plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 1)
     plt.axis("off")
@@ -157,7 +156,7 @@ def show_final_grid(
         .numpy()
     )
     Image.fromarray(image_grid).save(path_save + "fake_final_images.jpg")
-    
+
 
 
 def plot_final_grid(real_batch, img_list, path_save, num_image=25) -> None:
