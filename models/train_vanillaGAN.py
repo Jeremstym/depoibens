@@ -11,6 +11,7 @@ sys.path.append("../")
 import argparse
 import numpy as np
 import pandas as pd
+import bioval as bv
 from tqdm import tqdm
 
 import torch
@@ -83,8 +84,8 @@ def main():
             transforms.RandomCrop(300),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize(mean=mean, std=std),
-            # transforms.Normalize((0.5,), (0.5,)),
+            # transforms.Normalize(mean=mean, std=std),
+            transforms.Normalize((0.5,), (0.5,)),
         ]
     )
     dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
@@ -147,9 +148,14 @@ def main():
     real_batch = next(iter(dataloader))
 
     # Sample data
-    fake = torch.randn(64, 3, 300, 300)
-    # Test plot_grid function
+    # fake = torch.randn(64, 3, 300, 300)
+    noise = torch.randn(64, 100, 1, 1)
+    fake = netG(noise).detach().cpu()
+    # Test plot_grid function for fake image
     show_tensor_images(fake, path_save, 0)
+    # Test plot_grid function for real image
+    show_tensor_images(real_batch[0], path_save, -1)
+
 
     print("Starting Training Loop...")
     # For each epoch
