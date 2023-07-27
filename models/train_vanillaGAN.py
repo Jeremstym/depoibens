@@ -147,7 +147,7 @@ def main():
     real_batch = next(iter(dataloader))
 
     # Sample data
-    fake = torch.randn(64, 3, 64, 64)
+    fake = torch.randn(64, 3, 300, 300)
     # Test plot_grid function
     show_tensor_images(fake, path_save, 0)
 
