@@ -83,24 +83,6 @@ def save_model_discriminator(path, epochs, model, optimizer, criterion):
     )
 
 
-def plot_grid(img_batch: torch.Tensor, path_save: str, epoch: int) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    plt.figure(figsize=(8, 8))
-    plt.axis("off")
-    plt.title("Fake Images")
-    plt.imshow(
-        np.transpose(
-            vutils.make_grid(
-                img_batch[0].to(device)[:64],
-                padding=5,
-                normalize=True,
-            ).cpu(),
-            (1, 2, 0),
-        )
-    )
-    plt.savefig(path_save + f"/fake_images_epoch{epoch}.jpg")
-
-
 def show_tensor_images(
     image_tensor: torch.Tensor,
     path_save: str,
@@ -108,6 +90,7 @@ def show_tensor_images(
     num_images=25,
     size=(3, 300, 300),
 ) -> None:
+    """Function to display the images."""
     image_unflat = image_tensor.detach().cpu().view(-1, *size)
     image_grid = (
         make_grid(image_unflat[:num_images], nrow=5)
@@ -130,7 +113,15 @@ def show_final_grid(
     num_image=25,
     size=(3, 300, 300),
 ) -> None:
-    
+    """Function to display the final grid of images.
+
+    Args:
+        real_batch (List[torch.Tensor]): batch of real images
+        img_list (List[torch.Tensor]): batch of fake images
+        path_save (str): path to save the images
+        num_image (int, optional): number of image per grid. Defaults to 25.
+        size (tuple, optional): size of each image. Defaults to (3, 300, 300).
+    """
     plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 1)
     plt.axis("off")
@@ -164,33 +155,51 @@ def show_final_grid(
     Image.fromarray(image_grid).save(path_save + "/fake_final_images.jpg")
 
 
+### ------------------- Brouillon -------------------
 
-def plot_final_grid(real_batch, img_list, path_save, num_image=25) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    plt.figure(figsize=(15, 15))
-    plt.subplot(1, 2, 1)
-    plt.axis("off")
-    plt.title("Real Images")
-    plt.imshow(
-        np.transpose(
-            vutils.make_grid(
-                real_batch[0].to(device)[:num_image], nrow=5, padding=2, normalize=True
-            ).cpu(),
-            (1, 2, 0),
-        )
-    )
-    plt.savefig("/final_outputs/real_images.png")
+# def plot_final_grid(real_batch, img_list, path_save, num_image=25) -> None:
+#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#     plt.figure(figsize=(15, 15))
+#     plt.subplot(1, 2, 1)
+#     plt.axis("off")
+#     plt.title("Real Images")
+#     plt.imshow(
+#         np.transpose(
+#             vutils.make_grid(
+#                 real_batch[0].to(device)[:num_image], nrow=5, padding=2, normalize=True
+#             ).cpu(),
+#             (1, 2, 0),
+#         )
+#     )
+#     plt.savefig("/final_outputs/real_images.png")
 
-    # Plot the fake images from the last epoch
-    plt.subplot(1, 2, 2)
-    plt.axis("off")
-    plt.title("Fake Images")
-    plt.imshow(
-        np.transpose(
-            vutils.make_grid(
-                img_list[-1],
-                (1, 2, 0),
-            )
-        )
-    )
-    plt.savefig("/final_outputs/fake_images.png")
+#     # Plot the fake images from the last epoch
+#     plt.subplot(1, 2, 2)
+#     plt.axis("off")
+#     plt.title("Fake Images")
+#     plt.imshow(
+#         np.transpose(
+#             vutils.make_grid(
+#                 img_list[-1],
+#                 (1, 2, 0),
+#             )
+#         )
+#     )
+#     plt.savefig("/final_outputs/fake_images.png")
+
+# def plot_grid(img_batch: torch.Tensor, path_save: str, epoch: int) -> None:
+#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#     plt.figure(figsize=(8, 8))
+#     plt.axis("off")
+#     plt.title("Fake Images")
+#     plt.imshow(
+#         np.transpose(
+#             vutils.make_grid(
+#                 img_batch[0].to(device)[:64],
+#                 padding=5,
+#                 normalize=True,
+#             ).cpu(),
+#             (1, 2, 0),
+#         )
+#     )
+#     plt.savefig(path_save + f"/fake_images_epoch{epoch}.jpg")
