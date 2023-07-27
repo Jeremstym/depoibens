@@ -22,6 +22,8 @@ from torchvision.utils import save_image
 import torchvision.utils as vutils
 from torchvision.utils import make_grid
 
+from typing import List
+
 
 class SaveBestModel:
     """
@@ -81,7 +83,7 @@ def save_model_discriminator(path, epochs, model, optimizer, criterion):
     )
 
 
-def plot_grid(img_batch, path_save: str, epoch: int) -> None:
+def plot_grid(img_batch: torch.Tensor, path_save: str, epoch: int) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     plt.figure(figsize=(8, 8))
     plt.axis("off")
@@ -95,17 +97,70 @@ def plot_grid(img_batch, path_save: str, epoch: int) -> None:
             ).cpu(),
             (1, 2, 0),
         )
-    )        
+    )
     plt.savefig(path_save + f"/fake_images_epoch{epoch}.jpg")
 
-def show_tensor_images(image_tensor, num_images=25, size=(1, 300, 300)):
+
+def show_tensor_images(
+    image_tensor: torch.Tensor,
+    path_save: str,
+    epoch: int,
+    num_images=25,
+    size=(1, 300, 300),
+) -> None:
     image_unflat = image_tensor.detach().cpu().view(-1, *size)
-    image_grid = make_grid(image_unflat[:num_images], nrow=5)
-    plt.imshow(image_grid.permute(1, 2, 0).squeeze())
-    plt.show()
+    image_grid = (
+        make_grid(image_unflat[:num_images], nrow=5)
+        .mul(255)
+        .permute(1, 2, 0)
+        .to("cpu", torch.uint8)
+        .numpy()
+    )
+    # plt.imshow(image_grid.permute(1, 2, 0).squeeze())
+    # plt.show()
+    Image.fromarray(image_grid).save(path_save + f"fake_images_epoch{epoch}.jpg")
 
 
-def plot_final_grid(real_batch, img_list, path_save) -> None:
+def show_final_grid(
+    real_batch: List[torch.Tensor],
+    img_list: List[torch.Tensor],
+    path_save: str,
+    num_image=25,
+    size=(1, 300, 300),
+) -> None:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    plt.figure(figsize=(15, 15))
+    plt.subplot(1, 2, 1)
+    plt.axis("off")
+    plt.title("Real Images")
+    image_unflat = real_batch[0].detach().cpu().view(-1, *size)
+    image_grid = (
+        make_grid(image_unflat[:num_image], nrow=5)
+        .mul(255)
+        .permute(1, 2, 0)
+        .to("cpu", torch.uint8)
+        .numpy()
+    )
+    Image.fromarray(image_grid).save(path_save + "real_final_images.jpg")
+
+    # Plot the fake images from the last epoch
+    plt.subplot(1, 2, 2)
+    plt.axis("off")
+    plt.title("Fake Images")
+    image_unflat = img_list[-1].detach().cpu().view(-1, *size)
+    image_grid = (
+        make_grid(image_unflat[:num_image], nrow=5)
+        .mul(255)
+        .permute(1, 2, 0)
+        .to("cpu", torch.uint8)
+        .numpy()
+    )
+    Image.fromarray(image_grid).save(path_save + "fake_final_images.jpg")
+    
+
+
+def plot_final_grid(real_batch, img_list, path_save, num_image=25) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 1)
@@ -114,7 +169,7 @@ def plot_final_grid(real_batch, img_list, path_save) -> None:
     plt.imshow(
         np.transpose(
             vutils.make_grid(
-                real_batch[0].to(device)[:64], padding=2, normalize=True
+                real_batch[0].to(device)[:num_image], nrow=5, padding=2, normalize=True
             ).cpu(),
             (1, 2, 0),
         )
