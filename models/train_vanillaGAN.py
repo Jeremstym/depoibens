@@ -149,7 +149,7 @@ def main():
     # Sample data
     fake = torch.randn(64, 3, 300, 300)
     # Test plot_grid function
-    show_tensor_images(fake, path_save, 0)
+    show_tensor_images(fake, path_save + "/dummy_test.jpg", 0)
 
     print("Starting Training Loop...")
     # For each epoch
