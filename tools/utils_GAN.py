@@ -129,7 +129,7 @@ def show_final_grid(
     img_list: List[torch.Tensor],
     path_save: str,
     num_image=25,
-    size=(1, 300, 300),
+    size=(3, 300, 300),
 ) -> None:
     
     plt.figure(figsize=(15, 15))
