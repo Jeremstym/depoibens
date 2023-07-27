@@ -90,7 +90,7 @@ def main():
     )
     dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
     dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4
+        dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4
     )
     print("Data loaded")
     ### -------------- Initialize models -----------------------
