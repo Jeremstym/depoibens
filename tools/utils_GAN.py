@@ -106,7 +106,7 @@ def show_tensor_images(
     path_save: str,
     epoch: int,
     num_images=25,
-    size=(1, 300, 300),
+    size=(3, 300, 300),
 ) -> None:
     image_unflat = image_tensor.detach().cpu().view(-1, *size)
     image_grid = (
