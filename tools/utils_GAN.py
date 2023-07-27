@@ -20,6 +20,7 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from torchvision.utils import save_image
 import torchvision.utils as vutils
+from torchvision.utils import make_grid
 
 
 class SaveBestModel:
@@ -96,6 +97,12 @@ def plot_grid(img_batch, path_save: str, epoch: int) -> None:
         )
     )        
     plt.savefig(path_save + f"/fake_images_epoch{epoch}.jpg")
+
+def show_tensor_images(image_tensor, num_images=25, size=(1, 300, 300)):
+    image_unflat = image_tensor.detach().cpu().view(-1, *size)
+    image_grid = make_grid(image_unflat[:num_images], nrow=5)
+    plt.imshow(image_grid.permute(1, 2, 0).squeeze())
+    plt.show()
 
 
 def plot_final_grid(real_batch, img_list, path_save) -> None:
