@@ -29,6 +29,7 @@ from tools.utils_GAN import (
     plot_grid,
     plot_final_grid,
     show_tensor_images,
+    show_final_grid
 )
 
 ### -------------- Constants ------------------
@@ -43,6 +44,8 @@ path_save = "/projects/minos/jeremie/data/GANresults"
 nz = 64  # size of latent vector
 ngf = 64  # size of feature maps in generator
 ndf = 64  # size of feature maps in discriminator
+mean = (0.485, 0.456, 0.406) # normalize images
+std = (0.229, 0.224, 0.225) # normalize images
 
 BATCH_SIZE = 128  # Batch size during training
 
@@ -74,14 +77,14 @@ num_epochs = args["epochs"]
 
 def main():
     ### -------------- Load data -------------------------------
-
     preprocess = transforms.Compose(
         [
             transforms.Resize((300,300)),
-            transforms.CenterCrop(300),
+            transforms.RandomCrop(300),
+            transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            transforms.Normalize((0.5,), (0.5,)),
+            transforms.Normalize(mean=mean, std=std),
+            # transforms.Normalize((0.5,), (0.5,)),
         ]
     )
     dataset = dset.ImageFolder(root=path_to_data, transform=preprocess)
@@ -247,7 +250,8 @@ def main():
                 iters += 1
 
             # Save fake images
-            plot_grid(fake, path_save, epoch)
+            # plot_grid(fake, path_save, epoch)
+            show_tensor_images(fake, path_save, epoch)
 
     ### -------------- Save models -----------------------
 
@@ -257,8 +261,8 @@ def main():
 
     ### -------------- Plot -----------------------
 
-    plot_final_grid(real_batch, img_list, path_save)
-
+    # plot_final_grid(real_batch, img_list, path_save)
+    show_final_grid(real_batch, img_list, path_save)
     print("Done!")
 
 
