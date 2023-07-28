@@ -216,8 +216,8 @@ def main():
                 optimizerG.step()
 
                 # metrics bioval
-                topk = ConditionalEvaluation()
-                score = topk(fake.detach(), real_cpu.detach())
+                # topk = ConditionalEvaluation()
+                # score = topk(fake.detach(), real_cpu.detach())
 
                 # Output training stats
                 if i % 50 == 0:
@@ -239,7 +239,7 @@ def main():
                     file_handler.setFormatter(formatter)
                     logger.addHandler(file_handler)
                     logger.info(
-                        "[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f, score: %.4f",
+                        "[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f",
                         epoch,
                         num_epochs,
                         i,
@@ -249,7 +249,7 @@ def main():
                         D_x,
                         D_G_z1,
                         D_G_z2,
-                        score,
+                        # score,
                     )
 
                     # print(
