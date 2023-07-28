@@ -282,7 +282,7 @@ def main():
 
             # Save fake images
             # plot_grid(fake, path_save, epoch)
-            show_tensor_images(fake, path_save, epoch)
+            show_tensor_images(fake, path_save, epoch+1)
 
     ### -------------- Save models -----------------------
 
