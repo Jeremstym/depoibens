@@ -47,7 +47,8 @@ class Generator(nn.Module):
                 padding=0,
                 bias=False,
             ),
-            nn.BatchNorm2d(ngf * 8),
+            # nn.BatchNorm2d(ngf * 8),
+            nn.InstanceNorm2d(ngf * 8),
             nn.ReLU(True),
             # state size. (ngf*8) x 16 x 16
             nn.ConvTranspose2d(
@@ -58,7 +59,8 @@ class Generator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(ngf * 4),
+            # nn.BatchNorm2d(ngf * 4),
+            nn.InstanceNorm2d(ngf * 4),
             nn.ReLU(True),
             # state size. (ngf*4) x 60 x 60
             nn.ConvTranspose2d(
@@ -69,7 +71,8 @@ class Generator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(ngf * 2),
+            # nn.BatchNorm2d(ngf * 2),
+            nn.InstanceNorm2d(ngf * 2),
             nn.ReLU(True),
             # state size. (ngf*2) x 148 x 148
             nn.ConvTranspose2d(
@@ -80,7 +83,8 @@ class Generator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(ngf),
+            # nn.BatchNorm2d(ngf),
+            nn.InstanceNorm2d(ngf),
             nn.ReLU(True),
             # state size. (ngf) x 308 x 308
             nn.ConvTranspose2d(
@@ -123,7 +127,8 @@ class Discriminator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(ndf * 2),
+            # nn.BatchNorm2d(ndf * 2),
+            nn.InstanceNorm2d(ndf * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*2) x 37 x 37
             nn.Conv2d(
@@ -134,7 +139,8 @@ class Discriminator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(ndf * 4),
+            # nn.BatchNorm2d(ndf * 4),
+            nn.InstanceNorm2d(ndf * 4),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*4) x 18 x 18
             nn.Conv2d(
@@ -145,7 +151,8 @@ class Discriminator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(ndf * 8),
+            # nn.BatchNorm2d(ndf * 8),
+            nn.InstanceNorm2d(ndf * 8),
             nn.LeakyReLU(0.2, inplace=True),
             #  state size. (ndf*8) x 9 x 9
             nn.Conv2d(
