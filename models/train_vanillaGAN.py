@@ -27,8 +27,6 @@ from vanillaGAN import Generator, Discriminator, weights_init
 from tools.utils_GAN import (
     save_model_generator,
     save_model_discriminator,
-    plot_grid,
-    plot_final_grid,
     show_tensor_images,
     show_final_grid
 )
@@ -230,13 +228,13 @@ def main():
                         D_G_z1=D_G_z1,
                         D_G_z2=D_G_z2,
                     )
-                    logger = logging.getLogger("train")
+                    logger = logging.getLogger("score")
                     logger.setLevel(logging.INFO)
                     formatter = logging.Formatter(
                         "%(asctime)s | %(levelname)s | %(message)s"
                     )
                     file_handler = logging.FileHandler(
-                        os.path.join(path_save, "train.log")
+                        os.path.join(path_save, "score.log")
                     )
                     file_handler.setFormatter(formatter)
                     logger.info(
