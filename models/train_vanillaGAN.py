@@ -217,7 +217,7 @@ def main():
 
                 # metrics bioval
                 topk = ConditionalEvaluation()
-                score = topk(fake.detach().cpu(), real_cpu.detach().cpu())
+                score = topk(fake.detach(), real_cpu.detach())
 
                 # Output training stats
                 if i % 50 == 0:
