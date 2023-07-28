@@ -147,7 +147,7 @@ def main():
 
     # Sample data
     # fake = torch.randn(64, 3, 300, 300)
-    noise = torch.randn(64, 100, 1, 1)
+    noise = torch.randn(64, nz, 1, 1)
     fake = netG(noise).detach().cpu()
     # Test plot_grid function for fake image
     show_tensor_images(fake, path_save, 0)
@@ -217,7 +217,7 @@ def main():
 
                 # metrics bioval
                 topk = ConditionalEvaluation()
-                score = topk(fake, real_cpu)
+                score = topk(fake.detach().cpu(), real_cpu.detach().cpu())
 
                 # Output training stats
                 if i % 50 == 0:
@@ -237,6 +237,7 @@ def main():
                         os.path.join(path_save, "score.log")
                     )
                     file_handler.setFormatter(formatter)
+                    logger.addHandler(file_handler)
                     logger.info(
                         "[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f, score: %.4f",
                         epoch,
@@ -277,12 +278,13 @@ def main():
                     with torch.no_grad():
                         fake = netG(fixed_noise).detach().cpu()
                     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+                    show_tensor_images(fake, path_save, epoch+1)
 
                 iters += 1
 
             # Save fake images
             # plot_grid(fake, path_save, epoch)
-            show_tensor_images(fake, path_save, epoch+1)
+            # show_tensor_images(fake, path_save, epoch+1)
 
     ### -------------- Save models -----------------------
 
