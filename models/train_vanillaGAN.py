@@ -239,12 +239,14 @@ def main():
                     file_handler.setFormatter(formatter)
                     logger.addHandler(file_handler)
                     logger.info(
-                        "[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f",
+                        "[%d/%d][%d/%d]\tLoss_D: %.4f\tLossD_real: %.4f\tLossD_fake: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f",
                         epoch,
                         num_epochs,
                         i,
                         len(dataloader),
                         errD.item(),
+                        errD_real.item(),
+                        errD_fake.item(),
                         errG.item(),
                         D_x,
                         D_G_z1,
