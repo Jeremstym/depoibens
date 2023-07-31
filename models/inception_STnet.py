@@ -415,12 +415,12 @@ def main(
     criterion = nn.MSELoss()
 
     # initialize SaveBestModel class
-    save_best_model = SaveBestModel()
 
     # main loop
     count_test = 0
     test_frame = pd.DataFrame(columns=["test_loss", "r2_score", "pearson"])
     for test_patient in LIST_PATIENTS:
+        save_best_model = SaveBestModel()
         print(f"Test patient: {test_patient}")
         # create dataloader
         # path_dino = "/projects/minos/jeremie/data/dino_features.pkl"
