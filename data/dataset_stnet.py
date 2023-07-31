@@ -327,7 +327,7 @@ class Phenotype(data.Dataset):
 
 def create_dataloader(
     tsv_path=tsv_path,
-    embeddings_path=embeddings_path,
+    model="inception",
     selection_tensor_path=None,
     input_size=900,
     output_size=2048,
@@ -341,8 +341,14 @@ def create_dataloader(
     """
     with open(tsv_path, "rb") as f:
         tsv_concatened = pkl.load(f)
+
+    if model == "inception":
+        embeddings_path = "/projects/minos/jeremie/data/embeddings_dict.pkl"
+    elif model == "dino":
+        embeddings_path = "/projects/minos/jeremie/data/dino_features.pkl"
     with open(embeddings_path, "rb") as f:
         embeddings_dict = pkl.load(f)
+
     if selection_tensor_path:
         with open(selection_tensor_path, "rb") as f:
             selection_tensor = pkl.load(f)
@@ -412,8 +418,6 @@ def create_dataloader(
 def create_GAN_dataloader(
     image_path=path_to_image,
     train_batch_size=BATCH_SIZE,
-    # test_patient="BC23270",
-    # test_batch_size=16,
 ) -> data.DataLoader:
     trainset = Phenotype(image_path)
     trainloader = data.DataLoader(
