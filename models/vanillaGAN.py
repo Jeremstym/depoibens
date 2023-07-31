@@ -117,7 +117,7 @@ class Discriminator(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.GELU(0.2, inplace=True),
             # state size. (ndf) x 150 x 150
             nn.Conv2d(
                 in_channels=ndf,
@@ -129,7 +129,7 @@ class Discriminator(nn.Module):
             ),
             # nn.BatchNorm2d(ndf * 2),
             nn.InstanceNorm2d(ndf * 2),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.GELU(0.2, inplace=True),
             # state size. (ndf*2) x 37 x 37
             nn.Conv2d(
                 in_channels=ndf * 2,
@@ -141,7 +141,7 @@ class Discriminator(nn.Module):
             ),
             # nn.BatchNorm2d(ndf * 4),
             nn.InstanceNorm2d(ndf * 4),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.GELU(0.2, inplace=True),
             # state size. (ndf*4) x 18 x 18
             nn.Conv2d(
                 in_channels=ndf * 4,
@@ -153,7 +153,7 @@ class Discriminator(nn.Module):
             ),
             # nn.BatchNorm2d(ndf * 8),
             nn.InstanceNorm2d(ndf * 8),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.GELU(0.2, inplace=True),
             #  state size. (ndf*8) x 9 x 9
             nn.Conv2d(
                 in_channels=ndf * 8,
