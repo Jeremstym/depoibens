@@ -24,6 +24,7 @@ import torch.utils.data as data
 
 from torchmetrics import R2Score, PearsonCorrCoef
 from data.dataset_stnet import create_dataloader
+from data.correlations import load_model
 
 if __name__ == "__main__":
     from tools.util_savings import SaveBestModel, save_model, save_plots
@@ -495,6 +496,7 @@ def main(
 
         # test the model
         if not dummy:
+            model = load_model(path_saving + "/outputs/best_model_dino.pth")
             test_loss, r2_test, pearson_test = test(
                 model, test_loader, criterion, device
             )
