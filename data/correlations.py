@@ -39,6 +39,7 @@ path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_csv = "/projects/minos/jeremie/data/outputs/test_correlations.csv"
 path_to_score = "/projects/minos/jeremie/data/outputs/saptial_score.csv"
 path_to_data = "/projects/minos/jeremie/data/" + TEST_PATIENT
+path_to_save = "/projects/minos/jeremie/data/Preprocessing_results"
 
 
 def load_model(path_to_model: str) -> nn.Module:
