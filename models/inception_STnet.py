@@ -29,8 +29,6 @@ if __name__ == "__main__":
     from tools.util_savings import SaveBestModel, save_model, save_plots
 
 import neptune
-from neptune_pytorch import NeptuneLogger
-from neptune.utils import stringify_unsupported
 
 LIST_PATIENTS = [
     "BC23209",
@@ -57,6 +55,8 @@ LIST_PATIENTS = [
     "BT23508",
     "BT23903",
 ]
+
+path_to_save = "/projects/minos/jeremie/data/Preprocessing_results"
 
 ### --------------- Neural Network ---------------
 
@@ -347,26 +347,37 @@ args = vars(parser.parse_args())
 
 def main(
     path_saving="/import/pr_minos/jeremie/data",
+    model_features="inception",
     lr=args["learning_rate"],
     epochs=args["epochs"],
     dummy=args["dummy"],
     dropout=args["dropout"],
-    input_size=900,
-    hidden_size=1536,
-    output_size=768,
     nb_test=args["test"],
 ):
-    params = {
-        "lr": lr,
-        "bacth_size": args["batch_size"],
-        "test_bacth_size": args["batch_size"],
-        "model_filename": args["model_name"],
-        "epochs": epochs,
-        "dropout": dropout,
-        "input_size": input_size,
-        "hidden_size": hidden_size,
-        "output_size": output_size,
-    }
+    if model_features == "dino":
+        params = {
+            "lr": lr,
+            "bacth_size": args["batch_size"],
+            "test_bacth_size": args["batch_size"],
+            "model_filename": args["model_name"],
+            "epochs": epochs,
+            "dropout": dropout,
+            "input_size": 900,
+            "hidden_size": 1536,
+            "output_size": 768,
+        }
+    elif model_features == "inception":
+        params = {
+            "lr": lr,
+            "bacth_size": args["batch_size"],
+            "test_bacth_size": args["batch_size"],
+            "model_filename": args["model_name"],
+            "epochs": epochs,
+            "dropout": dropout,
+            "input_size": 900,
+            "hidden_size": 2048,
+            "output_size": 2048,
+        }
     if args["neptune"]:
         run = neptune.init_run(
             project="jeremstym/STNet-Regression",
@@ -384,12 +395,12 @@ def main(
 
     # total parameters and trainable parameters
     model = Regression_STnet(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            output_size=output_size,
-            dropout=dropout,
-            batch_norm=args["batch_norm"],
-        )
+        input_size=params["input_size"],
+        hidden_size=params["hidden_size"],
+        output_size=params["output_size"],
+        dropout=dropout,
+        batch_norm=args["batch_norm"],
+    )
     total_params = sum(p.numel() for p in model.parameters())
     print(f"{total_params:,} total parameters.")
     total_trainable_params = sum(
@@ -414,7 +425,7 @@ def main(
         # create dataloader
         # path_dino = "/projects/minos/jeremie/data/dino_features.pkl"
         train_loader, valid_loader, test_loader = create_dataloader(
-            # embeddings_path=path_dino,
+            model=model_features,
             train_batch_size=params["bacth_size"],
             test_batch_size=params["test_bacth_size"],
             input_size=params["input_size"],
@@ -423,9 +434,9 @@ def main(
         )
         # initiate model
         model = Regression_STnet(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            output_size=output_size,
+            input_size=params["input_size"],
+            hidden_size=params["hidden_size"],
+            output_size=params["output_size"],
             dropout=dropout,
             batch_norm=args["batch_norm"],
         )
@@ -495,11 +506,11 @@ def main(
             break
 
     print(test_frame)
-    # test_frame.to_csv("/projects/minos/jeremie/data/outputs/test_results.csv")
+    test_frame.to_csv(path_to_save + "/test_results_dino.csv")
 
 
 if __name__ == "__main__":
-    main()
+    main(model_features="dino")
 
 # if __name__ == "__main__":
 #     lr_list = np.geomspace(1e-3, 1e-5, num=10)
@@ -536,8 +547,8 @@ if __name__ == "__main__":
 
 # pre_df = torch.randn(10, 10)
 
-# df = pd.DataFrame(pre_df.numpy()) 
-# addi = torch.randn(2,10) 
+# df = pd.DataFrame(pre_df.numpy())
+# addi = torch.randn(2,10)
 
 # df = df.append(pd.DataFrame(addi.numpy()))
 # df
