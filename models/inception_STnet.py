@@ -24,7 +24,6 @@ import torch.utils.data as data
 
 from torchmetrics import R2Score, PearsonCorrCoef
 from data.dataset_stnet import create_dataloader
-from data.correlations import load_model
 
 if __name__ == "__main__":
     from tools.util_savings import SaveBestModel, save_model, save_plots
@@ -273,6 +272,16 @@ def test_selected_model(
     return test_loss, test_r2score_wght, test_pearson_coef
 
 
+def load_model(path_to_model: str, dict_dim: dict) -> nn.Module:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = Regression_STnet(**dict_dim)
+
+    model.load_state_dict(
+        torch.load(path_to_model, map_location=torch.device(device))["model_state_dict"]
+    )
+    model.eval()
+    model.to(device)
+    return model
 ### --------------- Main ---------------
 
 # construct the argument parser
@@ -379,6 +388,13 @@ def main(
             "hidden_size": 2048,
             "output_size": 2048,
         }
+
+    dict_dim = {
+        "input_size": params["input_size"],
+        "hidden_size": params["hidden_size"],
+        "output_size": params["output_size"],
+    }
+
     if args["neptune"]:
         run = neptune.init_run(
             project="jeremstym/STNet-Regression",
@@ -496,7 +512,7 @@ def main(
 
         # test the model
         if not dummy:
-            model = load_model(path_saving + "/outputs/best_model_dino.pth")
+            model = load_model(path_saving + "/outputs/best_model_dino.pth", dict_dim)
             test_loss, r2_test, pearson_test = test(
                 model, test_loader, criterion, device
             )
