@@ -28,7 +28,8 @@ from tools.utils_GAN import (
     save_model_generator,
     save_model_discriminator,
     show_tensor_images,
-    show_final_grid
+    show_final_grid,
+    plot_losses
 )
 
 ### -------------- Constants ------------------
@@ -234,7 +235,7 @@ def main():
                         "%(asctime)s | %(levelname)s | %(message)s"
                     )
                     file_handler = logging.FileHandler(
-                        os.path.join(path_save, "score.log")
+                        os.path.join(path_to_log, "score.log")
                     )
                     file_handler.setFormatter(formatter)
                     logger.addHandler(file_handler)
@@ -296,7 +297,7 @@ def main():
 
     ### -------------- Plot -----------------------
 
-    # plot_final_grid(real_batch, img_list, path_save)
+    plot_losses(path_save, G_losses, D_losses)
     show_final_grid(real_batch, img_list, path_save)
     print("Done!")
 
