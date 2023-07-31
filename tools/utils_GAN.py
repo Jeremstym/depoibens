@@ -155,6 +155,29 @@ def show_final_grid(
     Image.fromarray(image_grid).save(path_save + "/fake_final_images.jpg")
 
 
+def plot_losses(
+    path_save: str,
+    generator_losses: List[float],
+    discriminator_losses: List[float],
+) -> None:
+    """Function to plot the losses of the generator and discriminator.
+
+    Args:
+        path_save (str): path to save the images
+        epochs (int): number of epochs
+        generator_losses (List[float]): list of generator losses
+        discriminator_losses (List[float]): list of discriminator losses
+    """
+    plt.figure(figsize=(10, 5))
+    plt.title("Generator and Discriminator Loss During Training")
+    plt.plot(generator_losses, label="G", color="red", linestyle="dashed", linewidth=2)
+    plt.plot(discriminator_losses, label="D", color="blue", linewidth=2)
+    plt.xlabel("iterations")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.savefig(path_save + "/losses.png")
+
+
 ### ------------------- Brouillon -------------------
 
 # def plot_final_grid(real_batch, img_list, path_save, num_image=25) -> None:
