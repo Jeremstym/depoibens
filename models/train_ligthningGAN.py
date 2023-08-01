@@ -13,8 +13,7 @@ import argparse
 
 import torch
 from models.lightning_GAN import GAN
-# import pytorch_lightning as pl 
-import ligthning.pytorch as pl
+import pytorch_lightning as pl 
 from torchvision import transforms
 import torchvision.datasets as dset
 
@@ -62,7 +61,8 @@ def main():
         # pl.loggers.WandbLogger(project="GAN", log_model=True),
     ]
     trainer = pl.Trainer(
-        accelerator="ddp",
+        accelerator="gpu",
+        strategy="ddp",
         devices=[0, 1],
         max_epochs=EPOCHS,
         logger=loggers,
