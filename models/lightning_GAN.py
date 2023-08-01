@@ -40,6 +40,7 @@ class GAN(pl.LightningModule):
     def __init__(self, nz, ngf, ndf, lr, b1, b2):
         super().__init__()
         self.save_hyperparameters()
+        self.automatic_optimization = False
         self.generator = Generator()
         self.discriminator = Discriminator()
         self.generator.apply(weights_init)
