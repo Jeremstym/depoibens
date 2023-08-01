@@ -54,7 +54,7 @@ class GAN(pl.LightningModule):
         return self.generator(z)
 
     def adversarial_loss(self, y_hat, y):
-        return self.criterion(y_hat, y)
+        return self.criterion(y_hat.squeeze(), y.squeeze())
 
     # def training_step(self, batch, batch_idx, optimizer_idx):
     #     real, _ = batch
