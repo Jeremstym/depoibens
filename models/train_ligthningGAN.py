@@ -3,7 +3,6 @@
 
 # Train Lightning GAN for transcriptomics
 
-from models.lightning_GAN import GAN
 
 import os
 import sys
@@ -13,6 +12,7 @@ import pickle as pkl
 import argparse
 
 import torch
+from models.lightning_GAN import GAN
 import pytorch_lightning as pl 
 from torchvision import transforms
 import torchvision.datasets as dset
