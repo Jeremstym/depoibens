@@ -26,7 +26,7 @@ import argparse
 ## Hyperparameters
 nz = 100  # size of latent vector
 ngf = 64  # size of feature maps in generator
-ndf = 64  # size of feature maps in discriminator
+ndf = 32  # size of feature maps in discriminator
 
 
 
