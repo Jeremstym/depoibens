@@ -75,7 +75,7 @@ def zero_counter(df: pd.DataFrame) -> pd.Series:
 
     Returns:
         pd.Series:
-    """
+    """ 
     return df.drop("Unnamed: 0", axis=1).isin([0]).sum(axis=0).sort_values()
 
 
