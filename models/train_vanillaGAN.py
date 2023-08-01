@@ -101,7 +101,7 @@ def main():
 
     # Handle multi-GPU if desired
     if (device.type == "cuda") and (len(gpus) > 1):
-        netG = nn.DataParallel(netG, gpus)
+        netG = nn.DataParallel(netG, list(gpus))
 
     # Apply the ``weights_init`` function to randomly initialize all weights
     #  to ``mean=0``, ``stdev=0.02``.
@@ -112,7 +112,7 @@ def main():
 
     # Handle multi-GPU if desired
     if (device.type == "cuda") and (len(gpus) > 1):
-        netD = nn.DataParallel(netD, device_ids=gpus)
+        netD = nn.DataParallel(netD, device_ids=list(gpus))
 
     # Apply the ``weights_init`` function to randomly initialize all weights
     # like this: ``to mean=0, stdev=0.2``.
