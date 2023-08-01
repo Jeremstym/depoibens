@@ -13,7 +13,8 @@ import argparse
 
 import torch
 from models.lightning_GAN import GAN
-import pytorch_lightning as pl 
+# import pytorch_lightning as pl 
+import ligthning.pytorch as pl
 from torchvision import transforms
 import torchvision.datasets as dset
 
