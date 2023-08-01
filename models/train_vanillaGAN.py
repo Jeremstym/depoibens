@@ -47,7 +47,7 @@ ndf = 64  # size of feature maps in discriminator
 mean = (0.485, 0.456, 0.406) # normalize images
 std = (0.229, 0.224, 0.225) # normalize images
 
-BATCH_SIZE = 128  # Batch size during training
+BATCH_SIZE = 64  # Batch size during training
 
 # Learning rate for optimizers
 lr = 0.0002
