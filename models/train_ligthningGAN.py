@@ -58,7 +58,7 @@ def main():
     ### -------------- Train -------------------------------
     loggers = [
         pl.loggers.CSVLogger(path_to_log),
-        pl.loggers.WandbLogger(project="GAN", log_model=True),
+        # pl.loggers.WandbLogger(project="GAN", log_model=True),
     ]
     trainer = pl.Trainer(
         accelerator="ddp",
