@@ -34,9 +34,8 @@ ndf = 64  # size of feature maps in discriminator
 
 
 class Generator(nn.Module):
-    def __init__(self, ngpu):
+    def __init__(self):
         super().__init__()
-        self.ngpu = ngpu
         self.main = nn.Sequential(
             # input is 100 x 1 x 1
             nn.ConvTranspose2d(
@@ -104,9 +103,8 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, ngpu):
+    def __init__(self):
         super().__init__()
-        self.ngpu = ngpu
         self.main = nn.Sequential(
             # input is 1 x 300 x 300
             nn.Conv2d(
