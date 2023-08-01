@@ -161,7 +161,7 @@ def main():
 
     # Sample data
     # fake = torch.randn(64, 3, 300, 300)
-    noise = torch.randn(64, nz, 1, 1)
+    noise = torch.randn(BATCH_SIZE, nz, 1, 1)
     fake = netG(noise).detach().cpu()
     # Test plot_grid function for fake image
     show_tensor_images(fake, path_save, 0)
