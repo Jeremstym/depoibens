@@ -34,7 +34,7 @@ hparams = {
     "b2": 0.999,
 }
 
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 EPOCHS = 10
 def main():
     dcgan = GAN(**hparams)
