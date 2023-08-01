@@ -59,7 +59,7 @@ parser.add_argument(
     "-gpus",
     "--list_gpus",
     type=list,
-    nargs="+",
+    nargs="*",
     default=[0],
     help="List of GPUs available. Use 0 for CPU mode.",
 )
@@ -80,6 +80,7 @@ parser.add_argument(
 
 args = vars(parser.parse_args())
 gpus = args["list_gpus"]
+print(gpus)
 num_epochs = args["epochs"]
 BATCH_SIZE = args["batch_size"]
 
