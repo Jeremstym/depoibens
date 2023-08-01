@@ -47,7 +47,6 @@ ndf = 64  # size of feature maps in discriminator
 mean = (0.485, 0.456, 0.406) # normalize images
 std = (0.229, 0.224, 0.225) # normalize images
 
-BATCH_SIZE = 64  # Batch size during training
 
 # Learning rate for optimizers
 lr = 0.0002
@@ -70,9 +69,18 @@ parser.add_argument(
     default=10,
     help="Number of epochs to train for",
 )
+parser.add_argument(
+    "-bs",
+    "--batch_size",
+    type=int,
+    default=64,
+    help="Batch size during training",
+)
+
 args = vars(parser.parse_args())
 ngpu = args["ngpu"]
 num_epochs = args["epochs"]
+BATCH_SIZE = args["batch_size"]
 
 
 def main():
