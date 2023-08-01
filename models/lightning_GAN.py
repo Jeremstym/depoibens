@@ -117,7 +117,7 @@ class GAN(pl.LightningModule):
         optimizer_g, optimizer_d = self.optimizers()
 
         # sample noise
-        z = torch.randn(imgs.shape[0], self.hparams.nz)
+        z = torch.randn(imgs.shape[0], self.hparams.nz, 1, 1)
         z = z.type_as(imgs)
 
         # train generator
