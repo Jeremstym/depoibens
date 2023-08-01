@@ -21,6 +21,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.utils import save_image
 import torchvision.utils as vutils
 from torchvision.utils import make_grid
+from torchvision.transforms.functional import to_pil_image
 
 from typing import List
 
@@ -89,6 +90,7 @@ def show_tensor_images(
     epoch: int,
     num_images=25,
     size=(3, 300, 300),
+    real=False,
 ) -> None:
     """Function to display the images."""
     image_unflat = image_tensor.detach().cpu().view(-1, *size)
@@ -103,7 +105,11 @@ def show_tensor_images(
     )
     # plt.imshow(image_grid.permute(1, 2, 0).squeeze())
     # plt.show()
-    Image.fromarray(image_grid).save(path_save + f"/fake_images_epoch{epoch}.jpg")
+    if real:
+        image_grid = to_pil_image(image_grid)
+        image_grid.save(path_save + f"/real_images_epoch{epoch}.jpg")
+    else:
+        Image.fromarray(image_grid).save(path_save + f"/fake_images_epoch{epoch}.jpg")
 
 
 def show_final_grid(
