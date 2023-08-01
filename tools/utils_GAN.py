@@ -94,8 +94,8 @@ def show_tensor_images(
     image_unflat = image_tensor.detach().cpu().view(-1, *size)
     image_grid = (
         make_grid(image_unflat[:num_images], nrow=5)
-        # .mul(0.5)
-        # .add(0.5)
+        .mul(0.5)
+        .add(0.5)
         .mul(255)
         .permute(1, 2, 0)
         .to("cpu", torch.uint8)
@@ -129,8 +129,8 @@ def show_final_grid(
     image_unflat = real_batch[0].detach().cpu().view(-1, *size)
     image_grid = (
         make_grid(image_unflat[:num_image], nrow=5)
-        # .mul(0.5)
-        # .add(0.5)
+        .mul(0.5)
+        .add(0.5)
         .mul(255)
         .permute(1, 2, 0)
         .to("cpu", torch.uint8)
@@ -145,8 +145,8 @@ def show_final_grid(
     image_unflat = img_list[-1].detach().cpu().view(-1, *size)
     image_grid = (
         make_grid(image_unflat[:num_image], nrow=5)
-        # .mul(0.5)
-        # .add(0.5)
+        .mul(0.5)
+        .add(0.5)
         .mul(255)
         .permute(1, 2, 0)
         .to("cpu", torch.uint8)
