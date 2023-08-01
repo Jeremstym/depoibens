@@ -57,11 +57,11 @@ beta1 = 0.5
 
 parser = argparse.ArgumentParser(description="Vanilla GAN for transcriptomics")
 parser.add_argument(
-    "-gpus",
-    "--list_gpu_ids",
-    type=list,
-    default=[0],
-    help="List of GPUs available. Use [] for CPU mode.",
+    "-ngpu",
+    "--ngpu",
+    type=int,
+    default=1,
+    help="Number of GPUs available. Use 0 for CPU mode.",
 )
 parser.add_argument(
     "-epochs",
@@ -71,7 +71,7 @@ parser.add_argument(
     help="Number of epochs to train for",
 )
 args = vars(parser.parse_args())
-gpus = args["list_gpu_ids"]
+ngpu = args["ngpu"]
 num_epochs = args["epochs"]
 
 
@@ -94,25 +94,25 @@ def main():
     print("Data loaded")
     ### -------------- Initialize models -----------------------
 
-    device = torch.device("cuda" if torch.cuda.is_available() and len(gpus) > 0 else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() and ngpu > 0 else "cpu")
 
     # Create the generator
-    netG = Generator(gpus).to(device)
+    netG = Generator(ngpu).to(device)
 
     # Handle multi-GPU if desired
-    if (device.type == "cuda") and (len(gpus) > 1):
-        netG = nn.DataParallel(netG, list(gpus))
+    if (device.type == "cuda") and (ngpu > 1):
+        netG = nn.DataParallel(netG, list(range(ngpu)))
 
     # Apply the ``weights_init`` function to randomly initialize all weights
     #  to ``mean=0``, ``stdev=0.02``.
     netG.apply(weights_init)
 
     # Create the Discriminator
-    netD = Discriminator(gpus).to(device)
+    netD = Discriminator(ngpu).to(device)
 
     # Handle multi-GPU if desired
-    if (device.type == "cuda") and (len(gpus) > 1):
-        netD = nn.DataParallel(netD, device_ids=list(gpus))
+    if (device.type == "cuda") and (ngpu > 1):
+        netD = nn.DataParallel(netD, device_ids=list(range(ngpu)))
 
     # Apply the ``weights_init`` function to randomly initialize all weights
     # like this: ``to mean=0, stdev=0.2``.
