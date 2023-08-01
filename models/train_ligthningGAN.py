@@ -66,6 +66,7 @@ def main():
         devices=[0],
         max_epochs=EPOCHS,
         logger=loggers,
+        log_every_n_steps=1
     )
     trainer.fit(dcgan, train_dataloaders=dataloader)
 
