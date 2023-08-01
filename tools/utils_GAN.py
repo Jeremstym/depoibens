@@ -105,11 +105,11 @@ def show_tensor_images(
     )
     # plt.imshow(image_grid.permute(1, 2, 0).squeeze())
     # plt.show()
-    if real:
+    if not real:
         image_grid = to_pil_image(image_grid)
-        image_grid.save(path_save + f"/real_images_epoch{epoch}.jpg")
+        image_grid.save(path_save + f"/fake_images_epoch{epoch}.jpg")
     else:
-        Image.fromarray(image_grid).save(path_save + f"/fake_images_epoch{epoch}.jpg")
+        Image.fromarray(image_grid).save(path_save + f"/true_images_epoch{epoch}.jpg")
 
 
 def show_final_grid(

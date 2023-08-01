@@ -166,7 +166,7 @@ def main():
     # Test plot_grid function for fake image
     show_tensor_images(fake, path_save, 0)
     # Test plot_grid function for real image
-    show_tensor_images(real_batch[0], path_save, -1)
+    show_tensor_images(real_batch[0], path_save, -1, real=True)
 
 
     print("Starting Training Loop...")
