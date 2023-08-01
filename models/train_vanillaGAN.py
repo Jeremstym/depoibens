@@ -80,7 +80,9 @@ parser.add_argument(
 
 args = vars(parser.parse_args())
 gpus = args["list_gpus"]
-print(gpus)
+for gpu in gpus:
+    gpus[0] = int(gpu[0])
+print("GPUs available: ", gpus)
 num_epochs = args["epochs"]
 BATCH_SIZE = args["batch_size"]
 
