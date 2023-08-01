@@ -59,7 +59,7 @@ parser = argparse.ArgumentParser(description="Vanilla GAN for transcriptomics")
 parser.add_argument(
     "-gpus",
     "--list_gpu_ids",
-    type=int,
+    type=list,
     default=[0],
     help="List of GPUs available. Use [] for CPU mode.",
 )
