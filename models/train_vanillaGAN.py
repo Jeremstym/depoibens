@@ -71,7 +71,7 @@ parser.add_argument(
     help="Number of epochs to train for",
 )
 args = vars(parser.parse_args())
-gpus = args["gpus"]
+gpus = args["list_gpu_ids"]
 num_epochs = args["epochs"]
 
 
