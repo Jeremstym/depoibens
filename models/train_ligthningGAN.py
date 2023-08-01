@@ -62,7 +62,7 @@ def main():
     ]
     trainer = pl.Trainer(
         accelerator="gpu",
-        strategy="ddp",
+        strategy="ddp_find_unused_parameters_true",
         devices=[0, 1],
         max_epochs=EPOCHS,
         logger=loggers,
