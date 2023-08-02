@@ -61,7 +61,7 @@ def main():
 
     neptune_logger = NeptuneLogger(
     # api_key=ANONYMOUS_API_TOKEN,  
-    project="jeremstym/DC-GAN",  
+    project="jeremstym/GAN-STnet",  
     tags=["training", "ST-Net"],  # optional
     )
     loggers = [
