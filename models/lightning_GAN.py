@@ -48,6 +48,7 @@ class GAN(pl.LightningModule):
 
         self.criterion = nn.BCELoss()
 
+        self.validation_z = torch.randn(8, self.hparams.nz, 1, 1)
         self.example_input_array = torch.randn(1, 100, 1, 1)
 
     def forward(self, z):
