@@ -137,7 +137,7 @@ def main():
 
     # Create batch of latent vectors that we will use to visualize
     #  the progression of the generator
-    fixed_noise = torch.randn(64, nz, 1, 1, device=device)
+    fixed_noise = torch.randn(BATCH_SIZE, nz, 1, 1, device=device)
 
     # Establish convention for real and fake labels during training
     real_label = 1.0
@@ -315,23 +315,24 @@ def main():
     print("Done!")
 
 
-if __name__ == "__main__":
-    # Set up logging
-    logging.basicConfig(
-        filename=path_to_log + "/training.log",
-        level=logging.ERROR,
-        format="%(asctime)s %(levelname)s %(name)s %(message)s",
-    )
+# if __name__ == "__main__":
+#     # Set up logging
+#     logging.basicConfig(
+#         filename=path_to_log + "/training.log",
+#         level=logging.ERROR,
+#         format="%(asctime)s %(levelname)s %(name)s %(message)s",
+#     )
 
-    try:
-        main()
-    except KeyboardInterrupt as keyb:
-        logging.exception(str(keyb))
-    except Exception as e:
-        logging.exception(str(e))
+#     try:
+#         main()
+#     except KeyboardInterrupt as keyb:
+#         logging.exception(str(keyb))
+#     except Exception as e:
+#         logging.exception(str(e))
 
 # if __name__ == "__main__":
 #     # main()
 #     dataloader = create_GAN_dataloader(image_path=path_to_data, train_batch_size=16)
 #     with open("dataloaderGAN.pkl", "wb") as f:
 #         pkl.dump(dataloader, f)
+
