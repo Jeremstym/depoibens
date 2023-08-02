@@ -14,6 +14,8 @@ import argparse
 import torch
 from models.lightning_GAN import GAN
 import pytorch_lightning as pl 
+from lightning.pytorch.loggers import NeptuneLogger
+# from neptune import ANONYMOUS_API_TOKEN
 from torchvision import transforms
 import torchvision.datasets as dset
 
@@ -56,8 +58,15 @@ def main():
     print("Data loaded")
 
     ### -------------- Train -------------------------------
+
+    neptune_logger = NeptuneLogger(
+    # api_key=ANONYMOUS_API_TOKEN,  
+    project="jeremstym/DC-GAN",  
+    tags=["training", "ST-Net"],  # optional
+    )
     loggers = [
         pl.loggers.CSVLogger(path_to_log),
+        neptune_logger,
         # pl.loggers.WandbLogger(project="GAN", log_model=True),
     ]
     trainer = pl.Trainer(
