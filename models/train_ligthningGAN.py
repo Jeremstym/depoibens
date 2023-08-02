@@ -37,7 +37,7 @@ hparams = {
 }
 
 BATCH_SIZE = 64
-EPOCHS = 10
+EPOCHS = 100
 def main():
     dcgan = GAN(**hparams)
     ### -------------- Load data -------------------------------
