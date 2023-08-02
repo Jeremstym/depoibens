@@ -36,7 +36,7 @@ ndf = 18  # size of feature maps in discriminator
 class Generator(nn.Module):
     def __init__(self):
         super().__init__()
-        self.main = nn.Sequential(
+        self.model = nn.Sequential(
             # input is 100 x 1 x 1
             nn.ConvTranspose2d(
                 in_channels=nz,
@@ -99,13 +99,13 @@ class Generator(nn.Module):
         )
 
     def forward(self, input):
-        return self.main(input)
+        return self.model(input)
 
 
 class Discriminator(nn.Module):
     def __init__(self):
         super().__init__()
-        self.main = nn.Sequential(
+        self.model = nn.Sequential(
             # input is 1 x 300 x 300
             nn.Conv2d(
                 in_channels=3,
@@ -170,7 +170,7 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, input):
-        return self.main(input).view(-1, 1).squeeze(1)
+        return self.model(input).view(-1, 1).squeeze(1)
 
 
 ### -------------- Utilities -----------------------
@@ -191,7 +191,7 @@ def weights_init(m):
 # class Regressor(nn.Module):
 #     def __init__(self) -> None:
 #         super().__init__()
-#         self.main = nn.Sequential(
+#         self.model = nn.Sequential(
 #             nn.Linear(1000, 640),
 #             nn.LeakyReLU(0.2, inplace=True),
 #             nn.Linear(640, 280),
@@ -212,7 +212,7 @@ def weights_init(m):
 #         )
 
 #     def forward(self, input):
-#         return self.main(input)
+#         return self.model(input)
 
 # preprocess = transforms.Compose(
 #     [
