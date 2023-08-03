@@ -31,7 +31,7 @@ def grid_sample(input, grid):
 
 #----------------------------------------------------------------------------
 
-def _should_use_custom_op():
+def _should_use_custom_op() -> bool:
     if not enabled:
         print('unable to use custom op: disabled')
         return False
