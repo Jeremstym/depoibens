@@ -25,21 +25,19 @@ enabled = False  # Enable the custom op by setting this to true.
 #----------------------------------------------------------------------------
 
 def grid_sample(input, grid):
-    # if _should_use_custom_op():
-    #     return _GridSample2dForward.apply(input, grid)
+    if _should_use_custom_op():
+        return _GridSample2dForward.apply(input, grid)
     return torch.nn.functional.grid_sample(input=input, grid=grid, mode='bilinear', padding_mode='zeros', align_corners=False)
 
 #----------------------------------------------------------------------------
 
 def _should_use_custom_op() -> bool:
+    print(enabled)
     if not enabled:
-        print('unable to use custom op: disabled')
         return False
     if any(torch.__version__.startswith(x) for x in ['1.7.', '1.8.', '1.9']): # latter: add '2.0' to use custom op
-        print("using custom op")
         return True
     # warnings.warn(f'grid_sample_gradfix not supported on PyTorch {torch.__version__}. Falling back to torch.nn.functional.grid_sample().')
-    print('nothing happened')
     return False
 
 #----------------------------------------------------------------------------
