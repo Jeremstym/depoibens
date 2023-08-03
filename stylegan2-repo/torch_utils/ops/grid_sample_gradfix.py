@@ -33,6 +33,7 @@ def grid_sample(input, grid):
 
 def _should_use_custom_op():
     if not enabled:
+        print('unable to use custom op: disabled')
         return False
     if any(torch.__version__.startswith(x) for x in ['1.7.', '1.8.', '1.9']): # latter: add '2.0' to use custom op
         return True
