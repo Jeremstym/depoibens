@@ -188,6 +188,10 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
 
+        path_red_hatch = "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.png"
+        with open(path_red_hatch, "rb") as file:
+            bytes_red_hatch = BytesIO(file.read())
+        
         tissue_img.save(tissue_name + "_score.png", "PNG")
 
 
