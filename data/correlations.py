@@ -174,7 +174,8 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 # tissue_img = Image.alpha_composite(tissue_img, colored_image)
                 tissue_img.paste(colored_image, (posX, posY), colored_image)
                 if is_tumor == 'tumor':
-                    tissue_img.paste(Image.open(bytes_red_hatch), (posX, posY), Image.open(bytes_red_hatch))
+                    hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
+                    tissue_img.paste(hatch_image, (posX, posY), hatch_image)
                 # draw = ImageDraw.Draw(tissue_img)
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
                
