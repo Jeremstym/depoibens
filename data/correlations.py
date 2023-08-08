@@ -139,11 +139,14 @@ def color_score(score: float) -> int:
 
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
-    path_red_hatch = "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.jpg"
+    path_red_hatch = (
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.jpg"
+    )
     path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
+        hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
     with open(path_arial, "rb") as file:
         bytes_font = BytesIO(file.read())
     font = ImageFont.truetype(bytes_font, 100)
@@ -173,12 +176,11 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 colored_image = Image.new("RGBA", (size, size), color)
                 # tissue_img = Image.alpha_composite(tissue_img, colored_image)
                 tissue_img.paste(colored_image, (posX, posY), colored_image)
-                if is_tumor == 'tumor':
-                    hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
+                if is_tumor == "tumor":
                     tissue_img.paste(hatch_image, (posX, posY), hatch_image)
                 # draw = ImageDraw.Draw(tissue_img)
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
-               
+
                 tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
 
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
