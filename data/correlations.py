@@ -139,7 +139,7 @@ def color_score(score: float) -> int:
 
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
-    path_red_hatch = "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.png"
+    path_red_hatch = "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.jpg"
     path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
     with open(path_red_hatch, "rb") as file:
