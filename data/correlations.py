@@ -139,7 +139,15 @@ def color_score(score: float) -> int:
 
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
+    path_red_hatch = "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.png"
+    path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
+    with open(path_red_hatch, "rb") as file:
+        bytes_red_hatch = BytesIO(file.read())
+    with open(path_arial, "rb") as file:
+        bytes_font = BytesIO(file.read())
+    font = ImageFont.truetype(bytes_font, 100)
+
     for df in glob(file_pattern):
         df_complete = pd.read_pickle(df)
         df_complete = complete_processing(df_complete)
@@ -158,13 +166,20 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 gaps = list(map(round, list(gaps)))
                 posY = coord[0] + int(gaps[0] / 2)
                 posX = coord[1] - int(gaps[1] / 2)
-
+                is_tumor = df_complete.loc[idx]["tumor"]
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
                 size = int((gaps[0] + gaps[1]) / 2)
                 colored_image = Image.new("RGBA", (size, size), color)
                 # tissue_img = Image.alpha_composite(tissue_img, colored_image)
                 tissue_img.paste(colored_image, (posX, posY), colored_image)
+                if is_tumor == 'tumor':
+                    tissue_img.paste(Image.open(bytes_red_hatch), (posX, posY), Image.open(bytes_red_hatch))
+                # draw = ImageDraw.Draw(tissue_img)
+                # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
+               
+                tissue_img.save(tissue_name + "_score.png", "PNG")
+
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
         colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
@@ -175,10 +190,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw = ImageDraw.Draw(tissue_img)
         # font = ImageFont.truetype("data/arial.ttf", 100)
         # default_font = ImageFont.load_default()
-        path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
-        with open(path_arial, "rb") as file:
-            bytes_font = BytesIO(file.read())
-        font = ImageFont.truetype(bytes_font, 100)
 
         text3 = "Pearson > 0.80"
         text2 = "Pearson > 0.60"
@@ -187,12 +198,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 8500), text3, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
-
-        path_red_hatch = "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.png"
-        with open(path_red_hatch, "rb") as file:
-            bytes_red_hatch = BytesIO(file.read())
-        
-        tissue_img.save(tissue_name + "_score.png", "PNG")
 
 
 ### ------------------- MAIN ----------------------
