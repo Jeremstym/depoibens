@@ -24,7 +24,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchmetrics import R2Score, PearsonCorrCoef
 from models.inception_STnet import Regression_STnet
-from data.dataset_stnet import Phenotypes, create_dataloader
+from data.dataset_stnet import create_dataloader, Dataset_STnet
 from data.dataexploration import complete_processing
 
 INPUT_SIZE = 900
@@ -62,7 +62,7 @@ def data_loader(path_to_tsv: str, path_to_dino_dict: str) -> DataLoader:
     with open(path_to_tsv, "rb") as f:
         tsv = pkl.load(f)
 
-    dataset = Phenotypes(tsv, dino_dict, nb_genes=INPUT_SIZE, embd_size=OUTPUT_SIZE)
+    dataset = Dataset_STnet(tsv, dino_dict, nb_genes=INPUT_SIZE, embd_size=OUTPUT_SIZE)
     dataloader = DataLoader(
         dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4
     )
