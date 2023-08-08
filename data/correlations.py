@@ -183,9 +183,11 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
         colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
+        hatched_box = Image.open(bytes_red_hatch)
         tissue_img.paste(colored_box_3, (6000, 8500), colored_box_3)
         tissue_img.paste(colored_box_2, (6000, 8300), colored_box_2)
         tissue_img.paste(colored_box_1, (6000, 8100), colored_box_1)
+        tissue_img.paste(hatched_box, (6000, 7900), hatched_box)
 
         draw = ImageDraw.Draw(tissue_img)
         # font = ImageFont.truetype("data/arial.ttf", 100)
@@ -194,10 +196,12 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         text3 = "Pearson > 0.80"
         text2 = "Pearson > 0.60"
         text1 = "Pearson < 0.60"
+        text4 = "Tumor"
 
         draw.text((6200, 8500), text3, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
 
 ### ------------------- MAIN ----------------------
