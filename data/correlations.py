@@ -244,6 +244,7 @@ def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
                 # tissue_img = Image.alpha_composite(tissue_img, colored_image)
                 tissue_img.paste(colored_image, (posX, posY), colored_image)
                 if is_tumor == "tumor":
+                    hatch_image = hatch_image.resize((size, size))
                     tissue_img.paste(hatch_image, (posX, posY), hatch_image)
                     tumor_detected = True
                 # draw = ImageDraw.Draw(tissue_img)
