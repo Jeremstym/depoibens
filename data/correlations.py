@@ -137,6 +137,33 @@ def color_score(score: float) -> int:
     return res
 
 
+def create_red_stripes_black_background() -> None:
+    path_red_hatch = (
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_stripes.jpg"
+    )
+
+    img = Image.open(path_red_hatch).convert("RGBA")
+
+    datas = img.getdata()
+
+    newData = []
+    for item in datas:
+        if (
+            item[0] in list(range(190, 256))
+            and item[1] in list(range(190, 256))
+            and item[2] in list(range(190, 256))
+        ):
+            newData.append((0, 0, 0, 128))
+        else:
+            newData.append(item)
+
+    img.putdata(newData)
+    img.save(
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes.png",
+        "PNG",
+    )
+
+
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
@@ -183,7 +210,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 # draw = ImageDraw.Draw(tissue_img)
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
 
-
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 0, 255, 45))
         colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
@@ -209,6 +235,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
         tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
+
 
 def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
@@ -275,11 +302,13 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
 #     df_corr = df_corr.join(df_complete, how="inner")
 #     df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
 
-if __name__ == "__main__":
-    df_corr = pd.read_csv(path_to_csv, index_col=0)
-    color_spot(path_to_data, df_corr)
-    print("Done")
+# if __name__ == "__main__":
+#     df_corr = pd.read_csv(path_to_csv, index_col=0)
+#     color_spot(path_to_data, df_corr)
+#     print("Done")
 
+if __name__ == '__main__':
+    create_red_stripes_black_background()
 
 ### ------------------- Brouillon ----------------------
 
