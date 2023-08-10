@@ -174,7 +174,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
-        hatch_image.putalpha(128)
     with open(path_arial, "rb") as file:
         bytes_font = BytesIO(file.read())
     font = ImageFont.truetype(bytes_font, 100)
@@ -214,7 +213,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 0, 255, 45))
         colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
         hatched_box = hatch_image.resize((150, 150))
-        hatched_box.putalpha(255)
         tissue_img.paste(colored_box_3, (6000, 8500), colored_box_3)
         tissue_img.paste(colored_box_2, (6000, 8300), colored_box_2)
         tissue_img.paste(colored_box_1, (6000, 8100), colored_box_1)
