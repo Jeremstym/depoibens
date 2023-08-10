@@ -174,6 +174,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
+        hatch_image.putalpha(64)
     with open(path_arial, "rb") as file:
         bytes_font = BytesIO(file.read())
     font = ImageFont.truetype(bytes_font, 100)
