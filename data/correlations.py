@@ -239,7 +239,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes.png"
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes2.png"
     )
     file_pattern = "*_complete.pkl"
     with open(path_red_hatch, "rb") as file:
