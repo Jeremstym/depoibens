@@ -35,12 +35,12 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
 
     label_dict = {}
     label_dict["labels"] = list_image
-    
+
     return label_dict
 
 def export_json(dict_label: dict, path: str) -> None:
     os.chdir(path)
-    with open("labels.json", "w") as f:
+    with open("dataset.json", "w") as f:
         json.dump(dict_label, f)
 
 
