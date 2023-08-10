@@ -131,7 +131,7 @@ def color_score(score: float) -> int:
     if score > 0.80:
         res = (0, 255, 0, 95)
     elif score > 0.60:
-        res = (0, 255, 0, 35)
+        res = (0, 0, 255, 45)
     else:
         res = (255, 0, 0, 35)
     return res
@@ -185,7 +185,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
 
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
-        colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
+        colored_box_2 = Image.new("RGBA", (150, 150), (0, 0, 255, 45))
         colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
         hatched_box = hatch_image.resize((150, 150))
         hatched_box.putalpha(255)
