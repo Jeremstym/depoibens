@@ -167,14 +167,13 @@ def create_red_stripes_black_background() -> None:
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_stripes.jpg"
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes.png"
     )
     path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
-        hatch_image.putalpha(128)
     with open(path_arial, "rb") as file:
         bytes_font = BytesIO(file.read())
     font = ImageFont.truetype(bytes_font, 100)
@@ -240,7 +239,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.jpg"
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes.png"
     )
     file_pattern = "*_complete.pkl"
     with open(path_red_hatch, "rb") as file:
