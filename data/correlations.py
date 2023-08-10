@@ -141,7 +141,7 @@ def color_score(score: float) -> int:
 
 def create_red_stripes_black_background(local_path) -> None:
     path_red_hatch = (
-        local_path + "/red_hatch.jpg"
+        local_path + "/perso_patterns.png"
     )
 
     img = Image.open(path_red_hatch).convert("RGBA")
@@ -161,7 +161,7 @@ def create_red_stripes_black_background(local_path) -> None:
 
     img.putdata(newData)
     img.save(
-        local_path + "/blackred_stripes4.png",
+        local_path + "/personal_stripes.png",
         "PNG",
     )
 
@@ -169,7 +169,7 @@ def create_red_stripes_black_background(local_path) -> None:
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes4.png"
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/personal_stripes.png"
     )
     path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
