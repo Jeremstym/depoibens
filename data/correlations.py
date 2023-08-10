@@ -130,10 +130,12 @@ def color_score(score: float) -> int:
     # res = 100 * round(score, 1)
     if score > 0.80:
         res = (0, 255, 0, 95)
+    elif score > 0.70:
+        res = (0, 255, 0, 45)
     elif score > 0.60:
         res = (0, 0, 255, 45)
     else:
-        res = (255, 0, 0, 35)
+        res = (225, 224, 100, 45)
     return res
 
 
@@ -210,27 +212,31 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
 
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
+        colored_box_inter = Image.new("RGBA", (150, 150), (0, 255, 0, 45))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 0, 255, 45))
-        colored_box_1 = Image.new("RGBA", (150, 150), (255, 0, 0, 35))
+        colored_box_1 = Image.new("RGBA", (150, 150), (225, 224, 100, 45))
         hatched_box = hatch_image.resize((150, 150))
         tissue_img.paste(colored_box_3, (6000, 8500), colored_box_3)
-        tissue_img.paste(colored_box_2, (6000, 8300), colored_box_2)
-        tissue_img.paste(colored_box_1, (6000, 8100), colored_box_1)
-        tissue_img.paste(hatched_box, (6000, 7900), hatched_box)
+        tissue_img.paste(colored_box_inter, (6000, 8300), colored_box_inter)
+        tissue_img.paste(colored_box_2, (6000, 8100), colored_box_2)
+        tissue_img.paste(colored_box_1, (6000, 7900), colored_box_1)
+        tissue_img.paste(hatched_box, (6000, 7700), hatched_box)
 
         draw = ImageDraw.Draw(tissue_img)
         # font = ImageFont.truetype("data/arial.ttf", 100)
         # default_font = ImageFont.load_default()
 
         text3 = "Pearson > 0.80"
+        text_inter = "Pearson > 0.70"
         text2 = "Pearson > 0.60"
         text1 = "Pearson < 0.60"
         text4 = "Tumor"
 
         draw.text((6200, 8500), text3, font=font, fill=(0, 0, 0, 255), align="center")
-        draw.text((6200, 8300), text2, font=font, fill=(0, 0, 0, 255), align="center")
-        draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
-        draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 8300), text_inter, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 8100), text2, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 7900), text1, font=font, fill=(0, 0, 0, 255), align="center")
+        draw.text((6200, 7700), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
         tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
 
