@@ -403,7 +403,7 @@ def concatenate_all_df_complete(path: str) -> pd.DataFrame:
     df_list = []
     for path in tqdm(path_list):
         with open(path, "rb") as f:
-            _tissue_name = re.match(".*/(.*)complete.pkl", path).group(1)
+            _tissue_name = re.match(".*/(.*)_complete.pkl", path).group(1)
             df = pkl.load(f)
             new_index = [_tissue_name + "_" + str(i) for i in df.index]
             df.index = new_index
