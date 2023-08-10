@@ -216,7 +216,7 @@ def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
-        hatch_image.putalpha(128)
+        hatch_image.putalpha(99)
 
     for df in glob(file_pattern):
         df_complete = pd.read_pickle(df)
