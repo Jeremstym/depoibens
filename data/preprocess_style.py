@@ -14,7 +14,7 @@ import re
 import json
 
 path_to_image = "/projects/minos/jeremie/data/images"
-path_to_complete = ""
+path_to_complete = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 
 def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
     os.chdir(path)
@@ -31,6 +31,17 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
         
     for elt in list_image:
         assert type(elt) == list, "Error: list_image is not a list of list"
-        
+
     label_dict = {}
     label_dict["labels"] = list_image
+
+def export_json(dict_label: dict, path: str) -> None:
+    os.chdir(path)
+    with open("labels.json", "w") as f:
+        json.dump(dict_label, f)
+
+
+if __name__ == "__main__":
+    df_complete = pd.read_csv(path_to_complete, index_col=0)
+    dict_label = create_dict_label(path_to_image, df_complete)
+    export_json(dict_label, path_to_image)
