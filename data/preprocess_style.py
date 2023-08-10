@@ -26,8 +26,8 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
     for path in list_image:
         match = re.match(pattern, path)
         idx = match.group(1)
-        print(idx)
         label = (df_complete.loc[idx]["tumor"] == "tumor") * 1
+        print(label)
         list_image[cnt] = [path, label]
         cnt += 1
         
