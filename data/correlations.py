@@ -139,7 +139,7 @@ def color_score(score: float) -> int:
 
 def create_red_stripes_black_background(local_path) -> None:
     path_red_hatch = (
-        local_path + "/red_stripes.jpg"
+        local_path + "/red_hatch.jpg"
     )
 
     img = Image.open(path_red_hatch).convert("RGBA")
@@ -159,7 +159,7 @@ def create_red_stripes_black_background(local_path) -> None:
 
     img.putdata(newData)
     img.save(
-        local_path + "/blackred_stripes3.png",
+        local_path + "/blackred_stripes4.png",
         "PNG",
     )
 
@@ -167,7 +167,7 @@ def create_red_stripes_black_background(local_path) -> None:
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes3.png"
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes4.png"
     )
     path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
@@ -301,7 +301,7 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
 #     df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
 
 # if __name__ == '__main__':
-#     create_red_stripes_black_background()
+#     create_red_stripes_black_background(local_path=r'C:\Jérémie\Stage\IBENS\depo\data\patterns')
 
 if __name__ == "__main__":
     df_corr = pd.read_csv(path_to_csv, index_col=0)
