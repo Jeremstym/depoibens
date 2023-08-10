@@ -301,13 +301,14 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
 #     df_corr = df_corr.join(df_complete, how="inner")
 #     df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
 
-# if __name__ == "__main__":
-#     df_corr = pd.read_csv(path_to_csv, index_col=0)
-#     color_spot(path_to_data, df_corr)
-#     print("Done")
+# if __name__ == '__main__':
+#     create_red_stripes_black_background()
 
-if __name__ == '__main__':
-    create_red_stripes_black_background()
+if __name__ == "__main__":
+    df_corr = pd.read_csv(path_to_csv, index_col=0)
+    color_spot(path_to_data, df_corr)
+    print("Done")
+
 
 ### ------------------- Brouillon ----------------------
 
