@@ -7,6 +7,7 @@ import os
 import sys
 sys.path.append("../")
 from glob import glob
+from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
@@ -25,6 +26,7 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
     for path in list_image:
         match = re.match(pattern, path)
         idx = match.group(1)
+        print(idx)
         label = (df_complete.loc[idx]["tumor"] == "tumor") * 1
         list_image[cnt] = [path, label]
         cnt += 1
