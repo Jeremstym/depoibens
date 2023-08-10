@@ -181,7 +181,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 # draw = ImageDraw.Draw(tissue_img)
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
 
-                tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
+            tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
 
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
@@ -206,6 +206,52 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
+def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
+    os.chdir(path)
+    path_red_hatch = (
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.jpg"
+    )
+    file_pattern = "*_complete.pkl"
+    with open(path_red_hatch, "rb") as file:
+        bytes_red_hatch = BytesIO(file.read())
+        hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
+
+    for df in glob(file_pattern):
+        df_complete = pd.read_pickle(df)
+        df_complete = complete_processing(df_complete)
+        tissue_img_loc = re.sub("_complete.pkl", ".jpg", df)
+        tissue_img = Image.open(tissue_img_loc)
+        tissue_img = tissue_img.convert("RGBA")
+        tissue_name = re.sub("_complete.pkl", "", df)
+        with tqdm(df_complete.index, total=len(df_complete.index), unit="spot") as pbar:
+            pbar.set_description(f"Coloring spots of {tissue_name}")
+            for idx in pbar:
+                crop_name = tissue_name + "_" + idx
+                # Note that the axis are purposely inversed below
+                coord = df_complete.loc[idx][["Y", "X"]].values
+                coord = list(map(round, list(coord)))
+                gaps = df_complete.loc[idx][["gapY", "gapX"]].values
+                gaps = list(map(round, list(gaps)))
+                posY = coord[0] + int(gaps[0] / 2)
+                posX = coord[1] - int(gaps[1] / 2)
+                is_tumor = df_complete.loc[idx]["tumor"]
+                score = df_score.loc[crop_name]["pearson"]
+                color = color_score(score)
+                size = int((gaps[0] + gaps[1]) / 2)
+                colored_image = Image.new("RGBA", (size, size), color)
+                # tissue_img = Image.alpha_composite(tissue_img, colored_image)
+                tissue_img.paste(colored_image, (posX, posY), colored_image)
+                if is_tumor == "tumor":
+                    tissue_img.paste(hatch_image, (posX, posY), hatch_image)
+                    tumor_detected = True
+                # draw = ImageDraw.Draw(tissue_img)
+                # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
+                if tumor_detected:
+                    break
+            tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
+            if tumor_detected:
+                break
+
 
 ### ------------------- MAIN ----------------------
 
@@ -228,7 +274,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     df_corr = pd.read_csv(path_to_csv, index_col=0)
-    color_spot(path_to_data, df_corr)
+    test_color_sport_1_spot(path_to_data, df_corr)
     print("Done")
 
 
