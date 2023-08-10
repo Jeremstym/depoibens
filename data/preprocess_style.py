@@ -27,10 +27,10 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
         match = re.match(pattern, path)
         idx = match.group(1)
         label = (df_complete.loc[idx]["tumor"] == "tumor") * 1
-        print(label)
         list_image[cnt] = [path, label]
         cnt += 1
-        
+    
+    print(list_image[:10])    
     for elt in list_image:
         assert type(elt) == list, "Error: list_image is not a list of list"
 
