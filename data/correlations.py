@@ -183,7 +183,6 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 # draw = ImageDraw.Draw(tissue_img)
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
 
-        tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
 
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
@@ -209,6 +208,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
+        tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
 
 def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
