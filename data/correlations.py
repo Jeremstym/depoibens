@@ -137,9 +137,9 @@ def color_score(score: float) -> int:
     return res
 
 
-def create_red_stripes_black_background() -> None:
+def create_red_stripes_black_background(local_path) -> None:
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_stripes.jpg"
+        local_path + "/red_stripes.jpg"
     )
 
     img = Image.open(path_red_hatch).convert("RGBA")
@@ -159,7 +159,7 @@ def create_red_stripes_black_background() -> None:
 
     img.putdata(newData)
     img.save(
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes.png",
+        local_path + "/blackred_stripes3.png",
         "PNG",
     )
 
@@ -167,14 +167,14 @@ def create_red_stripes_black_background() -> None:
 def color_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
-        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes.png"
+        "/import/bc_users/biocomp/stym/depoibens/data/patterns/blackred_stripes3.png"
     )
     path_arial = "/import/bc_users/biocomp/stym/depoibens/data/arial.ttf"
     file_pattern = "*_complete.pkl"
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
-        hatch_image.putalpha(64)
+        hatch_image.putalpha(128)
     with open(path_arial, "rb") as file:
         bytes_font = BytesIO(file.read())
     font = ImageFont.truetype(bytes_font, 100)
@@ -302,13 +302,13 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
 #     df_corr = df_corr.join(df_complete, how="inner")
 #     df_corr.to_csv("/projects/minos/jeremie/data/outputs/saptial_score.csv")
 
-if __name__ == '__main__':
-    create_red_stripes_black_background()
+# if __name__ == '__main__':
+#     create_red_stripes_black_background()
 
-# if __name__ == "__main__":
-#     df_corr = pd.read_csv(path_to_csv, index_col=0)
-#     color_spot(path_to_data, df_corr)
-#     print("Done")
+if __name__ == "__main__":
+    df_corr = pd.read_csv(path_to_csv, index_col=0)
+    color_spot(path_to_data, df_corr)
+    print("Done")
 
 
 ### ------------------- Brouillon ----------------------
