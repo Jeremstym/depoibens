@@ -147,6 +147,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
+        hatch_image.putalpha(128)
     with open(path_arial, "rb") as file:
         bytes_font = BytesIO(file.read())
     font = ImageFont.truetype(bytes_font, 100)
@@ -177,11 +178,12 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 # tissue_img = Image.alpha_composite(tissue_img, colored_image)
                 tissue_img.paste(colored_image, (posX, posY), colored_image)
                 if is_tumor == "tumor":
+                    hatch_image = hatch_image.resize((size, size))
                     tissue_img.paste(hatch_image, (posX, posY), hatch_image)
                 # draw = ImageDraw.Draw(tissue_img)
                 # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
 
-            tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
+        tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
 
         colored_box_3 = Image.new("RGBA", (150, 150), (0, 255, 0, 95))
         colored_box_2 = Image.new("RGBA", (150, 150), (0, 255, 0, 35))
@@ -207,7 +209,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
 
-def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
+def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
         "/import/bc_users/biocomp/stym/depoibens/data/patterns/red_hatch.jpg"
@@ -241,14 +243,11 @@ def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
                 color = color_score(score)
                 size = int((gaps[0] + gaps[1]) / 2)
                 colored_image = Image.new("RGBA", (size, size), color)
-                # tissue_img = Image.alpha_composite(tissue_img, colored_image)
                 tissue_img.paste(colored_image, (posX, posY), colored_image)
                 if is_tumor == "tumor":
                     hatch_image = hatch_image.resize((size, size))
                     tissue_img.paste(hatch_image, (posX, posY), hatch_image)
                     tumor_detected = True
-                # draw = ImageDraw.Draw(tissue_img)
-                # draw.text((posX, posY), str(round(score, 2)), font=font, fill=(0, 0, 0, 255))
                 if tumor_detected:
                     break
             tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
@@ -277,7 +276,7 @@ def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     df_corr = pd.read_csv(path_to_csv, index_col=0)
-    test_color_sport_1_spot(path_to_data, df_corr)
+    color_spot(path_to_data, df_corr)
     print("Done")
 
 
