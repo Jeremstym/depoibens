@@ -30,12 +30,12 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
         list_image[cnt] = [path, label]
         cnt += 1
     
-    print(list_image[:10])    
     for elt in list_image:
         assert type(elt) == list, "Error: list_image is not a list of list"
 
     label_dict = {}
     label_dict["labels"] = list_image
+    print(label_dict)
 
 def export_json(dict_label: dict, path: str) -> None:
     os.chdir(path)
