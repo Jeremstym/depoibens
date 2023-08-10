@@ -397,6 +397,7 @@ def concatenate_all_df_complete(path: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: concatenated dataframe
     """
+    os.chdir(path)
     path_list = glob("*[0-9]/*complete.pkl", recursive=True)
 
     df_list = []
