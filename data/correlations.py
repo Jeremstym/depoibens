@@ -206,6 +206,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 8100), text1, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 7900), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
+
 def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
     os.chdir(path)
     path_red_hatch = (
@@ -215,6 +216,7 @@ def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
     with open(path_red_hatch, "rb") as file:
         bytes_red_hatch = BytesIO(file.read())
         hatch_image = Image.open(bytes_red_hatch).convert("RGBA")
+        hatch_image.putalpha(128)
 
     for df in glob(file_pattern):
         df_complete = pd.read_pickle(df)
@@ -222,7 +224,6 @@ def test_color_sport_1_spot(path: str, df_score: pd.DataFrame) -> None:
         tissue_img_loc = re.sub("_complete.pkl", ".jpg", df)
         tissue_img = Image.open(tissue_img_loc)
         tissue_img = tissue_img.convert("RGBA")
-        tissue_img.putalpha(1)
         tissue_name = re.sub("_complete.pkl", "", df)
         with tqdm(df_complete.index, total=len(df_complete.index), unit="spot") as pbar:
             pbar.set_description(f"Coloring spots of {tissue_name}")
