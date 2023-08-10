@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pickle as pkl
 from collections import Counter
+from glob import glob
 
 from PIL import Image
 import cv2
@@ -387,6 +388,26 @@ def get_cropped_image(path: str, format=".jpg") -> None:
                     img_crop,
                 )
 
+def concatenate_all_df_complete(path: str) -> pd.DataFrame:
+    """Concatenate all complete dataframe
+
+    Args:
+        path (str): path to all datasets
+
+    Returns:
+        pd.DataFrame: concatenated dataframe
+    """
+    path_list = glob("*[0-9]/*complete.pkl", recursive=True)
+
+    df_list = []
+    for path in tqdm(path_list):
+        with open(path, "rb") as f:
+            df = pkl.load(f)
+        df_list.append(df)
+
+    df_complete = pd.concat(df_list)
+
+    return df_complete
 
 ### ------------- Programmes ----------------------
 
@@ -439,10 +460,14 @@ def get_cropped_image(path: str, format=".jpg") -> None:
 #     gene_used = most_common_gene(try_count)
 #     df_sum = counting_frame(path, gene_used)
 
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     get_cropped_image(path)
+
 if __name__ == "__main__":
     path = "/import/pr_minos/jeremie/data"
-    get_cropped_image(path)
-
+    df = concatenate_all_df_complete(path)
+    df.to_csv(path + "/complete_concatenate_df.csv")
 
 
 ### ------------ Brouillon -----------------------
