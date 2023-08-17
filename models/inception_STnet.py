@@ -348,7 +348,7 @@ parser.add_argument(
     "--test",
     type=int,
     default=1,
-    help="Test the model",
+    help="Nb of model tests, max 23",
 )
 args = vars(parser.parse_args())
 
