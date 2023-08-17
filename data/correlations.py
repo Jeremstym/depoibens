@@ -23,7 +23,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchmetrics import R2Score, PearsonCorrCoef
-from models.inception_STnet import Regression_STnet
+from models.inception_STnet import Regression_STnet, LIST_PATIENTS
 from data.dataset_stnet import create_dataloader, Dataset_STnet
 from data.dataexploration import complete_processing
 
@@ -124,6 +124,12 @@ def concatenate_dfcomplete(path: str) -> pd.DataFrame:
         df = pd.concat([df, inter_df])
         droppings = ["title", "lab", "tumor"]
     return df.drop(droppings, axis=1)
+
+def create_df_score_and_tumor(df_complete: pd.DataFrame, df_corr: pd.DataFrame) -> pd.DataFrame:
+    df_complete_1pat = df_complete[df_complete.index.str.contains(TEST_PATIENT)]["tumor"]
+    df_joined = df_corr.join(df_complete_1pat, how="inner")
+
+    return df_joined
 
 
 def color_score(score: float) -> int:
@@ -287,7 +293,22 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
                 break
 
 
+
 ### ------------------- MAIN ----------------------
+
+if __name__ == "__main__":
+    all_correlations = pd.DataFrame()
+    for test_patient in tqdm(LIST_PATIENTS):
+        path_to_model = f"/projects/minos/jeremie/data/outputs/best_model_dino_{test_patient}.pth"
+        model = load_model(path_to_model)
+        df_corr = create_df_corr(model)
+        df_complete = pd.read_csv(path_to_data + "/complete_concatenate_df.csv", index_col=0)
+        df_joined = create_df_score_and_tumor(df_complete, df_corr)
+        print(df_joined)
+        all_correlations = pd.concat([all_correlations, df_joined])
+
+    all_correlations.to_csv(path_to_save + "/all_correlations.csv")
+
 
 # if __name__ == "__main__":
 #     path_to_model = "/projects/minos/jeremie/data/outputs/best_model_dino.pth"
@@ -309,10 +330,10 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
 # if __name__ == '__main__':
 #     create_red_stripes_black_background(local_path=r'C:\Jérémie\Stage\IBENS\depo\data\patterns')
 
-if __name__ == "__main__":
-    df_corr = pd.read_csv(path_to_csv, index_col=0)
-    color_spot(path_to_data, df_corr)
-    print("Done")
+# if __name__ == "__main__":
+#     df_corr = pd.read_csv(path_to_csv, index_col=0)
+#     color_spot(path_to_data, df_corr)
+#     print("Done")
 
 
 ### ------------------- Brouillon ----------------------
