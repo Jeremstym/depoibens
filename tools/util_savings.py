@@ -20,7 +20,7 @@ class SaveBestModel:
     def __init__(self, best_valid_loss=float("inf")):
         self.best_valid_loss = best_valid_loss
 
-    def __call__(self, path, current_valid_loss, epoch, model, optimizer, criterion):
+    def __call__(self, path, current_valid_loss, epoch, model, optimizer, criterion, test_patient):
         if current_valid_loss < self.best_valid_loss:
             self.best_valid_loss = current_valid_loss
             print(f"\nBest validation loss: {self.best_valid_loss}")
@@ -32,11 +32,11 @@ class SaveBestModel:
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": criterion,
                 },
-                path + "/outputs/best_model_dino.pth",
+                path + f"/outputs/best_model_dino_{test_patient}.pth",
             )
 
 
-def save_model(path, epochs, model, optimizer, criterion):
+def save_model(path, epochs, model, optimizer, criterion, test_patient):
     """
     Function to save the trained model to disk.
     """
@@ -48,7 +48,7 @@ def save_model(path, epochs, model, optimizer, criterion):
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": criterion,
         },
-        path + "/outputs/final_model_dino.pth",
+        path + f"/outputs/final_model_dino_{test_patient}.pth",
     )
 
 
