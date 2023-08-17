@@ -22,6 +22,8 @@ import PIL
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
+path_to_data = "/import/pr_minos/jeremie/data"
+
 def colname_fixer(parent_path: str):
     """Fixe column name issues with previous datasets
     CAREFUL, IT CAN DAMAGE DATA. USE ONLY IF NECESSARY
@@ -413,7 +415,20 @@ def concatenate_all_df_complete(path: str) -> pd.DataFrame:
 
     return df_complete
 
+def count_tumor(path:str) -> pd.DataFrame:
+    df_complete = pd.read_csv(path + "/complete_concatenate_df.csv", index_col=0)
+    df_complete["patient"] = df_complete.index.map(lambda x: x.split("_")[0])
+    res = df_complete["patient", "tumor"].groupby("patient").value_counts()
+
+    return res
+    
+
 ### ------------- Programmes ----------------------
+
+if __name__ == "__main__":
+    res = count_tumor(path_to_data)
+    print(res)
+    
 
 # if __name__ == "__main__":
 #     path = r"E:\ST-Net\data\hist2tscript\BRCA"
@@ -468,10 +483,10 @@ def concatenate_all_df_complete(path: str) -> pd.DataFrame:
 #     path = "/import/pr_minos/jeremie/data"
 #     get_cropped_image(path)
 
-if __name__ == "__main__":
-    path = "/import/pr_minos/jeremie/data"
-    df = concatenate_all_df_complete(path)
-    df.to_csv(path + "/complete_concatenate_df.csv")
+# if __name__ == "__main__":
+#     path = "/import/pr_minos/jeremie/data"
+#     df = concatenate_all_df_complete(path)
+#     df.to_csv(path + "/complete_concatenate_df.csv")
 
 
 ### ------------ Brouillon -----------------------
