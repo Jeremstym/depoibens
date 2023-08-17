@@ -25,6 +25,10 @@ class SaveBestModel:
             self.best_valid_loss = current_valid_loss
             print(f"\nBest validation loss: {self.best_valid_loss}")
             print(f"\nSaving best model for epoch: {epoch+1}\n")
+            
+            if not os.path.exists(path + "/outputs"):
+                os.makedirs(path + "/outputs")
+            
             torch.save(
                 {
                     "epoch": epoch + 1,
