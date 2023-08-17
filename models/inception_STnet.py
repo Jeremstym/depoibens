@@ -513,7 +513,7 @@ def main(
 
         # test the model
         if not dummy:
-            model = load_model(path_saving + "/outputs/best_model_dino.pth", dict_dim)
+            model = load_model(path_saving + f"/outputs/best_model_dino_{test_patient}.pth", dict_dim)
             test_loss, r2_test, pearson_test = test(
                 model, test_loader, criterion, device
             )
