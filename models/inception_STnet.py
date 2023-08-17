@@ -356,7 +356,7 @@ args = vars(parser.parse_args())
 
 
 def main(
-    path_saving="/import/pr_minos/jeremie/data",
+    path_saving="/import/pr_minos/jeremie/data/dinoALL",
     model_features="inception",
     lr=args["learning_rate"],
     epochs=args["epochs"],
@@ -497,13 +497,14 @@ def main(
                     model,
                     optimizer,
                     criterion,
+                    test_patient,
                 )
             print("-" * 50)
         if run:
             run.stop()
         if not dummy:
             # save the trained model weights for a final time
-            save_model(path_saving, epochs, model, optimizer, criterion)
+            save_model(path_saving, epochs, model, optimizer, criterion, test_patient)
             # save the loss and accuracy plots
             save_plots(
                 path_saving, train_r2_wght, valid_r2_wght, train_loss, valid_loss
@@ -524,7 +525,7 @@ def main(
             break
 
     print(test_frame)
-    test_frame.to_csv(path_to_save + "/test_results_dino.csv")
+    # test_frame.to_csv(path_to_save + "/test_results_dino.csv")
 
 
 if __name__ == "__main__":
