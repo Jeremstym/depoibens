@@ -418,7 +418,7 @@ def concatenate_all_df_complete(path: str) -> pd.DataFrame:
 def count_tumor(path:str) -> pd.DataFrame:
     df_complete = pd.read_csv(path + "/complete_concatenate_df.csv", index_col=0)
     df_complete["patient"] = df_complete.index.map(lambda x: x.split("_")[0])
-    res = df_complete["patient", "tumor"].groupby("patient").value_counts()
+    res = df_complete[["patient", "tumor"]].groupby("patient").value_counts()
 
     return res
     
