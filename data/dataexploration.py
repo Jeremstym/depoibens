@@ -23,6 +23,7 @@ import PIL
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
 path_to_data = "/import/pr_minos/jeremie/data"
+path_to_output = "/import/pr_minos/jeremie/data/Preprocessing_results"
 
 def colname_fixer(parent_path: str):
     """Fixe column name issues with previous datasets
@@ -427,7 +428,7 @@ def count_tumor(path:str) -> pd.DataFrame:
 
 if __name__ == "__main__":
     res = count_tumor(path_to_data)
-    print(res)
+    res.to_csv(path_to_output + "/count_tumor.csv")
     
 
 # if __name__ == "__main__":
