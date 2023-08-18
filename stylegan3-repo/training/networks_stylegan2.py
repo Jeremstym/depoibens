@@ -188,6 +188,16 @@ class Conv2dLayer(torch.nn.Module):
 #----------------------------------------------------------------------------
 
 @persistence.persistent_class
+
+class Identity(torch.nn.Module):
+    def __init__(self):
+        super(Identity, self).__init__()
+        
+    def forward(self, x):
+        return x
+#----------------------------------------------------------------------------
+
+@persistence.persistent_class
 class MappingNetwork(torch.nn.Module):
     def __init__(self,
         z_dim,                      # Input latent (Z) dimensionality, 0 = no latent.
@@ -268,16 +278,6 @@ class MappingNetwork(torch.nn.Module):
     def extra_repr(self):
         return f'z_dim={self.z_dim:d}, c_dim={self.c_dim:d}, w_dim={self.w_dim:d}, num_ws={self.num_ws:d}'
 
-#----------------------------------------------------------------------------
-
-@persistence.persistent_class
-
-class Identity(torch.nn.Module):
-    def __init__(self):
-        super(Identity, self).__init__()
-        
-    def forward(self, x):
-        return x
     
 #----------------------------------------------------------------------------
 
