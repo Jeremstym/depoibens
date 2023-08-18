@@ -271,6 +271,17 @@ class MappingNetwork(torch.nn.Module):
 #----------------------------------------------------------------------------
 
 @persistence.persistent_class
+
+class Identity(torch.nn.Module):
+    def __init__(self):
+        super(Identity, self).__init__()
+        
+    def forward(self, x):
+        return x
+    
+#----------------------------------------------------------------------------
+
+@persistence.persistent_class
 class SynthesisLayer(torch.nn.Module):
     def __init__(self,
         in_channels,                    # Number of input channels.
