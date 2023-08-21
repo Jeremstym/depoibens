@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 # Preprocessing before styleGAN2 training
 
 import os
 import sys
+
 sys.path.append("../")
 from glob import glob
 from tqdm import tqdm
@@ -22,6 +23,7 @@ path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 
 ### ---------- Functions -------------
 
+
 def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
     os.chdir(path)
     list_image = glob("*/*.jpg")
@@ -34,13 +36,16 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
         label = (df_complete.loc[idx]["tumor"] == "tumor") * 1
         list_image[cnt] = [path, label]
         cnt += 1
-    
+
     label_dict = {}
     label_dict["labels"] = list_image
 
     return label_dict
 
-def create_dict_tsv_label(path: str, df_complete: pd.DataFrame, tsv_df: pd.DataFrame, nb_genes=900) -> dict:
+
+def create_dict_tsv_label(
+    path: str, df_complete: pd.DataFrame, tsv_df: pd.DataFrame, nb_genes=900
+) -> dict:
     os.chdir(path)
     list_image = glob("*/*.jpg")
 
@@ -52,16 +57,18 @@ def create_dict_tsv_label(path: str, df_complete: pd.DataFrame, tsv_df: pd.DataF
         label_tsv = tsv_df.loc[idx].values[:nb_genes]
         list_image[cnt] = [path, label_tsv]
         cnt += 1
-    
+
     label_dict = {}
     label_dict["labels"] = list_image
 
     return label_dict
 
+
 def export_json(dict_label: dict, path: str) -> None:
     os.chdir(path)
     with open("dataset.json", "w") as f:
         json.dump(dict_label, f)
+
 
 ### ---------- Programmes -------------
 
