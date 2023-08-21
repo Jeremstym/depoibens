@@ -66,19 +66,30 @@ def is_image_ext(fname: Union[str, Path]) -> bool:
 
 #----------------------------------------------------------------------------
 
-def open_image_folder(source_dir, *, max_images: Optional[int]):
+def open_image_folder(source_dir, *, max_images: Optional[int], with_genes=False):
     input_images = [str(f) for f in sorted(Path(source_dir).rglob('*')) if is_image_ext(f) and os.path.isfile(f)]
 
     # Load labels.
     labels = {}
-    meta_fname = os.path.join(source_dir, 'dataset.json')
-    if os.path.isfile(meta_fname):
-        with open(meta_fname, 'r') as file:
-            labels = json.load(file)['labels']
-            if labels is not None:
-                labels = { x[0]: x[1] for x in labels }
-            else:
-                labels = {}
+    if with_genes:
+        meta_fname = os.path.join(source_dir, 'dataset_genes.pkl')
+        if os.path.isfile(meta_fname):
+            with open(meta_fname, 'r') as file:
+                labels = pickle.load(file)['labels']
+                if labels is not None:
+                    labels = { x[0]: x[1] for x in labels }
+                else:
+                    labels = {}
+
+    else:
+        meta_fname = os.path.join(source_dir, 'dataset.json')
+        if os.path.isfile(meta_fname):
+            with open(meta_fname, 'r') as file:
+                labels = json.load(file)['labels']
+                if labels is not None:
+                    labels = { x[0]: x[1] for x in labels }
+                else:
+                    labels = {}
 
     max_idx = maybe_min(len(input_images), max_images)
 
@@ -121,32 +132,32 @@ def open_image_zip(source, *, max_images: Optional[int]):
                     break
     return max_idx, iterate_images()
 
-def open_image_pickle(source, *, max_images: Optional[int]):
-    meta_fname = os.path.join(source, 'dataset_genes.pkl')
-    with open(meta_fname, 'rb') as f:
-        print('Loading pickle file for images (can take a while)')
-        input_images = pickle.load(f)
+# def open_image_pickle(source, *, max_images: Optional[int]):
+#     meta_fname = os.path.join(source, 'dataset_genes.pkl')
+#     with open(meta_fname, 'rb') as f:
+#         print('Loading pickle file for images (can take a while)')
+#         input_images = pickle.load(f)
 
-    # Load labels.
-    labels = {}
-    if os.path.isfile(meta_fname):
-        labels = input_images['labels']
-        if labels is not None:
-            labels = { x[0]: x[1] for x in labels }
-        else:
-            raise ValueError('No labels found in pickle file')
+#     # Load labels.
+#     labels = {}
+#     if os.path.isfile(meta_fname):
+#         labels = input_images['labels']
+#         if labels is not None:
+#             labels = { x[0]: x[1] for x in labels }
+#         else:
+#             raise ValueError('No labels found in pickle file')
 
-    max_idx = maybe_min(len(input_images["labels"]), max_images)
+#     max_idx = maybe_min(len(input_images["labels"]), max_images)
 
-    def iterate_images():
-        for idx, fname in enumerate(input_images):
-            arch_fname = os.path.relpath(fname, source)
-            arch_fname = arch_fname.replace('\\', '/')
-            img = np.array(PIL.Image.open(fname))
-            yield dict(img=img, label=labels.get(arch_fname))
-            if idx >= max_idx-1:
-                break
-    return max_idx, iterate_images()
+#     def iterate_images():
+#         for idx, fname in enumerate(input_images):
+#             arch_fname = os.path.relpath(fname, source)
+#             arch_fname = arch_fname.replace('\\', '/')
+#             img = np.array(PIL.Image.open(fname))
+#             yield dict(img=img, label=labels.get(arch_fname))
+#             if idx >= max_idx-1:
+#                 break
+#     return max_idx, iterate_images()
 
 #----------------------------------------------------------------------------
 
@@ -291,12 +302,12 @@ def make_transform(
 
 #----------------------------------------------------------------------------
 
-def open_dataset(source, *, max_images: Optional[int]):
+def open_dataset(source, *, max_images: Optional[int], with_genes=False):
     if os.path.isdir(source):
         if source.rstrip('/').endswith('_lmdb'):
             return open_lmdb(source, max_images=max_images)
         else:
-            return open_image_folder(source, max_images=max_images)
+            return open_image_folder(source, max_images=max_images, with_genes=with_genes)
     elif os.path.isfile(source):
         if os.path.basename(source) == 'cifar-10-python.tar.gz':
             return open_cifar10(source, max_images=max_images)
@@ -304,8 +315,6 @@ def open_dataset(source, *, max_images: Optional[int]):
             return open_mnist(source, max_images=max_images)
         elif file_ext(source) == 'zip':
             return open_image_zip(source, max_images=max_images)
-        elif file_ext(source) == 'pkl':
-            return open_image_pickle(source, max_images=max_images)
         else:
             assert False, 'unknown archive type'
     else:
@@ -352,13 +361,15 @@ def open_dest(dest: str) -> Tuple[str, Callable[[str, Union[bytes, str]], None],
 @click.option('--max-images', help='Output only up to `max-images` images', type=int, default=None)
 @click.option('--transform', help='Input crop/resize mode', type=click.Choice(['center-crop', 'center-crop-wide']))
 @click.option('--resolution', help='Output resolution (e.g., \'512x512\')', metavar='WxH', type=parse_tuple)
+@click.option('--with-genes', help='Use gene labels', type=bool, default=False)
 def convert_dataset(
     ctx: click.Context,
     source: str,
     dest: str,
     max_images: Optional[int],
     transform: Optional[str],
-    resolution: Optional[Tuple[int, int]]
+    resolution: Optional[Tuple[int, int]],
+    with_genes: bool
 ):
     """Convert an image dataset into a dataset archive usable with StyleGAN2 ADA PyTorch.
 
@@ -424,7 +435,7 @@ def convert_dataset(
     if dest == '':
         ctx.fail('--dest output filename or directory must not be an empty string')
 
-    num_files, input_iter = open_dataset(source, max_images=max_images)
+    num_files, input_iter = open_dataset(source, max_images=max_images, with_genes=with_genes)
     archive_root_dir, save_bytes, close_dest = open_dest(dest)
 
     if resolution is None: resolution = (None, None)
