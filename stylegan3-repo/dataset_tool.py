@@ -121,6 +121,33 @@ def open_image_zip(source, *, max_images: Optional[int]):
                     break
     return max_idx, iterate_images()
 
+def open_image_pickle(source, *, max_images: Optional[int]):
+    meta_fname = os.path.join(source, 'dataset_genes.pkl')
+    with open(meta_fname, 'rb') as f:
+        print('Loading pickle file for images (can take a while)')
+        input_images = pickle.load(f)
+
+    # Load labels.
+    labels = {}
+    if os.path.isfile(meta_fname):
+        labels = input_images['labels']
+        if labels is not None:
+            labels = { x[0]: x[1] for x in labels }
+        else:
+            raise ValueError('No labels found in pickle file')
+
+    max_idx = maybe_min(len(input_images["labels"]), max_images)
+
+    def iterate_images():
+        for idx, fname in enumerate(input_images):
+            arch_fname = os.path.relpath(fname, source)
+            arch_fname = arch_fname.replace('\\', '/')
+            img = np.array(PIL.Image.open(fname))
+            yield dict(img=img, label=labels.get(arch_fname))
+            if idx >= max_idx-1:
+                break
+    return max_idx, iterate_images()
+
 #----------------------------------------------------------------------------
 
 def open_lmdb(lmdb_dir: str, *, max_images: Optional[int]):
@@ -277,6 +304,8 @@ def open_dataset(source, *, max_images: Optional[int]):
             return open_mnist(source, max_images=max_images)
         elif file_ext(source) == 'zip':
             return open_image_zip(source, max_images=max_images)
+        elif file_ext(source) == 'pkl':
+            return open_image_pickle(source, max_images=max_images)
         else:
             assert False, 'unknown archive type'
     else:
