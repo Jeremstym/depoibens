@@ -77,13 +77,13 @@ def export_pickle(dict_label: dict, path: str) -> None:
 
 ### ---------- Programmes -------------
 
-if __name__ == "__main__":
-    df_complete = pd.read_csv(path_to_complete, index_col=0)
-    tsv_df = pd.read_pickle(path_to_tsv)
-    dict_label = create_dict_tsv_label(path_to_image, tsv_df)
-    export_pickle(dict_label, path_to_image)
-
 # if __name__ == "__main__":
 #     df_complete = pd.read_csv(path_to_complete, index_col=0)
-#     dict_label = create_dict_label(path_to_image, df_complete)
-#     export_json(dict_label, path_to_image)
+#     tsv_df = pd.read_pickle(path_to_tsv)
+#     dict_label = create_dict_tsv_label(path_to_image, tsv_df)
+#     export_pickle(dict_label, path_to_image)
+
+if __name__ == "__main__":
+    df_complete = pd.read_csv(path_to_complete, index_col=0)
+    dict_label = create_dict_label(path_to_image, df_complete)
+    export_json(dict_label, path_to_image)
