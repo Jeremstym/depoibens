@@ -15,6 +15,7 @@ import PIL.Image
 import json
 import torch
 import dnnlib
+import pickle
 
 try:
     import pyspng
@@ -156,11 +157,13 @@ class Dataset(torch.utils.data.Dataset):
 class ImageFolderDataset(Dataset):
     def __init__(self,
         path,                   # Path to directory or zip.
-        resolution      = None, # Ensure specific resolution, None = highest available.
+        is_pickle = False,      # Assume the dataset is a pickle file.
+        resolution = None,      # Ensure specific resolution, None = highest available.
         **super_kwargs,         # Additional arguments for the Dataset base class.
     ):
         self._path = path
         self._zipfile = None
+        self.is_pickle = is_pickle
 
         if os.path.isdir(self._path):
             self._type = 'dir'
@@ -222,11 +225,19 @@ class ImageFolderDataset(Dataset):
         return image
 
     def _load_raw_labels(self):
-        fname = 'dataset.json'
+        if self.is_pickle:
+            fname = 'dataset_genes.pkl'
+        else:
+            fname = 'dataset.json'
         if fname not in self._all_fnames:
+            print(f'WARNING: dataset is missing labels ({fname})')
             return None
         with self._open_file(fname) as f:
-            labels = json.load(f)['labels']
+            if self.is_pickle:
+                print('Loading pickle file for labels (can take a while)')
+                labels = pickle.load(f)['labels']
+            else:
+                labels = json.load(f)['labels']
         if labels is None:
             return None
         labels = dict(labels)
