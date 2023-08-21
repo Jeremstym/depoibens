@@ -188,7 +188,6 @@ class Conv2dLayer(torch.nn.Module):
 #----------------------------------------------------------------------------
 
 @persistence.persistent_class
-
 class Identity(torch.nn.Module):
     def __init__(self):
         super(Identity, self).__init__()
