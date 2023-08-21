@@ -14,8 +14,12 @@ import pandas as pd
 import re
 import json
 
+### ---------- Pathes and constants -------------
+
 path_to_image = "/projects/minos/jeremie/data/images"
 path_to_complete = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
+
+### ---------- Functions -------------
 
 def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
     os.chdir(path)
@@ -43,8 +47,9 @@ def export_json(dict_label: dict, path: str) -> None:
     with open("dataset.json", "w") as f:
         json.dump(dict_label, f)
 
+### ---------- Programmes -------------
 
-if __name__ == "__main__":
-    df_complete = pd.read_csv(path_to_complete, index_col=0)
-    dict_label = create_dict_label(path_to_image, df_complete)
-    export_json(dict_label, path_to_image)
+# if __name__ == "__main__":
+#     df_complete = pd.read_csv(path_to_complete, index_col=0)
+#     dict_label = create_dict_label(path_to_image, df_complete)
+#     export_json(dict_label, path_to_image)
