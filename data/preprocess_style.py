@@ -18,6 +18,7 @@ import json
 
 path_to_image = "/projects/minos/jeremie/data/images"
 path_to_complete = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
+path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 
 ### ---------- Functions -------------
 
@@ -34,9 +35,24 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
         list_image[cnt] = [path, label]
         cnt += 1
     
-    for elt in list_image:
-        assert type(elt) == list, "Error: list_image is not a list of list"
+    label_dict = {}
+    label_dict["labels"] = list_image
 
+    return label_dict
+
+def create_dict_tsv_label(path: str, df_complete: pd.DataFrame, tsv_df: pd.DataFrame, nb_genes=900) -> dict:
+    os.chdir(path)
+    list_image = glob("*/*.jpg")
+
+    pattern = ".*/(.*).jpg"
+    cnt = 0
+    for path in list_image:
+        match = re.match(pattern, path)
+        idx = match.group(1)
+        label_tsv = tsv_df.loc[idx].values[:nb_genes]
+        list_image[cnt] = [path, label_tsv]
+        cnt += 1
+    
     label_dict = {}
     label_dict["labels"] = list_image
 
@@ -48,6 +64,12 @@ def export_json(dict_label: dict, path: str) -> None:
         json.dump(dict_label, f)
 
 ### ---------- Programmes -------------
+
+if __name__ == "__main__":
+    df_complete = pd.read_csv(path_to_complete, index_col=0)
+    tsv_df = pd.read_pickle(path_to_tsv)
+    dict_label = create_dict_tsv_label(path_to_image, df_complete, tsv_df)
+    export_json(dict_label, path_to_image)
 
 # if __name__ == "__main__":
 #     df_complete = pd.read_csv(path_to_complete, index_col=0)
