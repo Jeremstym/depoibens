@@ -9,6 +9,7 @@ import sys
 sys.path.append("../")
 from glob import glob
 from tqdm import tqdm
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -44,7 +45,7 @@ def create_dict_label(path: str, df_complete: pd.DataFrame) -> dict:
 
 
 def create_dict_tsv_label(
-    path: str, df_complete: pd.DataFrame, tsv_df: pd.DataFrame, nb_genes=900
+    path: str, tsv_df: pd.DataFrame, nb_genes=900
 ) -> dict:
     os.chdir(path)
     list_image = glob("*/*.jpg")
@@ -69,14 +70,18 @@ def export_json(dict_label: dict, path: str) -> None:
     with open("dataset.json", "w") as f:
         json.dump(dict_label, f)
 
+def export_pickle(dict_label: dict, path: str) -> None:
+    os.chdir(path)
+    with open("dataset_genes.pkl", "wb") as f:
+        pickle.dump(dict_label, f)
 
 ### ---------- Programmes -------------
 
 if __name__ == "__main__":
     df_complete = pd.read_csv(path_to_complete, index_col=0)
     tsv_df = pd.read_pickle(path_to_tsv)
-    dict_label = create_dict_tsv_label(path_to_image, df_complete, tsv_df)
-    export_json(dict_label, path_to_image)
+    dict_label = create_dict_tsv_label(path_to_image, tsv_df)
+    export_pickle(dict_label, path_to_image)
 
 # if __name__ == "__main__":
 #     df_complete = pd.read_csv(path_to_complete, index_col=0)
