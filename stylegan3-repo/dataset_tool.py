@@ -74,7 +74,7 @@ def open_image_folder(source_dir, *, max_images: Optional[int], with_genes=False
     if with_genes:
         meta_fname = os.path.join(source_dir, 'dataset_genes.pkl')
         if os.path.isfile(meta_fname):
-            with open(meta_fname, 'r') as file:
+            with open(meta_fname, 'rb') as file:
                 labels = pickle.load(file)['labels']
                 if labels is not None:
                     labels = { x[0]: x[1] for x in labels }
