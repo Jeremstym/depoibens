@@ -135,7 +135,7 @@ def parse_comma_separated_list(s):
 
 # Optional features.
 @click.option('--cond',         help='Train conditional model', metavar='BOOL',                 type=bool, default=False, show_default=True)
-@click.optoin('--genes',        help='Train with gene expression data', metavar='BOOL',         type=bool, default=False, show_default=True)
+@click.option('--genes',        help='Train with gene expression data', metavar='BOOL',         type=bool, default=False, show_default=True)
 @click.option('--mirror',       help='Enable dataset x-flips', metavar='BOOL',                  type=bool, default=False, show_default=True)
 @click.option('--aug',          help='Augmentation mode',                                       type=click.Choice(['noaug', 'ada', 'fixed']), default='ada', show_default=True)
 @click.option('--resume',       help='Resume from given network pickle', metavar='[PATH|URL]',  type=str)
