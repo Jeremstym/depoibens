@@ -209,6 +209,7 @@ class MappingNetwork(torch.nn.Module):
         activation      = 'lrelu',  # Activation function: 'relu', 'lrelu', etc.
         lr_multiplier   = 0.01,     # Learning rate multiplier for the mapping layers.
         w_avg_beta      = 0.998,    # Decay for tracking the moving average of W during training, None = do not track.
+        use_genes      = False,     # Use genes to control the mapping network with conditions
     ):
         super().__init__()
         self.z_dim = z_dim
@@ -217,16 +218,20 @@ class MappingNetwork(torch.nn.Module):
         self.num_ws = num_ws
         self.num_layers = num_layers
         self.w_avg_beta = w_avg_beta
+        self.use_genes = use_genes
 
         if embed_features is None:
             embed_features = w_dim
         if c_dim == 0:
             embed_features = 0
+        self.embed_features = embed_features
         if layer_features is None:
             layer_features = w_dim
         features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
 
-        if c_dim > 0:
+        if use_genes:
+            self.embed_genes = Identity()
+        elif c_dim > 0:
             self.embed = FullyConnectedLayer(c_dim, embed_features)
         for idx in range(num_layers):
             in_features = features_list[idx]
@@ -237,7 +242,7 @@ class MappingNetwork(torch.nn.Module):
         if num_ws is not None and w_avg_beta is not None:
             self.register_buffer('w_avg', torch.zeros([w_dim]))
 
-    def forward(self, z, c, truncation_psi=1, truncation_cutoff=None, update_emas=False):
+    def forward(self, z, c, gene=None, truncation_psi=1, truncation_cutoff=None, update_emas=False):
         # Embed, normalize, and concat inputs.
         x = None
         with torch.autograd.profiler.record_function('input'):
@@ -248,6 +253,11 @@ class MappingNetwork(torch.nn.Module):
                 misc.assert_shape(c, [None, self.c_dim])
                 y = normalize_2nd_moment(self.embed(c.to(torch.float32)))
                 x = torch.cat([x, y], dim=1) if x is not None else y
+            if self.use_genes:
+                assert gene is not None
+                gene = gene[:self.embed_features]
+                g = normalize_2nd_moment(self.embed_genes(gene.to(torch.float32)))
+                x = torch.cat([x, g], dim=1) if x is not None else g
 
         # Main layers.
         for idx in range(self.num_layers):
