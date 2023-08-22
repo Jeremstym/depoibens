@@ -209,7 +209,7 @@ class MappingNetwork(torch.nn.Module):
         activation      = 'lrelu',  # Activation function: 'relu', 'lrelu', etc.
         lr_multiplier   = 0.01,     # Learning rate multiplier for the mapping layers.
         w_avg_beta      = 0.998,    # Decay for tracking the moving average of W during training, None = do not track.
-        use_genes      = False,     # Use genes to control the mapping network with conditions
+        use_genes       = False,     # Use genes to control the mapping network with conditions
     ):
         super().__init__()
         self.z_dim = z_dim
