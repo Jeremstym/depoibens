@@ -258,7 +258,7 @@ class MappingNetwork(torch.nn.Module):
                 x = torch.cat([x, y], dim=1) if x is not None else y
             if self.use_genes:
                 assert gene is not None
-                gene = gene[:, :self.embed_features]
+                gene = gene[:, :self.z_dim]
                 g = normalize_2nd_moment(self.embed_genes(gene.to(torch.float32)))
                 x = torch.cat([x, g], dim=1) if x is not None else g
 
