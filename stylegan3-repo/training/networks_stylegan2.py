@@ -227,12 +227,14 @@ class MappingNetwork(torch.nn.Module):
         self.embed_features = embed_features
         if layer_features is None:
             layer_features = w_dim
-        features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
-
         if use_genes:
             self.embed_genes = Identity()
         elif c_dim > 0:
             self.embed = FullyConnectedLayer(c_dim, embed_features)
+        if use_genes:
+            features_list = [z_dim + embed_features * 2] + [layer_features] * (num_layers - 1) + [w_dim]
+        else:
+            features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
         for idx in range(num_layers):
             in_features = features_list[idx]
             out_features = features_list[idx + 1]
@@ -255,7 +257,7 @@ class MappingNetwork(torch.nn.Module):
                 x = torch.cat([x, y], dim=1) if x is not None else y
             if self.use_genes:
                 assert gene is not None
-                gene = gene[:self.embed_features]
+                gene = gene[:, :self.embed_features]
                 g = normalize_2nd_moment(self.embed_genes(gene.to(torch.float32)))
                 x = torch.cat([x, g], dim=1) if x is not None else g
 
@@ -564,8 +566,8 @@ class Generator(torch.nn.Module):
         self.num_ws = self.synthesis.num_ws
         self.mapping = MappingNetwork(z_dim=z_dim, c_dim=c_dim, w_dim=w_dim, num_ws=self.num_ws, **mapping_kwargs)
 
-    def forward(self, z, c, truncation_psi=1, truncation_cutoff=None, update_emas=False, **synthesis_kwargs):
-        ws = self.mapping(z, c, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff, update_emas=update_emas)
+    def forward(self, z, c, gene=None, truncation_psi=1, truncation_cutoff=None, update_emas=False, **synthesis_kwargs):
+        ws = self.mapping(z, c, gene, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff, update_emas=update_emas)
         img = self.synthesis(ws, update_emas=update_emas, **synthesis_kwargs)
         return img
 
