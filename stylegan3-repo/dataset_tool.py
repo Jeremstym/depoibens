@@ -487,7 +487,10 @@ def convert_dataset(
     metadata = {
         'labels': labels if all(x is not None for x in labels) else None
     }
-    save_bytes(os.path.join(archive_root_dir, 'dataset.json'), json.dumps(metadata))
+    if with_genes:
+        save_bytes(os.path.join(archive_root_dir, 'dataset_genes.pkl'), pickle.dumps(metadata))
+    else:
+        save_bytes(os.path.join(archive_root_dir, 'dataset.json'), json.dumps(metadata))
     close_dest()
 
 #----------------------------------------------------------------------------
