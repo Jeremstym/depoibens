@@ -209,7 +209,6 @@ class MappingNetwork(torch.nn.Module):
         activation      = 'lrelu',  # Activation function: 'relu', 'lrelu', etc.
         lr_multiplier   = 0.01,     # Learning rate multiplier for the mapping layers.
         w_avg_beta      = 0.998,    # Decay for tracking the moving average of W during training, None = do not track.
-        use_genes       = False,     # Use genes to control the mapping network with conditions
     ):
         super().__init__()
         self.z_dim = z_dim
@@ -218,7 +217,6 @@ class MappingNetwork(torch.nn.Module):
         self.num_ws = num_ws
         self.num_layers = num_layers
         self.w_avg_beta = w_avg_beta
-        self.use_genes = use_genes
 
         if embed_features is None:
             embed_features = w_dim
@@ -227,13 +225,8 @@ class MappingNetwork(torch.nn.Module):
         self.embed_features = embed_features
         if layer_features is None:
             layer_features = w_dim
-        if use_genes:
-            self.embed_genes = Identity()
-            self.embed_features += w_dim
         elif c_dim > 0:
             self.embed = FullyConnectedLayer(c_dim, embed_features)
-        if use_genes:
-            features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
         else:
             features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
         for idx in range(num_layers):
@@ -256,11 +249,6 @@ class MappingNetwork(torch.nn.Module):
                 misc.assert_shape(c, [None, self.c_dim])
                 y = normalize_2nd_moment(self.embed(c.to(torch.float32)))
                 x = torch.cat([x, y], dim=1) if x is not None else y
-            if self.use_genes:
-                assert gene is not None
-                gene = gene[:, :self.z_dim]
-                g = normalize_2nd_moment(self.embed_genes(gene.to(torch.float32)))
-                x = torch.cat([x, g], dim=1) if x is not None else g
 
         # Main layers.
         for idx in range(self.num_layers):
