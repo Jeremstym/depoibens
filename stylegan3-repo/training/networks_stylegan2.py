@@ -13,6 +13,7 @@ https://github.com/NVlabs/stylegan2/blob/master/training/networks_stylegan2.py""
 
 import numpy as np
 import torch
+import torch.nn as nn
 from torch_utils import misc
 from torch_utils import persistence
 from torch_utils.ops import conv2d_resample
@@ -238,7 +239,7 @@ class MappingNetwork(torch.nn.Module):
         if num_ws is not None and w_avg_beta is not None:
             self.register_buffer('w_avg', torch.zeros([w_dim]))
 
-    def forward(self, z, c, gene=None, truncation_psi=1, truncation_cutoff=None, update_emas=False):
+    def forward(self, z, c, truncation_psi=1, truncation_cutoff=None, update_emas=False):
         # Embed, normalize, and concat inputs.
         x = None
         with torch.autograd.profiler.record_function('input'):
@@ -555,10 +556,13 @@ class Generator(torch.nn.Module):
         self.num_ws = self.synthesis.num_ws
         self.mapping = MappingNetwork(z_dim=z_dim, c_dim=c_dim, w_dim=w_dim, num_ws=self.num_ws, **mapping_kwargs)
 
-    def forward(self, z, c, gene=None, truncation_psi=1, truncation_cutoff=None, update_emas=False, **synthesis_kwargs):
-        ws = self.mapping(z, c, gene, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff, update_emas=update_emas)
+    def forward(self, z, c, genes=False, truncation_psi=1, truncation_cutoff=None, update_emas=False, **synthesis_kwargs):
+        ws = self.mapping(z, c, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff, update_emas=update_emas)
         img = self.synthesis(ws, update_emas=update_emas, **synthesis_kwargs)
-        return img
+        if genes:
+            return img, c
+        else: 
+            return img
 
 #----------------------------------------------------------------------------
 
@@ -742,6 +746,40 @@ class DiscriminatorEpilogue(torch.nn.Module):
 #----------------------------------------------------------------------------
 
 @persistence.persistent_class
+class CNN_STnet(nn.Module):
+    def __init__(
+        self,
+        num_channels = 3,
+        gen_size = 900
+    ):
+        
+        super(CNN_STnet, self).__init__()
+        self.conv_layers = nn.Sequential(
+            # size : 3 x 256 x 256
+            nn.Conv2d(num_channels, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            # size : 32 x 128 x 128
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            # size : 64 x 64 x 64
+        )  
+        self.fc_layers = nn.Sequential(
+            nn.Linear(64*64*64, gen_size),
+        )
+
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc_layers(x)
+        return x
+    
+#----------------------------------------------------------------------------
+
+@persistence.persistent_class
 class Discriminator(torch.nn.Module):
     def __init__(self,
         c_dim,                          # Conditioning label (C) dimensionality.
@@ -756,6 +794,7 @@ class Discriminator(torch.nn.Module):
         block_kwargs        = {},       # Arguments for DiscriminatorBlock.
         mapping_kwargs      = {},       # Arguments for MappingNetwork.
         epilogue_kwargs     = {},       # Arguments for DiscriminatorEpilogue.
+        genes               = False,    # Regression on image to get gene expression
     ):
         super().__init__()
         self.c_dim = c_dim
@@ -785,8 +824,10 @@ class Discriminator(torch.nn.Module):
         if c_dim > 0:
             self.mapping = MappingNetwork(z_dim=0, c_dim=c_dim, w_dim=cmap_dim, num_ws=None, w_avg_beta=None, **mapping_kwargs)
         self.b4 = DiscriminatorEpilogue(channels_dict[4], cmap_dim=cmap_dim, resolution=4, **epilogue_kwargs, **common_kwargs)
+        if genes:
+            self.cnn = CNN_STnet(num_channels=img_channels, gen_size=cmap_dim)
 
-    def forward(self, img, c, update_emas=False, **block_kwargs):
+    def forward(self, img, c, genes=False, update_emas=False, **block_kwargs):
         _ = update_emas # unused
         x = None
         for res in self.block_resolutions:
@@ -797,7 +838,11 @@ class Discriminator(torch.nn.Module):
         if self.c_dim > 0:
             cmap = self.mapping(None, c)
         x = self.b4(x, img, cmap)
-        return x
+        if genes:
+            reg = self.cnn(img)
+            return x, reg
+        else:
+            return x 
 
     def extra_repr(self):
         return f'c_dim={self.c_dim:d}, img_resolution={self.img_resolution:d}, img_channels={self.img_channels:d}'
