@@ -556,13 +556,10 @@ class Generator(torch.nn.Module):
         self.num_ws = self.synthesis.num_ws
         self.mapping = MappingNetwork(z_dim=z_dim, c_dim=c_dim, w_dim=w_dim, num_ws=self.num_ws, **mapping_kwargs)
 
-    def forward(self, z, c, genes=False, truncation_psi=1, truncation_cutoff=None, update_emas=False, **synthesis_kwargs):
+    def forward(self, z, c, truncation_psi=1, truncation_cutoff=None, update_emas=False, **synthesis_kwargs):
         ws = self.mapping(z, c, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff, update_emas=update_emas)
         img = self.synthesis(ws, update_emas=update_emas, **synthesis_kwargs)
-        if genes:
-            return img, c
-        else: 
-            return img
+        return img
 
 #----------------------------------------------------------------------------
 
@@ -804,10 +801,11 @@ class Discriminator(torch.nn.Module):
         self.block_resolutions = [2 ** i for i in range(self.img_resolution_log2, 2, -1)]
         channels_dict = {res: min(channel_base // res, channel_max) for res in self.block_resolutions + [4]}
         fp16_resolution = max(2 ** (self.img_resolution_log2 + 1 - num_fp16_res), 8)
+        self.genes = genes
 
         if cmap_dim is None:
             cmap_dim = channels_dict[4]
-        if c_dim == 0:
+        if c_dim == 0 or genes: # gene must not be considered as a label
             cmap_dim = 0
 
         common_kwargs = dict(img_channels=img_channels, architecture=architecture, conv_clamp=conv_clamp)
@@ -827,7 +825,7 @@ class Discriminator(torch.nn.Module):
         if genes:
             self.cnn = CNN_STnet(num_channels=img_channels, gen_size=cmap_dim)
 
-    def forward(self, img, c, genes=False, update_emas=False, **block_kwargs):
+    def forward(self, img, c, only_reg=False, update_emas=False, **block_kwargs):
         _ = update_emas # unused
         x = None
         for res in self.block_resolutions:
@@ -838,7 +836,11 @@ class Discriminator(torch.nn.Module):
         if self.c_dim > 0:
             cmap = self.mapping(None, c)
         x = self.b4(x, img, cmap)
-        if genes:
+        if only_reg:
+            assert self.genes
+            reg = self.cnn(img)
+            return reg
+        if self.genes:
             reg = self.cnn(img)
             return x, reg
         else:
