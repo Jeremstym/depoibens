@@ -58,7 +58,7 @@ class StyleGAN2Loss(Loss):
         if self.genes:
             self.criterion = nn.MSELoss(reduction='none')
 
-    def run_G(self, z, c, genes=False, update_emas=False):
+    def run_G(self, z, c, update_emas=False):
         ws = self.G.mapping(z, c, update_emas=update_emas)
         if self.style_mixing_prob > 0:
             with torch.autograd.profiler.record_function('style_mixing'):
@@ -66,10 +66,7 @@ class StyleGAN2Loss(Loss):
                 cutoff = torch.where(torch.rand([], device=ws.device) < self.style_mixing_prob, cutoff, torch.full_like(cutoff, ws.shape[1]))
                 ws[:, cutoff:] = self.G.mapping(torch.randn_like(z), c, update_emas=False)[:, cutoff:]
         img = self.G.synthesis(ws, update_emas=update_emas)
-        if genes:
-            return img, ws, c
-        else:
-            return img, ws
+        return img, ws
 
     def run_D(self, img, c, blur_sigma=0, update_emas=False):
         blur_size = np.floor(blur_sigma * 3)
@@ -79,8 +76,12 @@ class StyleGAN2Loss(Loss):
                 img = upfirdn2d.filter2d(img, f / f.sum())
         if self.augment_pipe is not None:
             img = self.augment_pipe(img)
-        logits, regressor = self.D(img, c, update_emas=update_emas)
-        return logits, regressor
+        if self.genes:
+            logits, regressor = self.D(img, c, update_emas=update_emas)
+            return logits, regressor
+        else:
+            logits = self.D(img, c, update_emas=update_emas)
+            return logits
 
     def accumulate_gradients(self, phase, real_img, real_c, gen_z, gen_c, gain, cur_nimg):
         assert phase in ['Gmain', 'Greg', 'Gboth', 'Dmain', 'Dreg', 'Dboth']
@@ -93,8 +94,11 @@ class StyleGAN2Loss(Loss):
         # Gmain: Maximize logits for generated images.
         if phase in ['Gmain', 'Gboth']:
             with torch.autograd.profiler.record_function('Gmain_forward'):
-                gen_img, _gen_ws, _gene = self.run_G(gen_z, gen_c)
-                gen_logits, regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma)
+                gen_img, _gen_ws = self.run_G(gen_z, gen_c)
+                if self.genes:
+                    gen_logits, _regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma)
+                else:
+                    gen_logits = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma)
                 training_stats.report('Loss/scores/fake', gen_logits)
                 training_stats.report('Loss/signs/fake', gen_logits.sign())
                 loss_Gmain = torch.nn.functional.softplus(-gen_logits) # -log(sigmoid(gen_logits))
@@ -106,7 +110,7 @@ class StyleGAN2Loss(Loss):
         if phase in ['Greg', 'Gboth']:
             with torch.autograd.profiler.record_function('Gpl_forward'):
                 batch_size = gen_z.shape[0] // self.pl_batch_shrink
-                gen_img, gen_ws, _gene = self.run_G(gen_z[:batch_size], gen_c[:batch_size])
+                gen_img, gen_ws = self.run_G(gen_z[:batch_size], gen_c[:batch_size])
                 pl_noise = torch.randn_like(gen_img) / np.sqrt(gen_img.shape[2] * gen_img.shape[3])
                 with torch.autograd.profiler.record_function('pl_grads'), conv2d_gradfix.no_weight_gradients(self.pl_no_weight_grad):
                     pl_grads = torch.autograd.grad(outputs=[(gen_img * pl_noise).sum()], inputs=[gen_ws], create_graph=True, only_inputs=True)[0]
@@ -124,15 +128,23 @@ class StyleGAN2Loss(Loss):
         loss_Dgen = 0
         if phase in ['Dmain', 'Dboth']:
             with torch.autograd.profiler.record_function('Dgen_forward'):
-                gen_img, _gen_ws, gene = self.run_G(gen_z, gen_c, update_emas=True)
-                gen_logits, regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
-                loss_reg = self.criterion(gene, regressor)
+                if self.genes:
+                    gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
+                    gen_logits, regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
+                    loss_reg_gen = self.criterion(gen_c, regressor)
+                else:
+                    gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
+                    gen_logits = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
                 training_stats.report('Loss/scores/fake', gen_logits)
                 training_stats.report('Loss/signs/fake', gen_logits.sign())
+                if self.genes:
+                    training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
             with torch.autograd.profiler.record_function('Dgen_backward'):
                 loss_Dgen.mean().mul(gain).backward()
-                loss_reg.mean().mul(gain).backward()
+            if self.genes:
+                with torch.autograd.profiler.record_function('Dreg_backward'):
+                    loss_reg_gen.mean().mul(gain).backward()
 
         # Dmain: Maximize logits for real images.
         # Dr1: Apply R1 regularization.
@@ -140,10 +152,15 @@ class StyleGAN2Loss(Loss):
             name = 'Dreal' if phase == 'Dmain' else 'Dr1' if phase == 'Dreg' else 'Dreal_Dr1'
             with torch.autograd.profiler.record_function(name + '_forward'):
                 real_img_tmp = real_img.detach().requires_grad_(phase in ['Dreg', 'Dboth'])
-                real_logits, regressor = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
-                loss_reg = self.criterion(real_c, regressor)
+                if self.genes:
+                    real_logits, regressor = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
+                    loss_reg_real = self.criterion(real_c, regressor)
+                else:
+                    real_logits = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
                 training_stats.report('Loss/scores/real', real_logits)
                 training_stats.report('Loss/signs/real', real_logits.sign())
+                if self.genes:
+                    training_stats.report('Loss/scores/reg', loss_reg_real)
 
                 loss_Dreal = 0
                 if phase in ['Dmain', 'Dboth']:
@@ -161,6 +178,8 @@ class StyleGAN2Loss(Loss):
 
             with torch.autograd.profiler.record_function(name + '_backward'):
                 (loss_Dreal + loss_Dr1).mean().mul(gain).backward()
-                loss_reg.mean().mul(gain).backward()
+            if self.genes:
+                with torch.autograd.profiler.record_function('Dreg_backward'):
+                    loss_reg_real.mean().mul(gain).backward()
 
 #----------------------------------------------------------------------------

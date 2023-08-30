@@ -13,7 +13,6 @@ https://github.com/NVlabs/stylegan2/blob/master/training/networks_stylegan2.py""
 
 import numpy as np
 import torch
-import torch.nn as nn
 from torch_utils import misc
 from torch_utils import persistence
 from torch_utils.ops import conv2d_resample
@@ -742,40 +741,33 @@ class DiscriminatorEpilogue(torch.nn.Module):
     def extra_repr(self):
         return f'resolution={self.resolution:d}, architecture={self.architecture:s}'
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 
 @persistence.persistent_class
-class CNN_STnet(nn.Module):
+class RegressionBlock(torch.nn.Module):
     def __init__(
         self,
-        num_channels = 3,
+        in_channels,
+        resolution,
+        activation = 'lrelu',
         gen_size = 900
-    ):
-        
-        super(CNN_STnet, self).__init__()
-        self.conv_layers = nn.Sequential(
-            # size : 3 x 256 x 256
-            nn.Conv2d(num_channels, 32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            # size : 32 x 128 x 128
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            # size : 64 x 64 x 64
-        )  
-        self.fc_layers = nn.Sequential(
-            nn.Linear(64*64*64, gen_size),
-        )
+    ) -> None:
+        super(RegressionBlock, self).__init__()
 
+        self.resolution = resolution
+        assert self.resolution == 4, f"Final resolution must be 4, but got {self.resolution}"
+        self.fc1 = FullyConnectedLayer(in_channels * (resolution ** 2), in_channels, activation=activation)
+        self.fc2 = FullyConnectedLayer(in_channels * 2, in_channels, activation=activation)
+        self.out = FullyConnectedLayer(in_channels, gen_size) # no activation function because it is a regression
 
     def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc_layers(x)
+        misc.assert_shape(x, [None, 512, self.resolution, self.resolution]) # [NCHW]
+        x = self.fc1(x.flatten(1))
+        x = self.fc2(x)
+        x = self.out(x)
         return x
-    
+
 #----------------------------------------------------------------------------
 
 @persistence.persistent_class
@@ -825,9 +817,9 @@ class Discriminator(torch.nn.Module):
             cur_layer_idx += block.num_layers
         if c_dim > 0:
             self.mapping = MappingNetwork(z_dim=0, c_dim=c_dim, w_dim=cmap_dim, num_ws=None, w_avg_beta=None, **mapping_kwargs)
-        self.b4 = DiscriminatorEpilogue(channels_dict[4], cmap_dim=cmap_dim, resolution=4, **epilogue_kwargs, **common_kwargs)
         if genes:
-            self.cnn = CNN_STnet(num_channels=img_channels, gen_size=cmap_dim)
+            self.regression = RegressionBlock(channels_dict[4], resolution=4)
+        self.b4 = DiscriminatorEpilogue(channels_dict[4], cmap_dim=cmap_dim, resolution=4, **epilogue_kwargs, **common_kwargs)
 
     def forward(self, img, c, only_reg=False, update_emas=False, **block_kwargs):
         _ = update_emas # unused
@@ -837,18 +829,17 @@ class Discriminator(torch.nn.Module):
             x, img = block(x, img, **block_kwargs)
 
         cmap = None
+        if only_reg:
+            assert self.genes
+            reg = self.regression(x)
+            return reg
+        if self.genes:
+            reg = self.regression(x)
+            return x, reg
         if self.c_dim > 0:
             cmap = self.mapping(None, c)
         x = self.b4(x, img, cmap)
-        if only_reg:
-            assert self.genes
-            reg = self.cnn(img)
-            return reg
-        if self.genes:
-            reg = self.cnn(img)
-            return x, reg
-        else:
-            return x 
+        return x 
 
     def extra_repr(self):
         return f'c_dim={self.c_dim:d}, img_resolution={self.img_resolution:d}, img_channels={self.img_channels:d}'
