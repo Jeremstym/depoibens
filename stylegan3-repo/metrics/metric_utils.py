@@ -277,3 +277,8 @@ def compute_feature_stats_for_generator(opts, detector_url, detector_kwargs, rel
     return stats
 
 #----------------------------------------------------------------------------
+
+def compute_gene_expr_for_dataset(opts, batch_size=64, data_loader_kwargs=None, max_items=None):
+    dataset = dnnlib.util.construct_class_by_name(**opts.dataset_kwargs)
+    for image, label in torch.utils.data.DataLoader(dataset=dataset, batch_size=batch_size, **data_loader_kwargs):
+        pass
