@@ -21,6 +21,7 @@ from . import precision_recall
 from . import perceptual_path_length
 from . import inception_score
 from . import equivariance
+from . import mean_squared_error
 
 #----------------------------------------------------------------------------
 
@@ -122,6 +123,12 @@ def eqr50k(opts):
     opts.G_kwargs.update(force_fp32=True)
     psnr = equivariance.compute_equivariance_metrics(opts, num_samples=50000, batch_size=4, compute_eqr=True)
     return dict(eqr50k=psnr)
+
+@register_metric
+def mse(opts):
+    opts.G_kwargs.update(force_fp32=True)
+    mse = mean_squared_error.compute_mse(opts, num_samples=50000, batch_size=4, compute_mse=True)
+    return dict(mse=mse)
 
 #----------------------------------------------------------------------------
 # Legacy metrics.
