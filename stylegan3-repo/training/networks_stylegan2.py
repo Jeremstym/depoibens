@@ -489,12 +489,14 @@ class SynthesisNetwork(torch.nn.Module):
         assert img_resolution >= 4 and img_resolution & (img_resolution - 1) == 0
         super().__init__()
         self.w_dim = w_dim
-        self.img_resolution = img_resolution
-        self.img_resolution_log2 = int(np.log2(img_resolution))
+        self.img_resolution = img_resolution # is 256
+        self.img_resolution_log2 = int(np.log2(img_resolution)) # is 8
         self.img_channels = img_channels
         self.num_fp16_res = num_fp16_res
         self.block_resolutions = [2 ** i for i in range(2, self.img_resolution_log2 + 1)]
+        # block_resolutions is [4, 8, 16, 32, 64, 128, 256]
         channels_dict = {res: min(channel_base // res, channel_max) for res in self.block_resolutions}
+        # channels_dict is {4: 512, 8: 512, 16: 512, 32: 512, 64: 512, 128: 256, 256: 128}
         fp16_resolution = max(2 ** (self.img_resolution_log2 + 1 - num_fp16_res), 8)
 
         self.num_ws = 0
@@ -795,11 +797,13 @@ class Discriminator(torch.nn.Module):
     ):
         super().__init__()
         self.c_dim = c_dim
-        self.img_resolution = img_resolution
-        self.img_resolution_log2 = int(np.log2(img_resolution))
+        self.img_resolution = img_resolution # is 256
+        self.img_resolution_log2 = int(np.log2(img_resolution)) # is 8
         self.img_channels = img_channels
         self.block_resolutions = [2 ** i for i in range(self.img_resolution_log2, 2, -1)]
+        # block_resolutions = [256, 128, 64, 32, 16, 8]
         channels_dict = {res: min(channel_base // res, channel_max) for res in self.block_resolutions + [4]}
+        # channels_dict = {256: 128, 128: 256, 64: 512, 32: 512, 16: 512, 8: 512, 4: 512}
         fp16_resolution = max(2 ** (self.img_resolution_log2 + 1 - num_fp16_res), 8)
         self.genes = genes
 
