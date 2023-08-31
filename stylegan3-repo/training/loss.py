@@ -198,7 +198,6 @@ class StyleGAN2Loss(Loss):
             else:
                 if run:
                     run['loss_Dreal'].append(loss_Dreal.mean().item())
-                    run['loss_Dr1'].append(loss_Dr1.mean().item())
                     run['total_loss_real'].append((loss_Dreal + loss_Dr1).mean().item())
                 with torch.autograd.profiler.record_function(name + '_backward'):
                     (loss_Dreal + loss_Dr1).mean().mul(gain).backward()
