@@ -234,7 +234,7 @@ class ImageFolderDataset(Dataset):
             return None
         with self._open_file(fname) as f:
             if self.is_pickle:
-                print('Loading pickle file for labels (can take a while)')
+                # print('Loading pickle file for labels (can take a while)')
                 labels = pickle.load(f)['labels']
             else:
                 labels = json.load(f)['labels']
