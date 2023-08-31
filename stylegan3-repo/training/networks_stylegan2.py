@@ -746,14 +746,13 @@ class DiscriminatorEpilogue(torch.nn.Module):
 
 @persistence.persistent_class
 class RegressionBlock(torch.nn.Module):
-    def __init__(
-        self,
+    def __init__(self,
         in_channels,
         resolution,
         activation = 'lrelu',
         gen_size = 900
     ) -> None:
-        super(RegressionBlock, self).__init__()
+        super().__init__()
 
         self.resolution = resolution
         assert self.resolution == 4, f"Final resolution must be 4, but got {self.resolution}"
