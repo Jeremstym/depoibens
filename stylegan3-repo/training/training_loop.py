@@ -135,7 +135,7 @@ def training_loop(
     grid_sample_gradfix.enabled = True                  # Avoids errors with the augmentation pipe.
 
     # Initialize neptune
-    run = neptune.init(project='jeremstym/styleGANSTnet')
+    run = neptune.init_run(project='jeremstym/styleGANSTnet')
 
     # Load training set.
     if rank == 0:
