@@ -140,11 +140,13 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
-            with torch.autograd.profiler.record_function('Dgen_backward'):
-                loss_Dgen.mean().mul(gain).backward()
             if self.genes:
-                with torch.autograd.profiler.record_function('Dreg_backward'):
-                    loss_reg_gen.mean().mul(gain).backward()
+                with torch.autograd.profiler.record_function('Dgen_reg_backward'):
+                    (loss_Dgen + loss_reg_gen).mean().mul(gain).backward()
+            else:
+                with torch.autograd.profiler.record_function('Dgen_backward'):
+                    loss_Dgen.mean().mul(gain).backward()
+
 
         # Dmain: Maximize logits for real images.
         # Dr1: Apply R1 regularization.
@@ -176,10 +178,10 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/r1_penalty', r1_penalty)
                     training_stats.report('Loss/D/reg', loss_Dr1)
 
-            with torch.autograd.profiler.record_function(name + '_backward'):
-                (loss_Dreal + loss_Dr1).mean().mul(gain).backward()
             if self.genes:
-                with torch.autograd.profiler.record_function('Dreg_backward'):
-                    loss_reg_real.mean().mul(gain).backward()
-
+                with torch.autograd.profiler.record_function('Dreg_backward_' + name):
+                    (loss_reg_real + loss_Dreal + loss_Dr1).mean().mul(gain).backward()
+            else:
+                with torch.autograd.profiler.record_function(name + '_backward'):
+                    (loss_Dreal + loss_Dr1).mean().mul(gain).backward()
 #----------------------------------------------------------------------------
