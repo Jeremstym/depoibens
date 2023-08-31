@@ -56,7 +56,7 @@ class StyleGAN2Loss(Loss):
         self.blur_fade_kimg     = blur_fade_kimg
         self.genes              = genes
         if self.genes:
-            self.criterion = nn.MSELoss(reduction='none')
+            self.criterion = nn.MSELoss(reduction='mean')
 
     def run_G(self, z, c, update_emas=False):
         ws = self.G.mapping(z, c, update_emas=update_emas)
