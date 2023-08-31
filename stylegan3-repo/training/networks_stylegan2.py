@@ -295,7 +295,6 @@ class SynthesisLayer(torch.nn.Module):
         resample_filter = [1,3,3,1],    # Low-pass filter to apply when resampling activations.
         conv_clamp      = None,         # Clamp the output of convolution layers to +-X, None = disable clamping.
         channels_last   = False,        # Use channels_last format for the weights?
-        genes           = False,        # Just to avoid keyword arugment error
     ):
         super().__init__()
         self.in_channels = in_channels
