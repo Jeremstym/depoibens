@@ -828,15 +828,16 @@ class Discriminator(torch.nn.Module):
             x, img = block(x, img, **block_kwargs)
 
         cmap = None
+        if self.c_dim > 0:
+            cmap = self.mapping(None, c)
         if only_reg:
             assert self.genes
             reg = self.regression(x)
             return reg
         if self.genes:
             reg = self.regression(x)
+            x = self.b4(x, img, cmap)
             return x, reg
-        if self.c_dim > 0:
-            cmap = self.mapping(None, c)
         x = self.b4(x, img, cmap)
         return x 
 
