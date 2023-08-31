@@ -57,6 +57,8 @@ class StyleGAN2Loss(Loss):
         self.blur_init_sigma    = blur_init_sigma
         self.blur_fade_kimg     = blur_fade_kimg
         self.genes              = genes
+        self.loss_reg_gen       = 0
+        self.loss_reg_real      = 0
         if self.genes:
             self.criterion = nn.MSELoss(reduction='mean')
 
@@ -136,6 +138,7 @@ class StyleGAN2Loss(Loss):
                     gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
                     gen_logits, regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
                     loss_reg_gen = self.criterion(gen_c, regressor)
+                    self.loss_reg_gen = loss_reg_gen
                 else:
                     gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
                     gen_logits = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
@@ -167,6 +170,7 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     real_logits, regressor = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
                     loss_reg_real = self.criterion(real_c, regressor)
+                    self.loss_reg_real = loss_reg_real
                 else:
                     real_logits = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
                 training_stats.report('Loss/scores/real', real_logits)
