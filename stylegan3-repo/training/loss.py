@@ -141,6 +141,7 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
             if self.genes:
+                print(loss_Dgen.shape, loss_reg_gen.shape)
                 with torch.autograd.profiler.record_function('Dgen_reg_backward'):
                     (loss_Dgen + loss_reg_gen).mean().mul(gain).backward()
             else:
