@@ -77,6 +77,7 @@ def make_transform(translate: Tuple[float,float], angle: float):
 @click.option('--translate', help='Translate XY-coordinate (e.g. \'0.3,1\')', type=parse_vec2, default='0,0', show_default=True, metavar='VEC2')
 @click.option('--rotate', help='Rotation angle in degrees', type=float, default=0, show_default=True, metavar='ANGLE')
 @click.option('--outdir', help='Where to save the output images', type=str, required=True, metavar='DIR')
+@click.option('--genes', help='Gene expression use', metavar='BOOL', type=bool, default=False, show_default=True)
 def generate_images(
     network_pkl: str,
     seeds: List[int],
@@ -85,7 +86,8 @@ def generate_images(
     outdir: str,
     translate: Tuple[float,float],
     rotate: float,
-    class_idx: Optional[int]
+    class_idx: Optional[int],
+    genes: bool
 ):
     """Generate images using pretrained network pickle.
 
@@ -112,8 +114,11 @@ def generate_images(
     # Labels.
     label = torch.zeros([1, G.c_dim], device=device)
     if G.c_dim != 0:
-        if class_idx is None:
+        if class_idx is None and genes is False:
             raise click.ClickException('Must specify class label with --class when using a conditional network')
+        if genes is True:
+            pass
+            # TODO: implement gene expression from dataset
         label[:, class_idx] = 1
     else:
         if class_idx is not None:
