@@ -15,6 +15,8 @@ from torch_utils import training_stats
 from torch_utils.ops import conv2d_gradfix
 from torch_utils.ops import upfirdn2d
 
+import neptune
+
 #----------------------------------------------------------------------------
 
 class Loss:
@@ -83,7 +85,7 @@ class StyleGAN2Loss(Loss):
             logits = self.D(img, c, update_emas=update_emas)
             return logits
 
-    def accumulate_gradients(self, phase, real_img, real_c, gen_z, gen_c, gain, cur_nimg):
+    def accumulate_gradients(self, phase, real_img, real_c, gen_z, gen_c, gain, cur_nimg, run=None):
         assert phase in ['Gmain', 'Greg', 'Gboth', 'Dmain', 'Dreg', 'Dboth']
         if self.pl_weight == 0:
             phase = {'Greg': 'none', 'Gboth': 'Gmain'}.get(phase, phase)
@@ -102,6 +104,8 @@ class StyleGAN2Loss(Loss):
                 training_stats.report('Loss/scores/fake', gen_logits)
                 training_stats.report('Loss/signs/fake', gen_logits.sign())
                 loss_Gmain = torch.nn.functional.softplus(-gen_logits) # -log(sigmoid(gen_logits))
+                if run:
+                    run['loss_Gmain'].append(loss_Gmain.mean().item())
                 training_stats.report('Loss/G/loss', loss_Gmain)
             with torch.autograd.profiler.record_function('Gmain_backward'):
                 loss_Gmain.mean().mul(gain).backward()
@@ -141,9 +145,15 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
             if self.genes:
+                if run:
+                    run['loss_Dgen'].append(loss_Dgen.mean().item())
+                    run['loss_reg_gen'].append(loss_reg_gen.mean().item())
+                    run['total_loss_gen'].append((loss_Dgen + loss_reg_gen).mean().item())
                 with torch.autograd.profiler.record_function('Dgen_reg_backward'):
                     (loss_Dgen + loss_reg_gen).mean().mul(gain).backward()
             else:
+                if run:
+                    run['loss_Dgen'].append(loss_Dgen.mean().item())
                 with torch.autograd.profiler.record_function('Dgen_backward'):
                     loss_Dgen.mean().mul(gain).backward()
 
@@ -179,9 +189,18 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/D/reg', loss_Dr1)
 
             if self.genes:
+                if run:
+                    run['loss_Dreal'].append(loss_Dreal.mean().item())
+                    run['loss_reg_real'].append(loss_reg_real.mean().item())
+                    run['loss_Dr1'].append(loss_Dr1.mean().item())
+                    run['total_loss_real'].append((loss_reg_real + loss_Dreal + loss_Dr1).mean().item())
                 with torch.autograd.profiler.record_function('Dreg_backward_' + name):
                     (loss_reg_real + loss_Dreal + loss_Dr1).mean().mul(gain).backward()
             else:
+                if run:
+                    run['loss_Dreal'].append(loss_Dreal.mean().item())
+                    run['loss_Dr1'].append(loss_Dr1.mean().item())
+                    run['total_loss_real'].append((loss_Dreal + loss_Dr1).mean().item())
                 with torch.autograd.profiler.record_function(name + '_backward'):
                     (loss_Dreal + loss_Dr1).mean().mul(gain).backward()
 #----------------------------------------------------------------------------
