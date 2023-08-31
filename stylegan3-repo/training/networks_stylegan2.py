@@ -225,10 +225,10 @@ class MappingNetwork(torch.nn.Module):
         self.embed_features = embed_features
         if layer_features is None:
             layer_features = w_dim
-        elif c_dim > 0:
+        features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
+        
+        if c_dim > 0:
             self.embed = FullyConnectedLayer(c_dim, embed_features)
-        else:
-            features_list = [z_dim + embed_features] + [layer_features] * (num_layers - 1) + [w_dim]
         for idx in range(num_layers):
             in_features = features_list[idx]
             out_features = features_list[idx + 1]
