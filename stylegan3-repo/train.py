@@ -223,7 +223,7 @@ def main(**kwargs):
     c.image_snapshot_ticks = c.network_snapshot_ticks = opts.snap
     c.random_seed = c.training_set_kwargs.random_seed = opts.seed
     c.data_loader_kwargs.num_workers = opts.workers
-    c.genes = opts.genes
+    # c.genes = opts.genes
 
     # Sanity checks.
     if c.batch_size % c.num_gpus != 0:
