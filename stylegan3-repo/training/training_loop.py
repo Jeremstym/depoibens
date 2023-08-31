@@ -120,7 +120,6 @@ def training_loop(
     cudnn_benchmark         = True,     # Enable torch.backends.cudnn.benchmark?
     abort_fn                = None,     # Callback function for determining whether to abort training. Must return consistent results across ranks.
     progress_fn             = None,     # Callback function for updating training progress. Called for all ranks.
-    genes                   = False,    # Whether to use gene expression or not
 ):
     # Initialize.
     start_time = time.time()
