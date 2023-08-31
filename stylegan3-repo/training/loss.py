@@ -190,8 +190,7 @@ class StyleGAN2Loss(Loss):
 
             if self.genes:
                 if run:
-                    print(loss_Dreal.shape, loss_reg_real.shape)
-                    run['loss_Dreal'].append(loss_Dreal.mean().item())
+                    run['loss_Dreal'].append(loss_Dreal)
                     run['loss_reg_real'].append(loss_reg_real.mean().item())
                     run['total_loss_real'].append((loss_reg_real + loss_Dreal + loss_Dr1).mean().item())
                 with torch.autograd.profiler.record_function('Dreg_backward_' + name):
