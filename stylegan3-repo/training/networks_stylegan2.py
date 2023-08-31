@@ -756,7 +756,7 @@ class RegressionBlock(torch.nn.Module):
 
         self.resolution = resolution
         assert self.resolution == 4, f"Final resolution must be 4, but got {self.resolution}"
-        self.fc1 = FullyConnectedLayer(in_channels * (resolution ** 2), in_channels, activation=activation)
+        self.fc1 = FullyConnectedLayer(in_channels * (resolution ** 2), in_channels * 2, activation=activation)
         self.fc2 = FullyConnectedLayer(in_channels * 2, in_channels, activation=activation)
         self.out = FullyConnectedLayer(in_channels, gen_size) # no activation function because it is a regression
 
