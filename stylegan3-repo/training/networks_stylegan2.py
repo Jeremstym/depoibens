@@ -800,7 +800,7 @@ class Discriminator(torch.nn.Module):
 
         if cmap_dim is None:
             cmap_dim = channels_dict[4]
-        if c_dim == 0 or genes: # gene must not be considered as a label
+        if c_dim == 0 or genes: # gene must not be considered as a discrete (one-hot) label
             cmap_dim = 0
 
         common_kwargs = dict(img_channels=img_channels, architecture=architecture, conv_clamp=conv_clamp)
