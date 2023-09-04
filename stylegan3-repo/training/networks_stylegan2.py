@@ -828,7 +828,7 @@ class Discriminator(torch.nn.Module):
             x, img = block(x, img, **block_kwargs)
 
         cmap = None
-        if self.c_dim > 0:
+        if self.c_dim > 0 and not self.genes:
             cmap = self.mapping(None, c)
         if only_reg:
             assert self.genes
