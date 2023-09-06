@@ -244,6 +244,6 @@ class ImageFolderDataset(Dataset):
         labels = [labels[fname.replace('\\', '/')] for fname in self._image_fnames]
         labels = np.array(labels)
         labels = labels.astype({1: np.int64, 2: np.float32}[labels.ndim])
-        return labels # must be shape (30687, 900) if gene expression
+        return labels # must be shape (30627, 900) if gene expression
 
 #----------------------------------------------------------------------------
