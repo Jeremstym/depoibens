@@ -213,6 +213,7 @@ def main(**kwargs):
     c.G_kwargs.mapping_kwargs.num_layers = (8 if opts.cfg == 'stylegan2' else 2) if opts.map_depth is None else opts.map_depth
     c.D_kwargs.block_kwargs.freeze_layers = opts.freezed
     c.D_kwargs.epilogue_kwargs.mbstd_group_size = opts.mbstd_group
+    c.D_kwargs.genes = opts.genes
     c.loss_kwargs.r1_gamma = opts.gamma
     c.loss_kwargs.genes = opts.genes
     c.G_opt_kwargs.lr = (0.002 if opts.cfg == 'stylegan2' else 0.0025) if opts.glr is None else opts.glr
@@ -223,7 +224,6 @@ def main(**kwargs):
     c.image_snapshot_ticks = c.network_snapshot_ticks = opts.snap
     c.random_seed = c.training_set_kwargs.random_seed = opts.seed
     c.data_loader_kwargs.num_workers = opts.workers
-    # c.genes = opts.genes
 
     # Sanity checks.
     if c.batch_size % c.num_gpus != 0:
@@ -276,7 +276,6 @@ def main(**kwargs):
         c.G_kwargs.conv_clamp = c.D_kwargs.conv_clamp = None
     if opts.nobench:
         c.cudnn_benchmark = False
-    c.D_kwargs.genes = opts.genes
 
     # Description string.
     desc = f'{opts.cfg:s}-{dataset_name:s}-gpus{c.num_gpus:d}-batch{c.batch_size:d}-gamma{c.loss_kwargs.r1_gamma:g}'
