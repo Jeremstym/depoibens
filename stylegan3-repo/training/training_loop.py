@@ -69,23 +69,16 @@ def setup_snapshot_image_grid(training_set, random_seed=42):
 
 #----------------------------------------------------------------------------
 
-def save_image_grid(img, fname, drange, grid_size, drange_fake=None):
+def save_image_grid(img, fname, drange, grid_size):
     lo, hi = drange
-    if drange_fake:
-        lo_fake, hi_fake = drange_fake
-        img = np.asarray(img, dtype=np.float32)
-        img[:, :, :, 1:] = (img[:, :, :, 1:] - lo_fake) * (255 / (hi_fake - lo_fake))
-        img[:, :, :, 0] = (img[:, :, :, 0] - lo) * (255 / (hi - lo))
-        img = np.rint(img).clip(0, 255).astype(np.uint8)
-    else:
-        img = np.asarray(img, dtype=np.float32)
-        img = (img - lo) * (255 / (hi - lo))
-        img = np.rint(img).clip(0, 255).astype(np.uint8)
+    img = np.asarray(img, dtype=np.float32)
+    img = (img - lo) * (255 / (hi - lo))
+    img = np.rint(img).clip(0, 255).astype(np.uint8)
 
     gw, gh = grid_size
     _N, C, H, W = img.shape
     img = img.reshape([gh, gw, C, H, W])
-    img = img.transpose(0, 3, 1, 4, 2) # (gh, H, gw, W, C)
+    img = img.transpose(0, 3, 1, 4, 2)
     img = img.reshape([gh * H, gw * W, C])
 
     assert C in [1, 3]
@@ -239,7 +232,7 @@ def training_loop(
         grid_z = torch.randn([labels.shape[0], G.z_dim], device=device).split(batch_gpu)
         grid_c = torch.from_numpy(labels).to(device).split(batch_gpu)
         images = torch.cat([G_ema(z=z, c=c, noise_mode='const').cpu() for z, c in zip(grid_z, grid_c)]).numpy()
-        save_image_grid(images, os.path.join(run_dir, 'fakes_init.png'), drange=[0,255], drange_fake=[-1,1], grid_size=grid_size)
+        save_image_grid(images, os.path.join(run_dir, 'fakes_init.png'), drange=[-1,1], grid_size=grid_size)
 
     # Initialize logs.
     if rank == 0:
@@ -372,8 +365,8 @@ def training_loop(
         if (rank == 0) and (image_snapshot_ticks is not None) and (done or cur_tick % image_snapshot_ticks == 0):
             images = torch.cat([G_ema(z=z, c=c, noise_mode='const').cpu() for z, c in zip(grid_z, grid_c)]).numpy()
             # First column is real images
-            images[:, :, :, 0] = real_images[:, :, :, 0]
-            save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[0,255], drange_fake=[-1,1], grid_size=grid_size)
+            images[:, 0] = real_images[:, 0]
+            save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
 
         # Save network snapshot.
         snapshot_pkl = None
