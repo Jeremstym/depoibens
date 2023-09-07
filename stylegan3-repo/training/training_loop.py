@@ -379,7 +379,7 @@ def training_loop(
             for i in range(grid_size[0]*grid_size[1]):
                 if i % grid_size[0] == 0:
                     images[i] = real_images[i]
-            save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[0,255], drangefake=[-1,1], grid_size=grid_size)
+            save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[0,255], drange_fake=[-1,1], grid_size=grid_size)
 
         # Save network snapshot.
         snapshot_pkl = None
