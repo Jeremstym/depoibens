@@ -365,7 +365,9 @@ def training_loop(
         if (rank == 0) and (image_snapshot_ticks is not None) and (done or cur_tick % image_snapshot_ticks == 0):
             images = torch.cat([G_ema(z=z, c=c, noise_mode='const').cpu() for z, c in zip(grid_z, grid_c)]).numpy()
             # First column is real images
-            images[:, 0] = real_images[:, 0]
+            for i in range(grid_size[0]*grid_size[1]):
+                if i % grid_size[0] == 0:
+                    images[i] = real_images[i]
             save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
 
         # Save network snapshot.
