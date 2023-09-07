@@ -59,6 +59,7 @@ class StyleGAN2Loss(Loss):
         self.genes              = genes
         self.loss_reg_gen       = 0
         self.loss_reg_real      = 0
+        self.pen_reg            = 0.1
         if self.genes:
             self.criterion = nn.MSELoss(reduction='mean')
 
@@ -148,6 +149,7 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
             if self.genes:
+                loss_reg_gen *= self.pen_reg
                 if run:
                     run['loss_Dgen'].append(loss_Dgen.mean().item())
                     run['loss_reg_gen'].append(loss_reg_gen.mean().item())
@@ -193,6 +195,7 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/D/reg', loss_Dr1)
 
             if self.genes:
+                loss_reg_real *= self.pen_reg
                 if run:
                     run['loss_Dreal'].append(loss_Dreal)
                     run['loss_reg_real'].append(loss_reg_real.mean().item())
