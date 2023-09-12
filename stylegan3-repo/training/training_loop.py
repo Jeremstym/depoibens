@@ -364,7 +364,6 @@ def training_loop(
             fields += [f"loss_reg_real: {loss.loss_reg_real:.3f}"]
         if rank == 0:
             print(' '.join(fields))
-            raise Exception('stop')
 
         # Check for abort.
         if (not done) and (abort_fn is not None) and abort_fn():
