@@ -123,7 +123,7 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     loss_reg_gen *= self.pen_reg
                     with torch.autograd.profiler.record_function('Dgen_reg_backward'):
-                        (loss_Dgen + loss_reg_gen).mean().mul(gain).backward()
+                        (loss_Gmain + loss_reg_gen).mean().mul(gain).backward()
                 else:
                     with torch.autograd.profiler.record_function('Gmain_backward'):
                         loss_Gmain.mean().mul(gain).backward()
