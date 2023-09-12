@@ -219,6 +219,6 @@ class StyleGAN2Loss(Loss):
                 with torch.autograd.profiler.record_function(name + '_backward'):
                     (loss_Dreal + loss_Dr1).mean().mul(gain).backward()
 
-        # Update training stats.
-        self.adversarial_loss = (loss_Dgen + loss_Dreal + loss_Dr1).mean().item()
+            # Update training stats.
+            self.adversarial_loss = (loss_Dgen + loss_Dreal + loss_Dr1).mean().item()
 #----------------------------------------------------------------------------
