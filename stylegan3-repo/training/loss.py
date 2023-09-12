@@ -140,7 +140,7 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
                     gen_logits, regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
-                    loss_reg_gen = self.criterion(gen_c, regressor)
+                    loss_reg_gen = self.criterion(gen_c, regressor).mean(dim=0)
                     # pearson_gen = PearsonCorrCoef(num_outputs=1)
                     # gen_score = pearson_gen(gen_c.T, regressor.T)
                     self.loss_reg_gen = loss_reg_gen
@@ -178,7 +178,7 @@ class StyleGAN2Loss(Loss):
                 real_img_tmp = real_img.detach().requires_grad_(phase in ['Dreg', 'Dboth'])
                 if self.genes:
                     real_logits, regressor = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
-                    loss_reg_real = self.criterion(real_c, regressor)
+                    loss_reg_real = self.criterion(real_c, regressor).mean(dim=0)
                     self.loss_reg_real = loss_reg_real
                     print('real_logits', real_logits.shape)
                     print('loss_reg_real', loss_reg_real.shape)
