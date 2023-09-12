@@ -62,7 +62,7 @@ class StyleGAN2Loss(Loss):
         self.loss_reg_real      = 0
         self.pen_reg            = 0.1
         if self.genes:
-            self.criterion = nn.MSELoss(reduction='mean')
+            self.criterion = nn.MSELoss(reduction='none')
 
     def run_G(self, z, c, update_emas=False):
         ws = self.G.mapping(z, c, update_emas=update_emas)
