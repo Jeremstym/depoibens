@@ -363,6 +363,8 @@ def training_loop(
         if D_kwargs.genes:
             fields += [f"loss_reg_gen: {loss.loss_reg_gen:.3f}"]
             fields += [f"loss_reg_real: {loss.loss_reg_real:.3f}"]
+            fields += [f"pearson_gen: {loss.gen_score:.3f}"]
+            fields += [f"pearson_real: {loss.real_score:.3f}"]
         if rank == 0:
             print(' '.join(fields))
 
