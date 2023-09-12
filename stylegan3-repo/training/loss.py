@@ -153,26 +153,12 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
                     gen_logits, _regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
-                    # loss_reg_gen = self.criterion(gen_c, regressor).mean(dim=1)
-                    # pearson_gen = PearsonCorrCoef(num_outputs=gen_z.shape[0])
-                    # gen_score = pearson_gen(gen_c.T, regressor.T)
-                    # self.loss_reg_gen = loss_reg_gen.mean()
-                    # self.gen_score = gen_score.mean()
                 else:
                     gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
                     gen_logits = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
                 training_stats.report('Loss/scores/fake', gen_logits)
                 training_stats.report('Loss/signs/fake', gen_logits.sign())
-                # if self.genes:
-                #     training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
-            # if self.genes:
-            #     loss_reg_gen *= self.pen_reg
-            #     with torch.autograd.profiler.record_function('Dgen_reg_backward'):
-            #         (loss_Dgen + loss_reg_gen).mean().mul(gain).backward()
-            # else:
-            #     with torch.autograd.profiler.record_function('Dgen_backward'):
-            #         loss_Dgen.mean().mul(gain).backward()
                 with torch.autograd.profiler.record_function('Dgen_backward'):
                     loss_Dgen.mean().mul(gain).backward()
 
