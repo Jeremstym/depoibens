@@ -103,7 +103,6 @@ class StyleGAN2Loss(Loss):
                 gen_img, _gen_ws = self.run_G(gen_z, gen_c)
                 if self.genes:
                     gen_logits, _regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma)
-                    print('gen_logits', gen_logits.shape)
                 else:
                     gen_logits = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma)
                 training_stats.report('Loss/scores/fake', gen_logits)
@@ -144,8 +143,6 @@ class StyleGAN2Loss(Loss):
                     # pearson_gen = PearsonCorrCoef(num_outputs=1)
                     # gen_score = pearson_gen(gen_c.T, regressor.T)
                     self.loss_reg_gen = loss_reg_gen.mean()
-                    print('loss_reg_gen', loss_reg_gen.shape)
-                    print('gen_logits', gen_logits.shape)
                 else:
                     gen_img, _gen_ws = self.run_G(gen_z, gen_c, update_emas=True)
                     gen_logits = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma, update_emas=True)
@@ -154,7 +151,6 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     training_stats.report('Loss/scores/reg', loss_reg_gen)
                 loss_Dgen = torch.nn.functional.softplus(gen_logits) # -log(1 - sigmoid(gen_logits))
-                print('loss_Dgen', loss_Dgen.shape)
             if self.genes:
                 loss_reg_gen *= self.pen_reg
                 if run:
@@ -180,8 +176,6 @@ class StyleGAN2Loss(Loss):
                     real_logits, regressor = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
                     loss_reg_real = self.criterion(real_c, regressor).mean(dim=1)
                     self.loss_reg_real = loss_reg_real.mean()
-                    print('real_logits', real_logits.shape)
-                    print('loss_reg_real', loss_reg_real.shape)
                 else:
                     real_logits = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
                 training_stats.report('Loss/scores/real', real_logits)
@@ -193,7 +187,6 @@ class StyleGAN2Loss(Loss):
                 if phase in ['Dmain', 'Dboth']:
                     loss_Dreal = torch.nn.functional.softplus(-real_logits) # -log(sigmoid(real_logits))
                     training_stats.report('Loss/D/loss', loss_Dgen + loss_Dreal)
-                    print('loss_Dreal', loss_Dreal.shape)
 
                 loss_Dr1 = 0
                 if phase in ['Dreg', 'Dboth']:
@@ -203,7 +196,6 @@ class StyleGAN2Loss(Loss):
                     loss_Dr1 = r1_penalty * (self.r1_gamma / 2)
                     training_stats.report('Loss/r1_penalty', r1_penalty)
                     training_stats.report('Loss/D/reg', loss_Dr1)
-                    print('loss_Dr1', loss_Dr1.shape)
 
             if self.genes:
                 loss_reg_real *= self.pen_reg
