@@ -107,7 +107,7 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     gen_logits, regressor = self.run_D(gen_img, gen_c, blur_sigma=blur_sigma)
                     loss_reg_gen = self.criterion(gen_c, regressor).mean(dim=1)
-                    pearson_gen = PearsonCorrCoef(num_outputs=gen_z.shape[0])
+                    pearson_gen = PearsonCorrCoef(num_outputs=gen_z.shape[0]).to(self.device)
                     gen_score = pearson_gen(gen_c.T, regressor.T)
                     self.loss_reg_gen = loss_reg_gen.mean()
                     self.gen_score = gen_score.mean()
@@ -185,7 +185,7 @@ class StyleGAN2Loss(Loss):
                 if self.genes:
                     real_logits, regressor = self.run_D(real_img_tmp, real_c, blur_sigma=blur_sigma)
                     loss_reg_real = self.criterion(real_c, regressor).mean(dim=1)
-                    pearson_real = PearsonCorrCoef(num_outputs=real_img_tmp.shape[0])
+                    pearson_real = PearsonCorrCoef(num_outputs=real_img_tmp.shape[0]).tp(self.device)
                     real_score = pearson_real(real_c.T, regressor.T)
                     self.loss_reg_real = loss_reg_real.mean()
                     self.real_score = real_score.mean()
