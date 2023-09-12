@@ -203,6 +203,7 @@ class StyleGAN2Loss(Loss):
                     loss_Dr1 = r1_penalty * (self.r1_gamma / 2)
                     training_stats.report('Loss/r1_penalty', r1_penalty)
                     training_stats.report('Loss/D/reg', loss_Dr1)
+                    print('loss_Dr1', loss_Dr1.shape)
 
             if self.genes:
                 loss_reg_real *= self.pen_reg
