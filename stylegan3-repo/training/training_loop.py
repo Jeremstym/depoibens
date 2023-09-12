@@ -359,6 +359,7 @@ def training_loop(
         fields += [f"augment {training_stats.report0('Progress/augment', float(augment_pipe.p.cpu()) if augment_pipe is not None else 0):.3f}"]
         training_stats.report0('Timing/total_hours', (tick_end_time - start_time) / (60 * 60))
         training_stats.report0('Timing/total_days', (tick_end_time - start_time) / (24 * 60 * 60))
+        fields += [f"adversarial_loss: {loss.adversarial_loss:.3f}"]
         if D_kwargs.genes:
             fields += [f"loss_reg_gen: {loss.loss_reg_gen:.3f}"]
             fields += [f"loss_reg_real: {loss.loss_reg_real:.3f}"]
