@@ -202,8 +202,10 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
                 coord = list(map(round, list(coord)))
                 gaps = df_complete.loc[idx][["gapY", "gapX"]].values
                 gaps = list(map(round, list(gaps)))
-                posY = coord[0] + int(gaps[0] / 2)
-                posX = coord[1] - int(gaps[1] / 2)
+                # posY = coord[0] + int(gaps[0] / 2)
+                # posX = coord[1] - int(gaps[1] / 2)
+                posY = coord[0]
+                posX = coord[1]
                 is_tumor = df_complete.loc[idx]["tumor"]
                 score = df_score.loc[crop_name]["pearson"]
                 color = color_score(score)
@@ -244,7 +246,7 @@ def color_spot(path: str, df_score: pd.DataFrame) -> None:
         draw.text((6200, 7900), text1, font=font, fill=(0, 0, 0, 255), align="center")
         draw.text((6200, 7700), text4, font=font, fill=(0, 0, 0, 255), align="center")
 
-        tissue_img.save(tissue_name + "_score_hatched.png", "PNG")
+        tissue_img.save(tissue_name + "_score_hatched_clean.png", "PNG")
 
 
 def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
@@ -296,18 +298,18 @@ def test_color_spot_1_spot(path: str, df_score: pd.DataFrame) -> None:
 
 ### ------------------- MAIN ----------------------
 
-if __name__ == "__main__":
-    all_correlations = pd.DataFrame()
-    for test_patient in tqdm(LIST_PATIENTS):
-        path_to_model = f"/projects/minos/jeremie/data/outputs/best_model_dino_{test_patient}.pth"
-        model = load_model(path_to_model)
-        df_corr = create_df_corr(model)
-        df_complete = pd.read_csv(path_to_data + "/complete_concatenate_df.csv", index_col=0)
-        df_joined = create_df_score_and_tumor(df_complete, df_corr)
-        print(df_joined)
-        all_correlations = pd.concat([all_correlations, df_joined])
+# if __name__ == "__main__":
+#     all_correlations = pd.DataFrame()
+#     for test_patient in tqdm(LIST_PATIENTS):
+#         path_to_model = f"/projects/minos/jeremie/data/outputs/best_model_dino_{test_patient}.pth"
+#         model = load_model(path_to_model)
+#         df_corr = create_df_corr(model)
+#         df_complete = pd.read_csv(path_to_data + "/complete_concatenate_df.csv", index_col=0)
+#         df_joined = create_df_score_and_tumor(df_complete, df_corr)
+#         print(df_joined)
+#         all_correlations = pd.concat([all_correlations, df_joined])
 
-    all_correlations.to_csv(path_to_save + "/all_correlations.csv")
+#     all_correlations.to_csv(path_to_save + "/all_correlations.csv")
 
 
 # if __name__ == "__main__":
@@ -330,10 +332,10 @@ if __name__ == "__main__":
 # if __name__ == '__main__':
 #     create_red_stripes_black_background(local_path=r'C:\Jérémie\Stage\IBENS\depo\data\patterns')
 
-# if __name__ == "__main__":
-#     df_corr = pd.read_csv(path_to_csv, index_col=0)
-#     color_spot(path_to_data, df_corr)
-#     print("Done")
+if __name__ == "__main__":
+    df_corr = pd.read_csv(path_to_csv, index_col=0)
+    color_spot(path_to_data, df_corr)
+    print("Done")
 
 
 ### ------------------- Brouillon ----------------------
