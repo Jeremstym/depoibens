@@ -817,7 +817,7 @@ class Discriminator(torch.nn.Module):
         if c_dim > 0 and not genes:
             self.mapping = MappingNetwork(z_dim=0, c_dim=c_dim, w_dim=cmap_dim, num_ws=None, w_avg_beta=None, **mapping_kwargs)
         if genes:
-            self.regression = RegressionBlock(channels_dict[4], resolution=4)
+            self.regression = RegressionBlock(channels_dict[4], resolution=4, gen_size=c_dim)
         self.b4 = DiscriminatorEpilogue(channels_dict[4], cmap_dim=cmap_dim, resolution=4, **epilogue_kwargs, **common_kwargs)
 
     def forward(self, img, c, only_reg=False, update_emas=False, **block_kwargs):

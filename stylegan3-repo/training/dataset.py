@@ -32,12 +32,14 @@ class Dataset(torch.utils.data.Dataset):
         use_labels  = False,    # Enable conditioning labels? False = label dimension is zero.
         xflip       = False,    # Artificially double the size of the dataset via x-flips. Applied after max_size.
         random_seed = 0,        # Random seed to use when applying max_size.
+        gene_size   = 900,      # Number of genes to use for gene expression dataset
     ):
         self._name = name
         self._raw_shape = list(raw_shape)
         self._use_labels = use_labels
         self._raw_labels = None
         self._label_shape = None
+        self.gene_size = gene_size
 
         # Apply max_size.
         self._raw_idx = np.arange(self._raw_shape[0], dtype=np.int64)
@@ -224,7 +226,7 @@ class ImageFolderDataset(Dataset):
         image = image.transpose(2, 0, 1) # HWC => CHW
         return image
 
-    def _load_raw_labels(self):
+    def _load_raw_labels(self, gene_size=900):
         if self.is_pickle:
             fname = 'dataset_genes.pkl'
         else:
@@ -244,6 +246,6 @@ class ImageFolderDataset(Dataset):
         labels = [labels[fname.replace('\\', '/')] for fname in self._image_fnames]
         labels = np.array(labels)
         labels = labels.astype({1: np.int64, 2: np.float32}[labels.ndim])
-        return labels # must be shape (30627, 900) if gene expression
+        return labels[:,:gene_size] # must be shape (30627, gene_size) if gene expression
 
 #----------------------------------------------------------------------------
