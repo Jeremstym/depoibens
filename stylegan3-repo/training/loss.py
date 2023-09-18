@@ -63,7 +63,8 @@ class StyleGAN2Loss(Loss):
         self.adversarial_loss   = 0
         self.gen_score          = 0
         self.real_score         = 0
-        self.pen_reg            = 0.1
+        self.pen_reg_real       = 0.5
+        self.pen_reg_gen        = 0.35
         if self.genes:
             self.criterion = nn.MSELoss(reduction='none')
 
@@ -121,7 +122,7 @@ class StyleGAN2Loss(Loss):
                 loss_Gmain = torch.nn.functional.softplus(-gen_logits) # -log(sigmoid(gen_logits))
                 training_stats.report('Loss/G/loss', loss_Gmain)
                 if self.genes:
-                    loss_reg_gen *= self.pen_reg
+                    loss_reg_gen *= self.pen_reg_gen
                     with torch.autograd.profiler.record_function('Dgen_reg_backward'):
                         (loss_Gmain + loss_reg_gen).mean().mul(gain).backward()
                 else:
@@ -198,7 +199,7 @@ class StyleGAN2Loss(Loss):
                     training_stats.report('Loss/D/reg', loss_Dr1)
 
             if self.genes:
-                loss_reg_real *= self.pen_reg
+                loss_reg_real *= self.pen_reg_real
                 with torch.autograd.profiler.record_function('Dreg_backward_' + name):
                     (loss_reg_real + loss_Dreal + loss_Dr1).mean().mul(gain).backward()
             else:
