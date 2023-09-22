@@ -45,7 +45,7 @@ def setup_snapshot_image_grid(training_set, random_seed=42):
         # Group training samples by label.
         label_groups = dict() # label => [idx, ...]
         for idx in range(len(training_set)):
-            label = tuple(training_set.get_details(idx).raw_label.flat[::-1])
+            label = tuple(training_set.get_details(idx).raw_label.flat[::-1]) # Why reverse order?
             if label not in label_groups:
                 label_groups[label] = []
             label_groups[label].append(idx)
