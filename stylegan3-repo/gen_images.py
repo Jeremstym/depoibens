@@ -124,7 +124,7 @@ def generate_images(
             training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
             label = training_set.get_label(class_idx)
             label = torch.from_numpy(label).unsqueeze(0).to(device)
-            real_image = training_set.get_image(class_idx)
+            real_image = training_set[class_idx][0]
         else:
             label[:, class_idx] = 1
     else:
