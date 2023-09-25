@@ -122,7 +122,7 @@ def generate_images(
             raise click.ClickException('Must specify class label with --class when using a conditional network')
         if genes is True:
             training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
-            label = training_set.get_label(class_idx)
+            label = training_set.get_label(class_idx).unsqueeze(0).to(device)
         else:
             label[:, class_idx] = 1
     else:
