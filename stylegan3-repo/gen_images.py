@@ -146,12 +146,11 @@ def generate_images(
 
         img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
         img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+        real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
         # real_img = (real_image.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
         # real_img = torch.from_numpy(real_image).unsqueeze(0).to(device)
         # _N, C, H, W = real_image.shape
-        print(img.shape, real_image.shape)
-        raise Exception
-        combined_img = np.concatenate((real_image, img.cpu().numpy()), axis=2)
+        combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
         PIL.Image.fromarray(combined_img[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
 
 
