@@ -45,21 +45,22 @@ def setup_snapshot_image_grid(training_set, random_seed=42):
         # Group training samples by label.
         label_groups = dict() # label => [idx, ...]
         for idx in range(len(training_set)):
-            label = tuple(training_set.get_details(idx).raw_label.flat[::-1]) # Why reverse order?
+            label = tuple(training_set.get_details(idx).raw_label.flat[::-1])
             if label not in label_groups:
                 label_groups[label] = []
             label_groups[label].append(idx)
 
         # Reorder.
         label_order = sorted(label_groups.keys())
+        # shuffle indexes, should not change anything for gene expression dataset
         for label in label_order:
-            rnd.shuffle(label_groups[label])
+            rnd.shuffle(label_groups[label]) 
 
         # Organize into grid.
         grid_indices = []
         for y in range(gh):
             label = label_order[y % len(label_order)]
-            indices = label_groups[label]
+            indices = label_groups[label] # len(indices) = 1 for gene dataset
             grid_indices += [indices[x % len(indices)] for x in range(gw)]
             label_groups[label] = [indices[(i + gw) % len(indices)] for i in range(len(indices))]
 
