@@ -149,7 +149,7 @@ def generate_images(
         # real_img = (real_image.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
         # real_img = torch.from_numpy(real_image).unsqueeze(0).to(device)
         # _N, C, H, W = real_image.shape
-        print(img.shape)
+        print(img.shape, real_image.shape)
         raise Exception
         combined_img = np.concatenate((real_image, img.cpu().numpy()), axis=2)
         PIL.Image.fromarray(combined_img[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
