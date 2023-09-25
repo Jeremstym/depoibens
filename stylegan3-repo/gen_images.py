@@ -124,6 +124,7 @@ def generate_images(
             training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
             label = training_set.get_label(class_idx)
             label = torch.from_numpy(label).unsqueeze(0).to(device)
+            real_image = training_set.get_image(class_idx)
         else:
             label[:, class_idx] = 1
     else:
@@ -145,7 +146,9 @@ def generate_images(
 
         img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
         img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-        PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
+        real_img = (real_image.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+        combined_img = torch.cat((img, real_img), dim=2)
+        PIL.Image.fromarray(combined_img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
 
 
 def import_dataset(genes: bool, data:str, gene_size: int):
