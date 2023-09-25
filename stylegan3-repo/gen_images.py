@@ -20,6 +20,8 @@ import torch
 
 import legacy
 
+from train import init_dataset_kwargs
+
 #----------------------------------------------------------------------------
 
 def parse_range(s: Union[str, List]) -> List[int]:
@@ -78,6 +80,7 @@ def make_transform(translate: Tuple[float,float], angle: float):
 @click.option('--rotate', help='Rotation angle in degrees', type=float, default=0, show_default=True, metavar='ANGLE')
 @click.option('--outdir', help='Where to save the output images', type=str, required=True, metavar='DIR')
 @click.option('--genes', help='Gene expression use', metavar='BOOL', type=bool, default=False, show_default=True)
+@click.option('--data', help='Training data', metavar='[ZIP|DIR]', type=str)
 def generate_images(
     network_pkl: str,
     seeds: List[int],
@@ -87,7 +90,8 @@ def generate_images(
     translate: Tuple[float,float],
     rotate: float,
     class_idx: Optional[int],
-    genes: bool
+    genes: bool,
+    data: str
 ):
     """Generate images using pretrained network pickle.
 
@@ -117,9 +121,10 @@ def generate_images(
         if class_idx is None and genes is False:
             raise click.ClickException('Must specify class label with --class when using a conditional network')
         if genes is True:
-            pass
-            # TODO: implement gene expression from dataset
-        label[:, class_idx] = 1
+            training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
+            label = training_set.get_label(class_idx)
+        else:
+            label[:, class_idx] = 1
     else:
         if class_idx is not None:
             print ('warn: --class=lbl ignored when running on an unconditional network')
@@ -140,6 +145,16 @@ def generate_images(
         img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
         img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
         PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
+
+
+def import_dataset(genes: bool, data:str, gene_size: int):
+    # Training set.
+    training_set_kwargs, dataset_name = init_dataset_kwargs(data=data, is_pickle=genes)
+    training_set_kwargs.use_labels = True
+    training_set_kwargs.xflip = False
+    training_set_kwargs.gene_size = gene_size
+    training_set = dnnlib.util.construct_class_by_name(**training_set_kwargs) # subclass of training.dataset.Dataset
+    return training_set
 
 
 #----------------------------------------------------------------------------
