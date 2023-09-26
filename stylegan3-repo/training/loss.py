@@ -63,8 +63,8 @@ class StyleGAN2Loss(Loss):
         self.adversarial_loss   = 0
         self.gen_score          = 0
         self.real_score         = 0
-        self.pen_reg_real       = 0.5
-        self.pen_reg_gen        = 0.35
+        self.pen_reg_real       = 0.1
+        self.pen_reg_gen        = 0.1
         if self.genes:
             self.criterion = nn.MSELoss(reduction='none')
 
