@@ -142,7 +142,7 @@ def generate_images(
     if genes is True:
         # grid = np.empty((1, 256, 256 * len(seeds), 3))
         _c, w, h = list_of_images[0][0].shape
-        gw, gh = len(seeds), len(class_idx)
+        gw, gh = len(seeds) + 1, len(class_idx)
         canvas = PIL.Image.new('RGB', (h * gh, w * gw), 'white')
         list_of_PIL_images = []            
         for real_image, label in list_of_images:            
