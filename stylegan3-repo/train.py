@@ -141,6 +141,7 @@ def parse_comma_separated_list(s):
 @click.option('--resume',       help='Resume from given network pickle', metavar='[PATH|URL]',  type=str)
 @click.option('--freezed',      help='Freeze first layers of D', metavar='INT',                 type=click.IntRange(min=0), default=0, show_default=True)
 @click.option('--gene-size',    help='Number of genes for gene expression', metavar='INT',      type=click.IntRange(min=1), default=900, show_default=True)
+@click.option('--normalize',    help='Normalize gene expression data', metavar='BOOL',          type=bool, default=False, show_default=True)
 
 # Misc hyperparameters.
 @click.option('--p',            help='Probability for --aug=fixed', metavar='FLOAT',            type=click.FloatRange(min=0, max=1), default=0.2, show_default=True)
@@ -205,6 +206,7 @@ def main(**kwargs):
     c.training_set_kwargs.use_labels = opts.cond
     c.training_set_kwargs.xflip = opts.mirror
     c.training_set_kwargs.gene_size = opts.gene_size
+    c.training_set_kwargs.normalize = opts.normalize
 
     # Hyperparameters & settings.
     c.num_gpus = opts.gpus

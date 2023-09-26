@@ -160,12 +160,14 @@ class ImageFolderDataset(Dataset):
     def __init__(self,
         path,                   # Path to directory or zip.
         is_pickle = False,      # Assume the dataset is a pickle file.
+        normalize = False,      # Normalize gene expression data.
         resolution = None,      # Ensure specific resolution, None = highest available.
         **super_kwargs,         # Additional arguments for the Dataset base class.
     ):
         self._path = path
         self._zipfile = None
         self.is_pickle = is_pickle
+        self.normalize = normalize
 
         if os.path.isdir(self._path):
             self._type = 'dir'
@@ -246,6 +248,9 @@ class ImageFolderDataset(Dataset):
         labels = [labels[fname.replace('\\', '/')] for fname in self._image_fnames]
         labels = np.array(labels)
         labels = labels.astype({1: np.int64, 2: np.float32}[labels.ndim])
+        # log-normalize gene expression
+        if self.normalize:
+            labels = np.log(labels + 1e-8)
         return labels[:,:gene_size] # must be shape (30627, gene_size) if gene expression
 
 #----------------------------------------------------------------------------
