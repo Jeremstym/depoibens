@@ -186,8 +186,8 @@ def generate_images(
         # grid = grid[:, 256:, :, :]
         # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
         for idx, img in enumerate(list_of_PIL_images):
-            x = idx % gw
-            y = idx // gw
+            y = idx % gw
+            x = idx // gw
             canvas.paste(img, (x * w, y * h))
         canvas.save(f'{outdir}_grid.png')
         # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}_grid.png')
