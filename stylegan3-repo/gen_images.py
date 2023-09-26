@@ -143,7 +143,7 @@ def generate_images(
         grid = np.empty((1, 256, 256 * len(class_idx), 3))
         for real_image, label in list_of_images:            
             real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
-            combined_img = real_image
+            combined_img = real_img
             # Generate images.
             for seed_idx, seed in enumerate(seeds):
                 print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
