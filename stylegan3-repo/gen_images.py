@@ -120,12 +120,12 @@ def generate_images(
     if G.c_dim != 0:
         if class_idx is None:
             raise click.ClickException('Must specify class label with --class when using a conditional network')
-        if genes is True and len(class_idx) == 1:
-            training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
-            label = training_set.get_label(class_idx[0])
-            label = torch.from_numpy(label).unsqueeze(0).to(device)
-            real_image = training_set[class_idx[0]][0]
-        elif genes is True and len(class_idx) > 1:
+        # elif genes is True and len(class_idx) == 1:
+        #     training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
+        #     label = training_set.get_label(class_idx[0])
+        #     label = torch.from_numpy(label).unsqueeze(0).to(device)
+        #     real_image = training_set[class_idx[0]][0]
+        elif genes is True:
             training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
             list_of_images = []
             for idx in class_idx:
@@ -142,7 +142,10 @@ def generate_images(
     if genes is True:
         # grid = np.empty((1, 256, 256 * len(seeds), 3))
         _c, w, h = list_of_images[0][0].shape
-        gw, gh = len(seeds) , len(class_idx) + 1
+        gw, gh = len(seeds)+1, len(class_idx)
+        print(f"grid shape: {gw}, {gh}")
+        print(f"Number of labels: {len(list_of_images)}")
+        print(f"Number of images per label: {len(seeds)}")
         canvas = PIL.Image.new('RGB', (h * gh, w * gw), 'white')
         list_of_PIL_images = []            
         for real_image, label in list_of_images:            
