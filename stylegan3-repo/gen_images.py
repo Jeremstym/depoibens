@@ -120,11 +120,6 @@ def generate_images(
     if G.c_dim != 0:
         if class_idx is None:
             raise click.ClickException('Must specify class label with --class when using a conditional network')
-        # elif genes is True and len(class_idx) == 1:
-        #     training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
-        #     label = training_set.get_label(class_idx[0])
-        #     label = torch.from_numpy(label).unsqueeze(0).to(device)
-        #     real_image = training_set[class_idx[0]][0]
         elif genes is True:
             training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim)
             list_of_images = []
@@ -140,7 +135,6 @@ def generate_images(
             print ('warn: --class=lbl ignored when running on an unconditional network')
 
     if genes is True:
-        # grid = np.empty((1, 256, 256 * len(seeds), 3))
         _c, w, h = list_of_images[0][0].shape
         gw, gh = len(seeds)+1, len(class_idx)
         print(f"grid shape: width: {gw}, height:{gh}")
@@ -149,10 +143,8 @@ def generate_images(
         canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
         list_of_PIL_images = []            
         for real_image, label in list_of_images:            
-            # real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
             real_img = real_image.transpose(1, 2, 0)
             list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
-            # combined_img = real_img
             # Generate images.
             for seed_idx, seed in enumerate(seeds):
                 print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
@@ -166,31 +158,16 @@ def generate_images(
                     m = np.linalg.inv(m)
                     G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
-                # if len(seeds) > 1 and seed_idx != len(seeds) - 1:
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
-                # combined_img = np.concatenate((combined_img, gen_img), axis=2)
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
-                # continue
-                # elif len(seeds) == 1:
-                # img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                # img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-                # combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
-                # list_of_PIL_images.append(PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB'))
 
-
-            
-            # grid = np.concatenate((grid, combined_img), axis=1)
-
-        # grid = grid[:, 256:, :, :]
-        # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
         for idx, img in enumerate(list_of_PIL_images):
             x = idx % gw
             y = idx // gw
             canvas.paste(img, (x * w, y * h))
         canvas.save(f'{outdir}_grid.png')
-        # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}_grid.png')
 
     else:
         #  Generate images.
@@ -219,17 +196,6 @@ def import_dataset(genes: bool, data:str, gene_size: int):
     training_set_kwargs.gene_size = gene_size
     training_set = dnnlib.util.construct_class_by_name(**training_set_kwargs) # subclass of training.dataset.Dataset
     return training_set
-
-def make_grid(imgs: List[PIL.Image.Image], grid_size: Tuple[int, int]) -> PIL.Image.Image:
-    '''Make a grid of images.'''
-    w, h = imgs[0].size
-    gw, gh = grid_size
-    canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
-    for idx, img in enumerate(imgs):
-        x = idx % gw
-        y = idx // gw
-        canvas.paste(img, (x * w, y * h))
-    return canvas
 
 
 #----------------------------------------------------------------------------
