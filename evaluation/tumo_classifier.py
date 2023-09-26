@@ -20,6 +20,7 @@ from tumo_dataset import create_dataloader
 tumor_path = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 path_to_image = "/projects/minos/jeremie/data"
 
+
 # create a binary CNN classifier
 class TumoClassifier(nn.Module):
     def __init__(self):
@@ -48,7 +49,7 @@ class TumoClassifier(nn.Module):
         out = self.fc2(out)
         out = self.sigmoid(out)
         return out
-    
+
 
 # Train the model
 # Set the device to use for training
@@ -63,8 +64,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # import dataloader
 train_loader, valid_loader = create_dataloader(
-    tumor_path=tumor_path,
-    path_to_image=path_to_image
+    tumor_path=tumor_path, path_to_image=path_to_image
 )
 
 # Train the model
@@ -90,7 +90,7 @@ for epoch in range(5):
                 )
             )
 
-# Test the model
+# Evaluate the model
 # In test phase, we don't need to compute gradients (for memory efficiency)
 with torch.no_grad():
     correct = 0
@@ -103,8 +103,11 @@ with torch.no_grad():
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-    print("Test Accuracy of the model on the test images: {} %".format(100 * correct / total))
+    print(
+        "Test Accuracy of the model on the test images: {} %".format(
+            100 * correct / total
+        )
+    )
 
 # Save the model checkpoint
 torch.save(model.state_dict(), "model.ckpt")
-

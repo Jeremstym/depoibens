@@ -37,6 +37,7 @@ path_to_image = "/projects/minos/jeremie/data"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 class TumoDataset(data.Dataset):
     def __init__(
         self,
@@ -73,7 +74,7 @@ class TumoDataset(data.Dataset):
         )
         preprocessed_image = preprocess(image)
         return preprocessed_image
-    
+
     def __len__(self):
         return len(self.dict)
 
