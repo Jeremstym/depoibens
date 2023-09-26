@@ -134,16 +134,22 @@ def generate_images(
                 real_image = training_set[idx][0]
                 list_of_images.append([real_image, label])
         else:
-            label[:, class_idx] = 1
+            label[:, class_idx[0]] = 1
     else:
         if class_idx is not None:
             print ('warn: --class=lbl ignored when running on an unconditional network')
 
-    if genes is True and len(class_idx) > 1:
-        grid = np.empty((1, 256, 256 * len(seeds), 3))
+    if genes is True:
+        # grid = np.empty((1, 256, 256 * len(seeds), 3))
+        w, h = list_of_images[0][0].size
+        gw, gh = len(seeds), len(class_idx)
+        canvas = PIL.Image.new('RGB', (h * gh, w * gw), 'white')
+        list_of_PIL_images = []            
         for real_image, label in list_of_images:            
-            real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
-            combined_img = real_img
+            # real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
+            real_img = real_image.transpose(1, 2, 0)
+            list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
+            # combined_img = real_img
             # Generate images.
             for seed_idx, seed in enumerate(seeds):
                 print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
@@ -157,28 +163,34 @@ def generate_images(
                     m = np.linalg.inv(m)
                     G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
-                if len(seeds) > 1 and seed_idx != len(seeds) - 1:
-                    gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                    gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-                    gen_img = gen_img.cpu().numpy()
-                    combined_img = np.concatenate((combined_img, gen_img), axis=2)
-                    continue
-                elif len(seeds) == 1:
-                    img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                    img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-                    combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
+                # if len(seeds) > 1 and seed_idx != len(seeds) - 1:
+                gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+                gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+                gen_img = gen_img.cpu().numpy()
+                # combined_img = np.concatenate((combined_img, gen_img), axis=2)
+                list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
+                # continue
+                # elif len(seeds) == 1:
+                # img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+                # img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+                # combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
+                # list_of_PIL_images.append(PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB'))
+
+
             
-            
-            grid = np.concatenate((grid, combined_img), axis=1)
+            # grid = np.concatenate((grid, combined_img), axis=1)
 
         # grid = grid[:, 256:, :, :]
         # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
-        PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}_grid.png')
+        for idx, img in enumerate(list_of_PIL_images):
+            x = idx % gw
+            y = idx // gw
+            canvas.paste(img, (x * w, y * h))
+        canvas.save(f'{outdir}_grid.png')
+        # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}_grid.png')
 
     else:
-        real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
-        combined_img = real_image
-        # Generate images.
+        #  Generate images.
         for seed_idx, seed in enumerate(seeds):
             print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
             z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
@@ -191,19 +203,9 @@ def generate_images(
                 m = np.linalg.inv(m)
                 G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
-            if len(seeds) > 1 and seed_idx != len(seeds) - 1:
-                gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-                gen_img = gen_img.cpu().numpy()
-                combined_img = np.concatenate((combined_img, gen_img), axis=2)
-                continue
-            elif len(seeds) == 1:
-                img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-                combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
-
-        # PIL.Image.fromarray(combined_img[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
-        PIL.Image.fromarray(combined_img[0], 'RGB').save(f'{outdir}_grid.png')
+            img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+            img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+            PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
 
 
 def import_dataset(genes: bool, data:str, gene_size: int):
