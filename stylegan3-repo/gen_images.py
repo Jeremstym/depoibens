@@ -140,7 +140,7 @@ def generate_images(
             print ('warn: --class=lbl ignored when running on an unconditional network')
 
     if genes is True and len(class_idx) > 1:
-        grid = np.empty((1, 256, 256 * (len(class_idx)+2), 3))
+        grid = np.empty((1, 256, 256 * len(seeds), 3))
         for real_image, label in list_of_images:            
             real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
             combined_img = real_img
@@ -167,6 +167,9 @@ def generate_images(
                     img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                     combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
+            
+            PIL.Image.fromarray(combined_img[0], 'RGB').save(f'{outdir}/seed_test.png')
+            return None
             
             grid = np.concatenate((grid, combined_img), axis=1)
 
