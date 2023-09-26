@@ -168,12 +168,10 @@ def generate_images(
                     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                     combined_img = np.concatenate((real_img, img.cpu().numpy()), axis=2)
             
-            PIL.Image.fromarray(combined_img[0], 'RGB').save(f'{outdir}/seed_test.png')
-            return None
             
             grid = np.concatenate((grid, combined_img), axis=1)
 
-        grid = grid[:, 256:, :, :]
+        # grid = grid[:, 256:, :, :]
         # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
         PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}_grid.png')
 
