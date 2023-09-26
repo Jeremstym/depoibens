@@ -140,7 +140,7 @@ def generate_images(
             print ('warn: --class=lbl ignored when running on an unconditional network')
 
     if genes is True and len(class_idx) > 1:
-        grid = np.empty((1, 256, 256 * len(class_idx), 3))
+        grid = np.empty((1, 256, 256 * (len(class_idx)+2), 3))
         for real_image, label in list_of_images:            
             real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
             combined_img = real_img
