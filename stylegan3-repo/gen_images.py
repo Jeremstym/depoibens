@@ -143,10 +143,10 @@ def generate_images(
         # grid = np.empty((1, 256, 256 * len(seeds), 3))
         _c, w, h = list_of_images[0][0].shape
         gw, gh = len(seeds)+1, len(class_idx)
-        print(f"grid shape: {gw}, {gh}")
+        print(f"grid shape: width: {gw}, height:{gh}")
         print(f"Number of labels: {len(list_of_images)}")
         print(f"Number of images per label: {len(seeds)}")
-        canvas = PIL.Image.new('RGB', (h * gh, w * gw), 'white')
+        canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
         list_of_PIL_images = []            
         for real_image, label in list_of_images:            
             # real_img = np.expand_dims(real_image.transpose(1, 2, 0), axis=0)
@@ -186,8 +186,8 @@ def generate_images(
         # grid = grid[:, 256:, :, :]
         # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}/seed{seed:04d}.png')
         for idx, img in enumerate(list_of_PIL_images):
-            y = idx % gw
-            x = idx // gw
+            x = idx % gw
+            y = idx // gw
             canvas.paste(img, (x * w, y * h))
         canvas.save(f'{outdir}_grid.png')
         # PIL.Image.fromarray(grid[0], 'RGB').save(f'{outdir}_grid.png')
