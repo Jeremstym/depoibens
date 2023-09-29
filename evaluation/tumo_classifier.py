@@ -34,7 +34,7 @@ class TumoClassifier(nn.Module):
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.conv3 = nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1)
         self.relu3 = nn.ReLU()
-        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=8)
         self.fc1 = nn.Linear(32 * 8 * 8, 64)
         self.relu4 = nn.ReLU()
         self.fc2 = nn.Linear(64, 1)
