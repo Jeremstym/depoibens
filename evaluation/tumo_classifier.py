@@ -15,7 +15,7 @@ import numpy as np
 from tqdm import tqdm
 
 from torch.utils.data import Dataset, DataLoader
-from tumo_dataset import create_dataloader
+from tumo_dataset import create_dataloader, create_generated_dataloader
 
 # data constants
 
@@ -160,5 +160,37 @@ def load_and_evaluate_model():
             )
         )
 
+def load_and_evaluate_generated_model():
+
+    # import dataloader
+    dataloader = create_generated_dataloader(
+        tumor_path=tumor_path, path_to_image=path_to_image
+    )
+    # Create the model
+    model = TumoClassifier().to(device)
+    model.load_state_dict(torch.load("model_tumo.ckpt"))
+
+    # Evaluate the model
+    # In test phase, we don't need to compute gradients (for memory efficiency)
+    with torch.no_grad():
+        print("Evaluating model...")
+        count = 0
+        score = 0
+        with tqdm(dataloader, unit="batch") as pbar:
+            for images, labels in pbar:
+                images = images.to(device)
+                labels = labels.to(device)
+                labels = labels.float().unsqueeze(1)
+                outputs = model(images.float())
+                metric = BinaryF1Score().to(device)
+                score += metric(outputs.T, labels.T).item()
+                count += 1
+                pbar.set_postfix(f1_score=score/count)
+        print(
+            "F1 score of the model on the test images: {} %".format(
+                100 * score / count
+            )
+        )
+
 if __name__ == "__main__":
-    load_and_evaluate_model()
+    load_and_evaluate_generated_model()
