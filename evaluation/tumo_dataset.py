@@ -67,7 +67,9 @@ class TumoDataset(data.Dataset):
                 self.dict[img_name] = img_path
                 # self.dict_path[img_name] = image
 
-    def preprocess(self, image):
+    def preprocess(self, image_path: str):
+        os.chdir(self.path)
+        image = Image.open(image_path)
         size = self.size
         preprocess = transforms.Compose(
             [
@@ -87,7 +89,6 @@ class TumoDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.dict.keys())[idx_number]
-        print(index)
         img_preprocessed = self.preprocess(self.dict[index])
         return img_preprocessed, self.tumor[index]
 
