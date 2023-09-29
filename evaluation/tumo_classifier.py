@@ -21,7 +21,7 @@ from tumo_dataset import create_dataloader, create_generated_dataloader
 
 tumor_path = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 path_to_image = "/projects/minos/jeremie/data"
-path_to_classifier = "/projects/minos/jeremie/data/tumo.ckpt"
+path_to_classifier = "/projects/minos/jeremie/data/model_tumo.ckpt"
 
 
 # create a binary CNN classifier
