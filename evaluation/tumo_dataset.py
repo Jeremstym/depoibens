@@ -54,13 +54,17 @@ class TumoDataset(data.Dataset):
 
         os.chdir(self.path)
         with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
-            print(glob("*/*/*.jpg"))
-            raise Exception
             for image in pbar:
-                img = Image.open(image)
-                img_name = image[18:-4]
+                img_path = image
+                pattern = r'BC\d+_\w+_\d+x\d+'
+                img_match = re.search(pattern, image)
+                if img_match:
+                    img_name = img_match.group(0)
+                else:
+                    raise ValueError(f"Image name {image} does not match pattern {pattern}")
+                # img_name = image[18:-4]
                 # img_preprocessed = self.preprocess(img)
-                self.dict[img_name] = img
+                self.dict[img_name] = img_path
                 # self.dict_path[img_name] = image
 
     def preprocess(self, image):
