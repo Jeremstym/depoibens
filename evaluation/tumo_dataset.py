@@ -57,7 +57,7 @@ class TumoDataset(data.Dataset):
             print("Loading images...")
             for image in pbar:
                 # img = Image.open(image)
-                img_name = image[18:-4]
+                img_name = image[19:-4]
                 # img_preprocessed = self.preprocess(img)
                 self.dict[img_name] = image
                 # self.dict_path[img_name] = image
