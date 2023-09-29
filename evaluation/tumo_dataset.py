@@ -87,6 +87,7 @@ class TumoDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.dict.keys())[idx_number]
+        print(index)
         img_preprocessed = self.preprocess(self.dict[index])
         return img_preprocessed, self.tumor[index]
 
