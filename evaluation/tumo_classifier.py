@@ -151,7 +151,7 @@ def load_and_evaluate_model():
             labels = labels.to(device)
             labels = labels.float().unsqueeze(1)
             outputs = model(images.float())
-            metric = BinaryF1Score()
+            metric = BinaryF1Score().to(device)
             score += metric(outputs.T, labels.T).item()
             count += 1
         print(
