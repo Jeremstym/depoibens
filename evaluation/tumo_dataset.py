@@ -158,7 +158,7 @@ class TumoGeneratedDataset(data.Dataset):
         return preprocessed_image
 
     def __len__(self):
-        return len(self.dict)
+        return len(self.tsv.index)
 
     def __getitem__(self, idx_number: int):
         index = list(self.tsv.index)[idx_number]
