@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 
 import numpy as np
+from tqdm import tqdm
 
 from torch.utils.data import Dataset, DataLoader
 from tumo_dataset import create_dataloader
@@ -70,31 +71,35 @@ def main():
     )
 
     # Train the model
-    total_step = len(train_loader)
-    for epoch in range(5):
-        for i, (images, labels) in enumerate(train_loader):
-            images = images.to(device)
-            labels = labels.to(device)
+    # total_step = len(train_loader)
+    with tqdm(train_loader, unit="batch") as pbar:
+        for epoch in range(5):
+            pbar.set_description(f"Epoch {epoch+1}")
+            for images, labels in pbar:
+                images = images.to(device)
+                labels = labels.to(device)
 
-            # Forward pass
-            outputs = model(images.float())
-            loss = criterion(outputs, labels.float())
+                # Forward pass
+                outputs = model(images.float())
+                loss = criterion(outputs, labels.float())
 
-            # Backward and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+                # Backward and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-            if (i + 1) % 10 == 0:
-                print(
-                    "Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}".format(
-                        epoch + 1, 5, i + 1, total_step, loss.item()
-                    )
-                )
+                # if (i + 1) % 10 == 0:
+                #     print(
+                #         "Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}".format(
+                #             epoch + 1, 5, i + 1, total_step, loss.item()
+                #         )
+                #     )
+                pbar.set_postfix(loss=loss.item())
 
     # Evaluate the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
     with torch.no_grad():
+        print("Evaluating model...")
         correct = 0
         total = 0
         for images, labels in valid_loader:
