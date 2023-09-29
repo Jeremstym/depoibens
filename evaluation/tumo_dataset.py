@@ -54,11 +54,12 @@ class TumoDataset(data.Dataset):
 
         os.chdir(self.path)
         with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
+            print("Loading images...")
             for image in pbar:
                 img = Image.open(image)
-                img_name = image[19:-4]
-                img_preprocessed = self.preprocess(img)
-                self.dict[img_name] = img_preprocessed
+                img_name = image[18:-4]
+                # img_preprocessed = self.preprocess(img)
+                self.dict[img_name] = img
                 # self.dict_path[img_name] = image
 
     def preprocess(self, image):
@@ -81,7 +82,8 @@ class TumoDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.dict.keys())[idx_number]
-        return self.dict[index], self.tumor[index]
+        img_preprocessed = self.preprocess(self.dict[index])
+        return img_preprocessed, self.tumor[index]
 
 
 def create_dataloader(
