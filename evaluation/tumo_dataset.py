@@ -46,6 +46,7 @@ class TumoDataset(data.Dataset):
     ) -> None:
         self.path = path_to_image
         self.dict = {}
+        self.size = 256
         # self.dict_path = {}
 
         tumor_csv = pd.read_csv(tumor_path, index_col=0)
