@@ -114,6 +114,7 @@ def main():
         for images, labels in valid_loader:
             images = images.to(device)
             labels = labels.to(device)
+            labels = labels.float().unsqueeze(1)
             outputs = model(images.float())
             predicted = (outputs > 0.5).float()
             total += labels.size(0)
