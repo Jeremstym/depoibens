@@ -25,7 +25,7 @@ from glob import glob
 import re
 from tqdm import tqdm
 
-with os.chdir("stylegan3-repo"): 
+with os.chdir("/import/bc_users/biocomp/stym/depoibens/stylegan3-repo"): 
     import dnnlib
     import legacy
 
