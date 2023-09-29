@@ -78,8 +78,8 @@ def main():
 
     # Train the model
     # total_step = len(train_loader)
-    with tqdm(train_loader, unit="batch") as pbar:
-        for epoch in range(5):
+    for epoch in range(5):
+        with tqdm(train_loader, unit="batch") as pbar:
             pbar.set_description(f"Epoch {epoch+1}")
             for images, labels in pbar:
                 images = images.to(device)
@@ -102,6 +102,8 @@ def main():
                 #         )
                 #     )
                 pbar.set_postfix(loss=loss.item())
+
+            
 
     # Evaluate the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
