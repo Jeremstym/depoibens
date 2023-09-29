@@ -204,7 +204,12 @@ def create_generated_dataloader(
     batch_size: int = BATCH_SIZE,
     num_workers: int = NUM_WORKERS,
 ):
-    dataset = TumoGeneratedDataset(tumor_path, path_to_image, path_to_tsv, path_to_generator)
+    dataset = TumoGeneratedDataset(
+        tumor_path=tumor_path, 
+        path_to_image=path_to_image, 
+        path_to_tsv=path_to_tsv, 
+        path_to_generator=path_to_generator
+    )
     dataloader = data.DataLoader(
         dataset, batch_size=batch_size, num_workers=num_workers
     )
