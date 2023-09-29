@@ -41,22 +41,15 @@ class TumoClassifier(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        print(x.shape)
         out = self.conv1(x)
-        print(out.shape)
         out = self.relu1(out)
         out = self.pool1(out)
-        print(out.shape)
         out = self.conv2(out)
-        print(out.shape)
         out = self.relu2(out)
         out = self.pool2(out)
-        print(out.shape)
         out = self.conv3(out)
-        print(out.shape)
         out = self.relu3(out)
         out = self.pool3(out)
-        print(out.shape)
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
         out = self.relu3(out)
@@ -91,10 +84,11 @@ def main():
             for images, labels in pbar:
                 images = images.to(device)
                 labels = labels.to(device)
+                labels = labels.float().unsqueeze(1)
 
                 # Forward pass
                 outputs = model(images.float())
-                loss = criterion(outputs, labels.float())
+                loss = criterion(outputs, labels)
 
                 # Backward and optimize
                 optimizer.zero_grad()
