@@ -163,9 +163,7 @@ def load_and_evaluate_model():
 def load_and_evaluate_generated_model():
 
     # import dataloader
-    dataloader = create_generated_dataloader(
-        tumor_path=tumor_path, path_to_image=path_to_image
-    )
+    dataloader = create_generated_dataloader()
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load("model_tumo.ckpt"))
