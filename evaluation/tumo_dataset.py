@@ -117,7 +117,7 @@ class TumoGeneratedDataset(data.Dataset):
         tumor_csv = pd.read_csv(tumor_path, index_col=0)
         self.tumor = tumor_csv["tumor"].apply(lambda x: (x == "tumor") * 1)
 
-    def load_generator(network_pkl: str):
+    def load_generator(self, network_pkl: str):
         print('Loading networks from "%s"...' % network_pkl)
         device = torch.device('cuda')
         with dnnlib.util.open_url(network_pkl) as f:
@@ -132,7 +132,7 @@ class TumoGeneratedDataset(data.Dataset):
             generated_image = self.generator(latent_vector, gene, truncation_psi=1, noise_mode='const')
         return generated_image
     
-    def load_tsv(path_to_tsv: str, nb_genes: int = 900):
+    def load_tsv(self, path_to_tsv: str, nb_genes: int = 900):
         with open(path_to_tsv, "rb") as f:
             tsv = pkl.load(f)
         tsv = tsv.drop("tissue", axis=1)[
