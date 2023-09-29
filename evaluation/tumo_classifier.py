@@ -45,7 +45,7 @@ class TumoClassifier(nn.Module):
         out = self.relu2(out)
         out = self.pool2(out)
         out = out.view(out.size(0), -1)
-        out = self.fc1(out)
+        out = self.fc1(out.T)
         out = self.relu3(out)
         out = self.fc2(out)
         out = self.sigmoid(out)
