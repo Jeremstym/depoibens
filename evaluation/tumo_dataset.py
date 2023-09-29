@@ -56,10 +56,10 @@ class TumoDataset(data.Dataset):
         with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
             print("Loading images...")
             for image in pbar:
-                img = Image.open(image)
+                # img = Image.open(image)
                 img_name = image[18:-4]
                 # img_preprocessed = self.preprocess(img)
-                self.dict[img_name] = img
+                self.dict[img_name] = image
                 # self.dict_path[img_name] = image
 
     def preprocess(self, image):
@@ -82,7 +82,8 @@ class TumoDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.dict.keys())[idx_number]
-        img_preprocessed = self.preprocess(self.dict[index])
+        img = Image.open(self.dict[index])
+        img_preprocessed = self.preprocess(img)
         return img_preprocessed, self.tumor[index]
 
 
