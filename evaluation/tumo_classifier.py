@@ -55,59 +55,64 @@ class TumoClassifier(nn.Module):
 # Set the device to use for training
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Create the model
-model = TumoClassifier().to(device)
 
-# Define the loss function and optimizer
-criterion = nn.BCELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+def main():
+    # Create the model
+    model = TumoClassifier().to(device)
 
-# import dataloader
-train_loader, valid_loader = create_dataloader(
-    tumor_path=tumor_path, path_to_image=path_to_image
-)
+    # Define the loss function and optimizer
+    criterion = nn.BCELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-# Train the model
-total_step = len(train_loader)
-for epoch in range(5):
-    for i, (images, labels) in enumerate(train_loader):
-        images = images.to(device)
-        labels = labels.to(device)
-
-        # Forward pass
-        outputs = model(images.float())
-        loss = criterion(outputs, labels.float())
-
-        # Backward and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        if (i + 1) % 10 == 0:
-            print(
-                "Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}".format(
-                    epoch + 1, 5, i + 1, total_step, loss.item()
-                )
-            )
-
-# Evaluate the model
-# In test phase, we don't need to compute gradients (for memory efficiency)
-with torch.no_grad():
-    correct = 0
-    total = 0
-    for images, labels in valid_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        outputs = model(images.float())
-        predicted = (outputs > 0.5).float()
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-
-    print(
-        "Test Accuracy of the model on the test images: {} %".format(
-            100 * correct / total
-        )
+    # import dataloader
+    train_loader, valid_loader = create_dataloader(
+        tumor_path=tumor_path, path_to_image=path_to_image
     )
 
-# Save the model checkpoint
-torch.save(model.state_dict(), "model.ckpt")
+    # Train the model
+    total_step = len(train_loader)
+    for epoch in range(5):
+        for i, (images, labels) in enumerate(train_loader):
+            images = images.to(device)
+            labels = labels.to(device)
+
+            # Forward pass
+            outputs = model(images.float())
+            loss = criterion(outputs, labels.float())
+
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if (i + 1) % 10 == 0:
+                print(
+                    "Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}".format(
+                        epoch + 1, 5, i + 1, total_step, loss.item()
+                    )
+                )
+
+    # Evaluate the model
+    # In test phase, we don't need to compute gradients (for memory efficiency)
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in valid_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images.float())
+            predicted = (outputs > 0.5).float()
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+        print(
+            "Test Accuracy of the model on the test images: {} %".format(
+                100 * correct / total
+            )
+        )
+
+    # Save the model checkpoint
+    torch.save(model.state_dict(), "model.ckpt")
+
+if __name__ == "__main__":
+    main()
