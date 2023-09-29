@@ -58,10 +58,12 @@ class TumoDataset(data.Dataset):
             for image in pbar:
                 # img = Image.open(image)
                 # img_name = image[19:-4]
-                img_name = re.search(r'\b\w{8}_\w{2}_\d{2}x\d{2}\b', image).group()
-                # img_preprocessed = self.preprocess(img)
-                self.dict[img_name] = image
-                # self.dict_path[img_name] = image
+                match = re.search(r'\b\w{8}_\w{2}_\d{2}x\d{2}\b', image)
+                if match:
+                    img_name = match.group()
+                    # img_preprocessed = self.preprocess(img)
+                    self.dict[img_name] = image
+                    # self.dict_path[img_name] = image
 
     def preprocess(self, image):
         size = self.size
