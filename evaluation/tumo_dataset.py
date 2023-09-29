@@ -25,9 +25,9 @@ from glob import glob
 import re
 from tqdm import tqdm
 
-print(os.getcwd())
-import stylegan3-repo.dnnlib
-import stylegan3-repo.legacy
+sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
+import dnnlib
+import legacy
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
