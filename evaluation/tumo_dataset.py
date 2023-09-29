@@ -54,16 +54,14 @@ class TumoDataset(data.Dataset):
 
         os.chdir(self.path)
         with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
-            print("Loading images...")
+            print(glob("*/*/*.jpg"))
+            raise Exception
             for image in pbar:
-                # img = Image.open(image)
-                # img_name = image[19:-4]
-                match = re.search(r'\b\w{8}_\w{2}_\d{2}x\d{2}\b', image)
-                if match:
-                    img_name = match.group()
-                    # img_preprocessed = self.preprocess(img)
-                    self.dict[img_name] = image
-                    # self.dict_path[img_name] = image
+                img = Image.open(image)
+                img_name = image[18:-4]
+                # img_preprocessed = self.preprocess(img)
+                self.dict[img_name] = img
+                # self.dict_path[img_name] = image
 
     def preprocess(self, image):
         size = self.size
@@ -85,9 +83,7 @@ class TumoDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.dict.keys())[idx_number]
-        print(index)
-        img = Image.open(self.dict[index])
-        img_preprocessed = self.preprocess(img)
+        img_preprocessed = self.preprocess(self.dict[index])
         return img_preprocessed, self.tumor[index]
 
 
