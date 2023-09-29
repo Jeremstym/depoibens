@@ -57,7 +57,8 @@ class TumoDataset(data.Dataset):
             print("Loading images...")
             for image in pbar:
                 # img = Image.open(image)
-                img_name = image[19:-4]
+                # img_name = image[19:-4]
+                img_name = re.search(r'\b\w{8}_\w{2}_\d{2}x\d{2}\b', image).group()
                 # img_preprocessed = self.preprocess(img)
                 self.dict[img_name] = image
                 # self.dict_path[img_name] = image
