@@ -38,10 +38,15 @@ class TumoClassifier(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        print(x.shape)
         out = self.conv1(x)
+        print(out.shape)
         out = self.relu1(out)
+        print(out.shape)
         out = self.pool1(out)
+        print(out.shape)
         out = self.conv2(out)
+        print(out.shape)
         out = self.relu2(out)
         out = self.pool2(out)
         out = out.view(out.size(0), -1)
