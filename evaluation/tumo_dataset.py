@@ -56,7 +56,7 @@ class TumoDataset(data.Dataset):
         with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
             for image in pbar:
                 img_path = image
-                pattern = 'BC\\d+_\\w+_\\d+x\\d+'
+                pattern = 'B[A-Z][0-9]+_[A-Z0-9]+_[0-9]+x[0-9]+'
                 img_match = re.search(pattern, image)
                 if img_match:
                     img_name = img_match.group(0)
