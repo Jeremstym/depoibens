@@ -9,6 +9,7 @@ import sys
 
 import torch
 import torch.nn as nn
+from torchmetrics.classification import BinaryF1Score
 
 import numpy as np
 from tqdm import tqdm
@@ -129,5 +130,35 @@ def main():
     # Save the model checkpoint
     torch.save(model.state_dict(), "model_tumo.ckpt")
 
+def load_and_evaluate_model():
+
+    # import dataloader
+    _train_loader, valid_loader = create_dataloader(
+        tumor_path=tumor_path, path_to_image=path_to_image
+    )
+    # Create the model
+    model = TumoClassifier().to(device)
+    model.load_state_dict(torch.load("model_tumo.ckpt"))
+
+    # Evaluate the model
+    # In test phase, we don't need to compute gradients (for memory efficiency)
+    with torch.no_grad():
+        print("Evaluating model...")
+        count = 0
+        score = 0
+        for images, labels in valid_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            labels = labels.float().unsqueeze(1)
+            outputs = model(images.float())
+            metric = BinaryF1Score()
+            score += metric(outputs.T, labels.T).item()
+            count += 1
+        print(
+            "F1 score of the model on the test images: {} %".format(
+                100 * score / count
+            )
+        )
+
 if __name__ == "__main__":
-    main()
+    load_and_evaluate_model()
