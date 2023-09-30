@@ -218,7 +218,7 @@ def create_generated_dataloader(
 
     return dataloader
 
-def create_generated_images_dataset(network_pkl: str, nb_genes: int = 900):
+def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_genes: int = 900):
 
     def load_generator(network_pkl: str):
         print('Loading networks from "%s"...' % network_pkl)
@@ -235,10 +235,9 @@ def create_generated_images_dataset(network_pkl: str, nb_genes: int = 900):
         ]
         return tsv
 
-    def preprocess(self, image_path: str):
-        os.chdir(self.path)
-        image = Image.open(image_path)
-        size = self.size
+    def preprocess(image: PIL.Image.Image):
+        os.chdir(path_to_image)
+        size = 256
         preprocess = transforms.Compose(
             [
                 transforms.Resize(size),
