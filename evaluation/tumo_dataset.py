@@ -111,6 +111,7 @@ class TumoGeneratedDataset(data.Dataset):
         self.path = path_to_image
         self.size = 256
         self.latent_dim = 512
+        self.nb_genes = nb_genes
         self.generator = self.load_generator(path_to_generator)
         self.tsv = self.load_tsv(path_to_tsv)
 
@@ -127,16 +128,16 @@ class TumoGeneratedDataset(data.Dataset):
         if gene is None:
             print("WARNING: No gene provided, generating random image")
         with torch.no_grad():
-            gene = torch.from_numpy(gene).unsqueeze(0).to(device)
-            latent_vector = torch.from_numpy(np.random.RandomState(42).randn(1, self.latent_dim)).to(device)
+            gene = torch.from_numpy(gene).unsqueeze(0)
+            latent_vector = torch.from_numpy(np.random.RandomState(42).randn(1, self.latent_dim))
             generated_image = self.generator(latent_vector, gene, truncation_psi=1, noise_mode='const')
         return generated_image
     
-    def load_tsv(self, path_to_tsv: str, nb_genes: int = 900):
+    def load_tsv(self, path_to_tsv: str):
         with open(path_to_tsv, "rb") as f:
             tsv = pkl.load(f)
         tsv = tsv.drop("tissue", axis=1)[
-            tsv.columns[:nb_genes]
+            tsv.columns[:self.nb_genes]
         ]
         return tsv
 
