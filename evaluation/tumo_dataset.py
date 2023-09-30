@@ -271,6 +271,6 @@ def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_gen
     return dataset_dict
 
 if __name__ == "__main__":
-    generated_dict = create_generated_images_dataset(path_to_generator)
+    generated_dict = create_generated_images_dataset(path_to_image, path_to_generator)
     with open("generated_dict.pkl", "wb") as f:
         pkl.dump(generated_dict, f)
