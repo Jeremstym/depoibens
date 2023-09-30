@@ -162,7 +162,7 @@ class TumoGeneratedDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.tsv.index)[idx_number]
-        gene = self.tsv.loc[index]
+        gene = self.tsv.loc[index].values
         gen_image = self.generate_image(gene)
         img_preprocessed = self.preprocess(gen_image)
         return img_preprocessed, self.tumor[index]
