@@ -115,7 +115,7 @@ class TumoGeneratedDataset(data.Dataset):
         return len(self.dict.keys())
 
     def __getitem__(self, idx_number: int):
-        index = list(self.tsv.index)[idx_number]
+        index = list(self.dict.keys())[idx_number]
         return self.dict[index], self.tumor[index]
 
 def create_dataloader(
