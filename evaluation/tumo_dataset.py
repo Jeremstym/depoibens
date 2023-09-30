@@ -106,11 +106,13 @@ class TumoGeneratedDataset(data.Dataset):
         tumor_path: str,
         path_to_generated_image: str,
     ) -> None:
+        print("Loading generated images...")
         self.dict = pd.read_pickle(path_to_generated_image)
+        print("Loading tumor labels...")
         self.tumor = pd.read_csv(tumor_path, index_col=0)["tumor"].apply(lambda x: (x == "tumor") * 1)
 
     def __len__(self):
-        return len(dict.keys())
+        return len(self.dict.keys())
 
     def __getitem__(self, idx_number: int):
         index = list(self.tsv.index)[idx_number]
