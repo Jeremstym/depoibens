@@ -40,6 +40,7 @@ tumor_path = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 path_to_image = "/projects/minos/jeremie/data"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_generator = "/projects/minos/jeremie/data/styleGANresults/00078-stylegan2-styleImagesGen-gpus2-batch32-gamma0.2048/network-snapshot-021800.pkl"
+path_to_generated_image = "/projects/minos/jeremie/data/generated_dict.pkl"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -103,71 +104,17 @@ class TumoGeneratedDataset(data.Dataset):
     def __init__(
         self,
         tumor_path: str,
-        path_to_image: str,
-        path_to_tsv: str,
-        path_to_generator: str,
-        nb_genes: int = 900
+        path_to_generated_image: str,
     ) -> None:
-        self.path = path_to_image
-        self.size = 256
-        self.latent_dim = 512
-        self.nb_genes = nb_genes
-        self.generator = self.load_generator(path_to_generator)
-        self.tsv = self.load_tsv(path_to_tsv)
-
-        tumor_csv = pd.read_csv(tumor_path, index_col=0)
-        self.tumor = tumor_csv["tumor"].apply(lambda x: (x == "tumor") * 1)
-
-    def load_generator(self, network_pkl: str):
-        print('Loading networks from "%s"...' % network_pkl)
-        with dnnlib.util.open_url(network_pkl) as f:
-            G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
-        return G
-
-    def generate_image(self, gene: np.ndarray = None):
-        if gene is None:
-            print("WARNING: No gene provided, generating random image")
-        with torch.no_grad():
-            gene = torch.from_numpy(gene).unsqueeze(0)
-            latent_vector = torch.from_numpy(np.random.RandomState(42).randn(1, self.latent_dim))
-            generated_image = self.generator(latent_vector, gene, truncation_psi=1, noise_mode='const')
-        return generated_image
-    
-    def load_tsv(self, path_to_tsv: str):
-        print("Loading tsv...")
-        with open(path_to_tsv, "rb") as f:
-            tsv = pkl.load(f)
-        tsv = tsv.drop("tissue", axis=1)[
-            tsv.columns[:self.nb_genes]
-        ]
-        return tsv
-
-    def preprocess(self, image_path: str):
-        os.chdir(self.path)
-        image = Image.open(image_path)
-        size = self.size
-        preprocess = transforms.Compose(
-            [
-                transforms.Resize(size),
-                transforms.CenterCrop(size),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
-            ]
-        )
-        preprocessed_image = preprocess(image)
-        return preprocessed_image
+        self.dict = pd.read_pickle(path_to_generated_image)
+        self.tumor = pd.read_csv(tumor_path, index_col=0)["tumor"].apply(lambda x: (x == "tumor") * 1)
 
     def __len__(self):
-        return len(self.tsv.index)
+        return len(dict.keys())
 
     def __getitem__(self, idx_number: int):
         index = list(self.tsv.index)[idx_number]
-        gene = self.tsv.loc[index].values
-        gen_image = self.generate_image(gene)
-        img_preprocessed = self.preprocess(gen_image)
-        return img_preprocessed, self.tumor[index]
+        return self.dict[index], self.tumor[index]
 
 def create_dataloader(
     tumor_path: str,
@@ -200,17 +147,13 @@ def create_dataloader(
 
 def create_generated_dataloader(
     tumor_path: str = tumor_path,
-    path_to_image: str = path_to_image,
-    path_to_tsv: str = path_to_tsv,
-    path_to_generator: str = path_to_generator,
+    path_to_generated_image: str = path_to_generated_image,
     batch_size: int = BATCH_SIZE,
     num_workers: int = NUM_WORKERS,
 ):
     dataset = TumoGeneratedDataset(
         tumor_path=tumor_path, 
-        path_to_image=path_to_image, 
-        path_to_tsv=path_to_tsv, 
-        path_to_generator=path_to_generator
+        path_to_generated_image=path_to_generated_image, 
     )
     dataloader = data.DataLoader(
         dataset, batch_size=batch_size, num_workers=num_workers
@@ -270,7 +213,8 @@ def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_gen
 
     return dataset_dict
 
-if __name__ == "__main__":
-    generated_dict = create_generated_images_dataset(path_to_image, path_to_generator)
-    with open("generated_dict.pkl", "wb") as f:
-        pkl.dump(generated_dict, f)
+# ------------------- #
+# if __name__ == "__main__":
+#     generated_dict = create_generated_images_dataset(path_to_image, path_to_generator)
+#     with open("generated_dict.pkl", "wb") as f:
+#         pkl.dump(generated_dict, f)
