@@ -119,7 +119,6 @@ class TumoGeneratedDataset(data.Dataset):
 
     def load_generator(self, network_pkl: str):
         print('Loading networks from "%s"...' % network_pkl)
-        device = torch.device('cuda')
         with dnnlib.util.open_url(network_pkl) as f:
             G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
         return G
@@ -128,6 +127,7 @@ class TumoGeneratedDataset(data.Dataset):
         if gene is None:
             print("WARNING: No gene provided, generating random image")
         with torch.no_grad():
+            gene = torch.from_numpy(gene).unsqueeze(0).to(device)
             latent_vector = torch.from_numpy(np.random.RandomState(42).randn(1, self.latent_dim)).to(device)
             generated_image = self.generator(latent_vector, gene, truncation_psi=1, noise_mode='const')
         return generated_image
@@ -162,7 +162,7 @@ class TumoGeneratedDataset(data.Dataset):
 
     def __getitem__(self, idx_number: int):
         index = list(self.tsv.index)[idx_number]
-        gene = self.tsv.loc[index].to_numpy()
+        gene = self.tsv.loc[index]
         gen_image = self.generate_image(gene)
         img_preprocessed = self.preprocess(gen_image)
         return img_preprocessed, self.tumor[index]
