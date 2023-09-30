@@ -217,3 +217,61 @@ def create_generated_dataloader(
     )
 
     return dataloader
+
+def create_generated_images_dataset(network_pkl: str, nb_genes: int = 900):
+
+    def load_generator(network_pkl: str):
+        print('Loading networks from "%s"...' % network_pkl)
+        with dnnlib.util.open_url(network_pkl) as f:
+            G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
+        return G
+
+    def load_tsv(path_to_tsv: str):
+        print("Loading tsv...")
+        with open(path_to_tsv, "rb") as f:
+            tsv = pkl.load(f)
+        tsv = tsv.drop("tissue", axis=1)[
+            tsv.columns[:nb_genes]
+        ]
+        return tsv
+
+    def preprocess(self, image_path: str):
+        os.chdir(self.path)
+        image = Image.open(image_path)
+        size = self.size
+        preprocess = transforms.Compose(
+            [
+                transforms.Resize(size),
+                transforms.CenterCrop(size),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
+        preprocessed_image = preprocess(image)
+        return preprocessed_image
+    
+    dataset_dict = {}
+    generator = load_generator(network_pkl)
+    tsv = load_tsv(path_to_tsv)
+    with tqdm(tsv.index, unit="spot") as pbar:
+        for index in pbar:
+            gene = tsv.loc[index].values
+            with torch.no_grad():
+                gene = torch.from_numpy(gene).unsqueeze(0).to(device)
+                latent_vector = torch.from_numpy(np.random.RandomState(42).randn(1, 512)).to(device)
+                generated_image = generator(latent_vector, gene, truncation_psi=1, noise_mode='const')
+                generated_image = (generated_image.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+                generated_image = generated_image.cpu().numpy()
+                generated_image = Image.fromarray(generated_image[0], 'RGB')
+                generated_image = preprocess(generated_image)
+
+            dataset_dict[index] = generated_image
+
+    return dataset_dict
+
+if __name__ == "__main__":
+    generated_dict = create_generated_images_dataset(path_to_generator)
+    with open("generated_dict.pkl", "wb") as f:
+        pkl.dump(generated_dict, f)
