@@ -134,6 +134,7 @@ class TumoGeneratedDataset(data.Dataset):
         return generated_image
     
     def load_tsv(self, path_to_tsv: str):
+        print("Loading tsv...")
         with open(path_to_tsv, "rb") as f:
             tsv = pkl.load(f)
         tsv = tsv.drop("tissue", axis=1)[
