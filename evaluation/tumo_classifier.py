@@ -131,7 +131,7 @@ def main(seed: int = 42):
 
     # Save the model checkpoint
     print("Saving model...")
-    torch.save(model.state_dict(), f"model_tumo_{seed}.ckpt")
+    torch.save(model.state_dict(), f"model_tumo_seed{seed}.ckpt")
     return test_sampler # For the generated dataset
 
 def load_and_evaluate_model(seed: int = 42):
