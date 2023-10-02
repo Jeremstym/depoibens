@@ -167,7 +167,7 @@ def load_and_evaluate_model():
 def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
 
     # import dataloader
-    dataloader = create_generated_dataloader(test_sampler=test_sampler)
+    dataloader = create_generated_dataloader(sampler=test_sampler)
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load(path_to_classifier))
