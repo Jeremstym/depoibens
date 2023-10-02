@@ -13,6 +13,7 @@ from torchmetrics.classification import BinaryF1Score
 
 import numpy as np
 from tqdm import tqdm
+import pickle
 
 from torch.utils.data import Dataset, DataLoader
 from tumo_dataset import create_dataloader, create_generated_dataloader
@@ -65,7 +66,7 @@ class TumoClassifier(nn.Module):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def main():
+def main(seed: int = 42):
     # Create the model
     model = TumoClassifier().to(device)
 
@@ -75,7 +76,7 @@ def main():
 
     # import dataloader
     train_loader, valid_loader, test_sampler = create_dataloader(
-        tumor_path=tumor_path, path_to_image=path_to_image
+        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
     )
 
     # Train the model
@@ -130,18 +131,18 @@ def main():
 
     # Save the model checkpoint
     print("Saving model...")
-    torch.save(model.state_dict(), "model_tumo.ckpt")
+    torch.save(model.state_dict(), f"model_tumo_{seed}.ckpt")
     return test_sampler # For the generated dataset
 
-def load_and_evaluate_model():
+def load_and_evaluate_model(seed: int = 42):
 
     # import dataloader
     _train_loader, valid_loader, _test_sampler = create_dataloader(
-        tumor_path=tumor_path, path_to_image=path_to_image
+        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
     )
     # Create the model
     model = TumoClassifier().to(device)
-    model.load_state_dict(torch.load("model_tumo.ckpt"))
+    model.load_state_dict(torch.load(f"model_tumo_seed{seed}.ckpt"))
 
     # Evaluate the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
@@ -162,6 +163,7 @@ def load_and_evaluate_model():
                 100 * score / count
             )
         )
+        return score / count
 
 
 def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
@@ -194,7 +196,19 @@ def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.Sub
             )
         )
 
+        return score / count
+
 if __name__ == "__main__":
-    test_sampler = main()
-    load_and_evaluate_model()
-    load_and_evaluate_generated_model(test_sampler=test_sampler)
+    score_dict = {}
+    for seed in [1, 10, 20, 30, 42]:
+        test_sampler = main(seed=seed)
+        valid_score = load_and_evaluate_model(seed=seed)
+        test_score = load_and_evaluate_generated_model(test_sampler=test_sampler)
+        score_dict[seed] = {"valid_score": valid_score, "test_score": test_score}
+        with open("score_dict.pkl", "wb") as f:
+            pickle.dump(score_dict, f)
+
+        print("valid_score", np.mean([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
+        print("Std_valid_score", np.std([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
+        print("test_score", np.mean([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
+        print("Std_test_score", np.std([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
