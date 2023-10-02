@@ -145,20 +145,24 @@ def create_dataloader(
     valid_loader = data.DataLoader(
         dataset, batch_size=batch_size, sampler=valid_sampler, num_workers=num_workers
     )
-    return train_loader, valid_loader
+    return train_loader, valid_loader, valid_sampler
 
 def create_generated_dataloader(
     tumor_path: str = tumor_path,
     path_to_generated_image: str = path_to_generated_image,
     batch_size: int = BATCH_SIZE,
     num_workers: int = NUM_WORKERS,
+    sampler: data.Sampler = None,
 ):
+    if sampler is None:
+        print("No sampler provided, using default sampler")
+        
     dataset = TumoGeneratedDataset(
         tumor_path=tumor_path, 
         path_to_generated_image=path_to_generated_image, 
     )
     dataloader = data.DataLoader(
-        dataset, batch_size=batch_size, num_workers=num_workers
+        dataset, sampler=sampler, batch_size=batch_size, num_workers=num_workers
     )
 
     return dataloader

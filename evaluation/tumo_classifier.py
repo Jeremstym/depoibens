@@ -74,7 +74,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # import dataloader
-    train_loader, valid_loader = create_dataloader(
+    train_loader, valid_loader, test_sampler = create_dataloader(
         tumor_path=tumor_path, path_to_image=path_to_image
     )
 
@@ -129,12 +129,14 @@ def main():
         )
 
     # Save the model checkpoint
+    print("Saving model...")
     torch.save(model.state_dict(), "model_tumo.ckpt")
+    return test_sampler # For the generated dataset
 
 def load_and_evaluate_model():
 
     # import dataloader
-    _train_loader, valid_loader = create_dataloader(
+    _train_loader, valid_loader, _test_sampler = create_dataloader(
         tumor_path=tumor_path, path_to_image=path_to_image
     )
     # Create the model
@@ -161,10 +163,11 @@ def load_and_evaluate_model():
             )
         )
 
-def load_and_evaluate_generated_model():
+
+def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
 
     # import dataloader
-    dataloader = create_generated_dataloader()
+    dataloader = create_generated_dataloader(test_sampler=test_sampler)
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load(path_to_classifier))
@@ -192,4 +195,6 @@ def load_and_evaluate_generated_model():
         )
 
 if __name__ == "__main__":
-    load_and_evaluate_generated_model()
+    test_sampler = main()
+    load_and_evaluate_model()
+    load_and_evaluate_generated_model(test_sampler=test_sampler)
