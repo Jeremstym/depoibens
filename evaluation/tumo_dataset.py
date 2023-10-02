@@ -125,6 +125,7 @@ def create_dataloader(
     valid_split: float = VALID_SPLIT,
     num_workers: int = NUM_WORKERS,
     shuffle: bool = True,
+    seed: int = 42,
 ):
     dataset = TumoDataset(tumor_path, path_to_image)
     # Creating data indices for training and validation splits:
@@ -132,6 +133,8 @@ def create_dataloader(
     indices = list(range(dataset_size))
     split = int(np.floor(valid_split * dataset_size))
     if shuffle:
+        # set seed
+        np.random.seed(seed)
         np.random.shuffle(indices)
     train_indices, valid_indices = indices[split:], indices[:split]
 
@@ -156,7 +159,7 @@ def create_generated_dataloader(
 ):
     if sampler is None:
         print("No sampler provided, using default sampler")
-        
+
     dataset = TumoGeneratedDataset(
         tumor_path=tumor_path, 
         path_to_generated_image=path_to_generated_image, 
