@@ -61,8 +61,7 @@ def preprocess_all_fakes(path_to_fakes: str) -> torch.Tensor:
     print("Loading fakes...")
     with open(path_to_fakes, "rb") as f:
         fakes = pickle.load(f)
-    fakes = list(fakes.values())
-    fakes = [transforms.ToTensor()(fake) for fake in fakes]
+    fakes = list(fakes.values()) # list of tensors
     fakes = torch.cat(fakes)
     assert fakes.shape == (len(fakes), 256, 256, 3)
     return fakes
