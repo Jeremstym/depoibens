@@ -45,7 +45,7 @@ def preprocess_all_reals(path_to_reals: str) -> torch.Tensor:
     # Preprocess all real images
     reals = []
     os.chdir(path_to_reals)
-    with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
+    with tqdm(glob("images/*/*.jpg"), unit="spot") as pbar:
         for image_path in pbar:
             image = Image.open(image_path)
             image_batch = preprocess_image(image)
