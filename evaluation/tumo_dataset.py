@@ -60,7 +60,7 @@ class TumoDataset(data.Dataset):
         self.tumor = tumor_csv["tumor"].apply(lambda x: (x == "tumor") * 1)
 
         os.chdir(self.path)
-        with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
+        with tqdm(glob("images/*/*.jpg"), unit="spot") as pbar:
             for image in pbar:
                 img_path = image
                 pattern = 'B[A-Z][0-9]+_[A-Z0-9]+_[0-9]+x[0-9]+'
