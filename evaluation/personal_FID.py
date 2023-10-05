@@ -11,6 +11,8 @@ from PIL import Image
 import torch
 from torchvision import transforms
 import pickle
+from tqdm import tqdm
+from glob import glob 
 
 # Constants
 
@@ -42,9 +44,10 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
 def preprocess_all_reals(path_to_reals: str) -> torch.Tensor:
     # Preprocess all real images
     reals = []
-    for file in os.listdir(path_to_reals):
-        if file.endswith(".png"):
-            image = Image.open(os.path.join(path_to_reals, file))
+    os.chdir(path_to_reals)
+    with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
+        for image_path in pbar:
+            image = Image.open(image_path)
             image_batch = preprocess_image(image)
             reals.append(image_batch)
     reals = torch.stack(reals)
