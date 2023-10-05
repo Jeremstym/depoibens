@@ -50,7 +50,7 @@ def preprocess_all_reals(path_to_reals: str) -> torch.Tensor:
             image = Image.open(image_path)
             image_batch = preprocess_image(image)
             reals.append(image_batch)
-    reals = torch.stack(reals)
+    reals = torch.cat(reals)
     print(f"reals.shape: {reals.shape}")
     assert reals.shape == (len(reals), 256, 256, 3)
     return reals
@@ -63,19 +63,19 @@ def preprocess_all_fakes(path_to_fakes: str) -> torch.Tensor:
         fakes = pickle.load(f)
     fakes = list(fakes.values())
     fakes = [transforms.ToTensor()(fake) for fake in fakes]
-    fakes = torch.stack(fakes)
+    fakes = torch.cat(fakes)
     assert fakes.shape == (len(fakes), 256, 256, 3)
     return fakes
 
 
-def split_on_channels(stacked_images: torch.Tensor) -> torch.Tensor:
-    assert stacked_images.shape == (len(stacked_images), 256, 256, 3)
+def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
+    assert concatenate_image.shape == (len(concatenate_image), 256, 256, 3)
     # Split on channels
-    splited_images = stacked_images.split(1, dim=3)
+    splited_images = concatenate_image.split(1, dim=3)
     assert len(splited_images) == 3
     # Remove the channel dimension
     # splited_images = [image.squeeze(3) for image in splited_images]
-    # assert splited_images[0].shape == (len(stacked_images), 256, 256)
+    # assert splited_images[0].shape == (len(concatenate_image), 256, 256)
     return splited_images
 
 
