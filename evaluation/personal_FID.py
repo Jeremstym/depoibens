@@ -51,7 +51,8 @@ def preprocess_all_reals(path_to_reals: str) -> torch.Tensor:
             image_batch = preprocess_image(image)
             reals.append(image_batch)
     reals = torch.stack(reals)
-    assert reals.shape == (len(glob("*/*/*.jpg")), 256, 256, 3)
+    print(f"reals.shape: {reals.shape}")
+    assert reals.shape == (len(reals), 256, 256, 3)
     return reals
 
 
