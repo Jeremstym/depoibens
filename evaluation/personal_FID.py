@@ -62,10 +62,11 @@ def preprocess_all_fakes(path_to_fakes: str) -> torch.Tensor:
     with open(path_to_fakes, "rb") as f:
         fakes = pickle.load(f)
     fakes = list(fakes.values()) # list of tensors
-    fakes = torch.stack(fakes) # stack tensors to create batch
-    print(f"fakes.shape: {fakes.shape}")
-    assert fakes.shape == (len(fakes), 256, 256, 3)
-    return fakes
+    fakes_transposed = [fake.permute(1, 2, 0) for fake in fakes] # (C, H, W) -> (H, W, C)
+    fake_stacked = torch.stack(fakes_transposed) # stack tensors to create batch
+    print(f"fake_stacked.shape: {fake_stacked.shape}")
+    assert fake_stacked.shape == (len(fake_stacked), 256, 256, 3)
+    return fake_stacked
 
 
 def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
