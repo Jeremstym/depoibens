@@ -17,6 +17,7 @@ from torchvision import transforms
 import torch.utils.data as data
 import torchvision
 from torchvision.models.inception import Inception_V3_Weights
+import importlib
 
 import pickle as pkl
 import PIL
@@ -26,8 +27,10 @@ import re
 from tqdm import tqdm
 
 sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
-import dnnlib
-import legacy
+dnnlib = importlib.import_module("stylegan3-repo.dnnlib")
+legacy = importlib.import_module("stylegan3-repo.legacy")
+# import dnnlib
+# import legacy
 
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
