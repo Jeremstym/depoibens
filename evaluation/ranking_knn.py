@@ -84,7 +84,7 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
             image = image.unsqueeze(0).to(device)
             label = label.unsqueeze(0).to(device)
             with torch.no_grad():
-                dict[label.item()] = model(image, label).cpu().numpy()
+                dict[label.item()] = model(image).cpu().numpy()
 
     return dict
 
