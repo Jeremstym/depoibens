@@ -17,7 +17,7 @@ from torchvision import transforms
 import torch.utils.data as data
 import torchvision
 from torchvision.models.inception import Inception_V3_Weights
-import importlib
+from importlib.machinery import SourceFileLoader
 
 import pickle as pkl
 import PIL
@@ -27,8 +27,8 @@ import re
 from tqdm import tqdm
 
 sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
-dnnlib = importlib.import_module("stylegan3-repo.dnnlib")
-legacy = importlib.import_module("stylegan3-repo.legacy")
+dnnlib = SourceFileLoader("dnnlib", "../stylegan3-repo/dnnlib/__init__.py").load_module()
+legacy = SourceFileLoader("legacy.name", "../stylegan3-repo/legacy.py").load_module
 # import dnnlib
 # import legacy
 
