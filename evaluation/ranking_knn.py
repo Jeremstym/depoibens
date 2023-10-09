@@ -82,8 +82,7 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
     with tqdm(dataloader, unit="spot", total=len(dataloader)) as pbar:
         for image, label in pbar:
             image = transforms.ToTensor()(image[0].numpy()) # prevent unit8 type error
-            print(image.shape)
-            raise Exception
+            image = image.permute(1, 2, 0)
             image = image.unsqueeze(0).to(device)
             label = label.to(device)
             with torch.no_grad():
