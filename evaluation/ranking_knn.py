@@ -139,7 +139,6 @@ def rank_gene(
     gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
     gen_img = gen_img.cpu().numpy()
     gen_img = transforms.ToTensor()(gen_img[0])
-    gen_img = gen_img.permute(1, 2, 0)
     gen_img = gen_img.unsqueeze(0).to(device)
     embed_img = dino(gen_img)
 
