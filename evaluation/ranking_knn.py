@@ -91,7 +91,7 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
 
 @click.command()
 @click.option('--network', 'network_pkl', help='Network pickle filename', required=True)
-@click.option('--seeds', type=int, help='Random seed', default=42, show_default=True)
+@click.option('--seed', type=int, help='Random seed', default=42, show_default=True)
 @click.option('--trunc', 'truncation_psi', type=float, help='Truncation psi', default=1, show_default=True)
 @click.option('--class', 'class_idx', type=int, help='Class label', required=True)
 @click.option('--noise-mode', help='Noise mode', type=click.Choice(['const', 'random', 'none']), default='const', show_default=True)
