@@ -141,6 +141,7 @@ def rank_gene(
     gen_img = transforms.ToTensor()(gen_img[0])
     gen_img = gen_img.unsqueeze(0).to(device)
     embed_img = dino(gen_img)
+    embed_img = embed_img.detach()
 
     # Load dino dict
     with open(path_to_dinodict, "rb") as f:
