@@ -5,7 +5,6 @@
 
 import os
 import sys
-import importlib
 from importlib.machinery import SourceFileLoader
 
 import numpy as np
