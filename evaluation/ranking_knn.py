@@ -156,7 +156,7 @@ def rank_gene(
     idx = np.argsort(distances)[:100].tolist() # dino_dict is ranged in the same order as training_set
 
     try:
-        real_idx = idx.index(idx[class_idx])
+        real_idx = idx.index(class_idx)
         print(f"Position of the real image in the 100 nearest neighbors of generated image: {real_idx}")
     except IndexError:
         print("Real image not in the 100 nearest neighbors of generated image")
