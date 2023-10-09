@@ -75,7 +75,7 @@ def make_transform(translate: Tuple[float,float], angle: float):
 #----------------------------------------------------------------------------
 
 def create_labelized_embeddings(path: str, model=dino, device=device):
-    training_set = import_dataset(genes=True, data=path)
+    training_set = import_dataset(genes=True, data=path, gene_size=900)
     os.chdir(path)
     dict = {}
     with tqdm(training_set, unit="spot", total=len(training_set)) as pbar:
