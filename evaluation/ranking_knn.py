@@ -147,20 +147,19 @@ def rank_gene(
     with open(path_to_dinodict, "rb") as f:
         dino_dict = pickle.load(f)
 
-    # Get 100 nearest neighbors of generated image
-    print("Getting 100 nearest neighbors of generated image...")
+    # Get 10000 nearest neighbors of generated image
+    print("Getting 10000 nearest neighbors of generated image...")
     distances = []
     for key in dino_dict.keys():
         distances.append(np.linalg.norm(dino_dict[key] - embed_img.cpu().numpy()))
     distances = np.array(distances)
-    idx = np.argsort(distances)[:100].tolist() # dino_dict is ranged in the same order as training_set
+    idx = np.argsort(distances)[:10000].tolist() # dino_dict is ranged in the same order as training_set
 
     try:
-        print(idx)
         real_idx = idx.index(class_idx)
-        print(f"Position of the real image in the 100 nearest neighbors of generated image: {real_idx}")
+        print(f"Position of the real image in the 10000 nearest neighbors of generated image: {real_idx}")
     except ValueError:
-        print("Real image not in the 100 nearest neighbors of generated image")
+        print("Real image not in the 10000 nearest neighbors of generated image")
         return
 
     
