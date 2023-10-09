@@ -23,7 +23,7 @@ import pickle
 from typing import List, Optional, Tuple, Union
 
 sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
-generator = SourceFileLoader("gen_images", "../stylegan3-repo.gen_images").load_module()
+generator = SourceFileLoader("gen_images", "../stylegan3-repo.gen_images.py").load_module()
 dnnlib = SourceFileLoader("dnnlib", "../stylegan3-repo.dnnlib").load_module()
 legacy = SourceFileLoader("legacy", "../stylegan3-repo.legacy").load_module()
 train = SourceFileLoader("train", "../stylegan3-repo.train").load_module()
