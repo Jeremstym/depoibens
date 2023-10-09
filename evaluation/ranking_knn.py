@@ -9,8 +9,6 @@ from importlib.machinery import SourceFileLoader
 
 import numpy as np
 from PIL import Image
-import PIL
-import re
 from glob import glob
 
 import torch
@@ -34,7 +32,7 @@ init_dataset_kwargs = train.init_dataset_kwargs
 path_to_images = "/projects/minos/jeremie/data/styleImagesGen"
 path_to_reals = "/projects/minos/jeremie/data/"
 path_to_fakes = "/projects/minos/jeremie/data/generated_dict.pkl"
-path_to_embedded = "/projects/minos/jeremie/data/embedded_dict.pkl"
+path_to_dinodict = "/projects/minos/jeremie/data/label_dino.pkl"
 path_to_model = "/projects/minos/jeremie/data/styleGANresults/00078-stylegan2-styleImagesGen-gpus2-batch32-gamma0.2048/network-snapshot-021800.pkl"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -99,7 +97,6 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
 @click.option('--noise-mode', help='Noise mode', type=click.Choice(['const', 'random', 'none']), default='const', show_default=True)
 @click.option('--translate', help='Translate XY-coordinate (e.g. \'0.3,1\')', type=parse_vec2, default='0,0', show_default=True, metavar='VEC2')
 @click.option('--rotate', help='Rotation angle in degrees', type=float, default=0, show_default=True, metavar='ANGLE')
-@click.option('--data', help='Training data', metavar='[ZIP|DIR]', type=str)
 def rank_gene(
     network_pkl: str,
     seed: int,
@@ -108,7 +105,7 @@ def rank_gene(
     translate: Tuple[float,float],
     rotate: float,
     class_idx: int,
-    data: str
+    data = path_to_images
 ):
     
     print('Loading networks from "%s"...' % network_pkl)
@@ -141,6 +138,32 @@ def rank_gene(
     gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
     gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
     gen_img = gen_img.cpu().numpy()
+    gen_img = transforms.ToTensor()(gen_img[0])
+    gen_img = gen_img.permute(1, 2, 0)
+    gen_img = gen_img.unsqueeze(0).to(device)
+    embed_img = dino(gen_img)
+
+    # Load dino dict
+    with open(path_to_dinodict, "rb") as f:
+        dino_dict = pickle.load(f)
+
+    # Get 100 nearest neighbors of generated image
+    print("Getting 100 nearest neighbors of generated image...")
+    distances = []
+    for key in dino_dict.keys():
+        distances.append(np.linalg.norm(dino_dict[key] - embed_img.cpu().numpy()))
+    distances = np.array(distances)
+    idx = np.argsort(distances)[:100] # dino_dict is ranged in the same order as training_set
+
+    try:
+        real_idx = idx[class_idx]
+        print(f"Position of the real image in the 100 nearest neighbors of generated image: {real_idx}")
+    except IndexError:
+        print("Real image not in the 100 nearest neighbors of generated image")
+        return
+
+    
+
 
 
 def import_dataset(genes: bool, data:str, gene_size: int):
@@ -154,7 +177,12 @@ def import_dataset(genes: bool, data:str, gene_size: int):
 
 #----------------------------------------------------------------------------
 
+# if __name__ == "__main__":
+#     label_dino = create_labelized_embeddings(path=path_to_images)
+#     with open(path_to_reals + "/label_dino.pkl", "wb") as f:
+#         pickle.dump(label_dino, f)
+
 if __name__ == "__main__":
-    label_dino = create_labelized_embeddings(path=path_to_images)
-    with open(path_to_reals + "/label_dino.pkl", "wb") as f:
-        pickle.dump(label_dino, f)
+    rank_gene()
+
+#----------------------------------------------------------------------------
