@@ -24,7 +24,7 @@ from typing import List, Optional, Tuple, Union
 
 sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
 generator = SourceFileLoader("gen_images.name", "../stylegan3-repo/gen_images.py").load_module()
-dnnlib = SourceFileLoader("dnnlib.name", "../stylegan3-repo/dnnlib.py").load_module()
+dnnlib = SourceFileLoader("dnnlib", "../stylegan3-repo/dnnlib").load_module()
 legacy = SourceFileLoader("legacy.name", "../stylegan3-repo/legacy.py").load_module()
 train = SourceFileLoader("train.name", "../stylegan3-repo/train.py").load_module()
 
