@@ -77,8 +77,9 @@ def make_transform(translate: Tuple[float,float], angle: float):
 def create_labelized_embeddings(path: str, model=dino, device=device):
     training_set = import_dataset(genes=True, data=path, gene_size=900)
     os.chdir(path)
+    dataloader = torch.utils.data.DataLoader(training_set, batch_size=1, shuffle=False, num_workers=0)
     dict = {}
-    with tqdm(training_set, unit="spot", total=len(training_set)) as pbar:
+    with tqdm(dataloader, unit="spot", total=len(dataloader)) as pbar:
         for image, label in pbar:
             image = image.unsqueeze(0).to(device)
             label = label.unsqueeze(0).to(device)
