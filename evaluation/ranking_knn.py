@@ -157,5 +157,5 @@ def import_dataset(genes: bool, data:str, gene_size: int):
 
 if __name__ == "__main__":
     label_dino = create_labelized_embeddings(path=path_to_images)
-    with open(path_to_reals, "wb") as f:
+    with open(path_to_reals + "/label_dino.pkl", "wb") as f:
         pickle.dump(label_dino, f)
