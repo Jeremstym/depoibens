@@ -258,6 +258,7 @@ class Dataset_STnet(data.Dataset):
             tsv_concatened.columns[:nb_genes]
         ]
         self.embeddings_dict = embeddings_dict
+        # select most varied genes before sorting index for matching purposes 
         if selection_tensor:
             self.selection_list = (
                 selection_tensor[:, :embd_size].sort(descending=True).values.tolist()
@@ -290,7 +291,7 @@ class Phenotype(data.Dataset):
         self.dict = {}
         self.dict_path = {}
         os.chdir(self.path)
-        with tqdm(glob("*/*/*.jpg"), unit="spot") as pbar:
+        with tqdm(glob("[!images]*/*/*.jpg"), unit="spot") as pbar:
             for image in pbar:
                 img = Image.open(image)
                 img_name = image[19:-4]
