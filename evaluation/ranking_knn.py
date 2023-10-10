@@ -260,7 +260,7 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     print("Computing distance matrix...")
     embeddings = embeddings.astype(np.float32)
     distance = np.zeros((embeddings.shape[0], embeddings.shape[0]))
-    for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
+    for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0]), total=embeddings.shape[0] ** 2, unit="coeff"):
         if i <= j:
             diff = embeddings[i] - embeddings[j]
             distance[i, j] = np.linalg.norm(diff, ord=2)
