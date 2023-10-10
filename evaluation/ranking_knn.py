@@ -200,6 +200,9 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     Returns:
         A distance matrix of shape (N, N) where the element (i, j) is the distance between embeddings[i] and embeddings[j].
     '''
+    if embeddings.ndim > 2:
+        embeddings = embeddings.reshape(embeddings.shape[0], -1)    
+        
     return np.sqrt(((embeddings[:, None] - embeddings[None, :]) ** 2).sum(axis=-1))
 
 def distance_dino(path_to_dict: str) -> np.ndarray:
