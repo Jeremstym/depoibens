@@ -256,7 +256,7 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     """
     if embeddings.ndim > 2:
         embeddings = embeddings.reshape(embeddings.shape[0], -1)
-
+    print(f"embeddings.shape: {embeddings.shape}")
     print("Computing distance matrix...")
     embeddings = embeddings.astype(np.float32)
     for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
@@ -274,7 +274,6 @@ def distance_dino(path_to_dict: str) -> np.ndarray:
         dino_dict = pickle.load(f)
 
     embeddings = np.array(list(dino_dict.values()))
-    print(f"Shape of embeddings: {embeddings.shape}")
     print("Computing distance matrix...")
     distance_matrix = compute_distance_matrix(embeddings)
     return distance_matrix
