@@ -33,6 +33,7 @@ path_to_images = "/projects/minos/jeremie/data/styleImagesGen"
 path_to_reals = "/projects/minos/jeremie/data/"
 path_to_fakes = "/projects/minos/jeremie/data/generated_dict.pkl"
 path_to_dinodict = "/projects/minos/jeremie/data/label_dino.pkl"
+path_to_dinodict_fake = "/projects/minos/jeremie/data/label_dino_fake.pkl"
 path_to_model = "/projects/minos/jeremie/data/styleGANresults/00078-stylegan2-styleImagesGen-gpus2-batch32-gamma0.2048/network-snapshot-021800.pkl"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -188,6 +189,7 @@ def rank_gene(
         return
 
     
+#------------------------------------------------------------------------
 
 def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     '''Compute the distance matrix of a set of embeddings.
@@ -199,6 +201,18 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
         A distance matrix of shape (N, N) where the element (i, j) is the distance between embeddings[i] and embeddings[j].
     '''
     return np.sqrt(((embeddings[:, None] - embeddings[None, :]) ** 2).sum(axis=-1))
+
+def distance_dino(path_to_dict: str) -> np.ndarray:
+
+    print("Loading dino dict...")
+    with open(path_to_dict, "rb") as f:
+        dino_dict = pickle.load(f)
+
+    embeddings = np.array(list(dino_dict.values()))
+    distance_matrix = compute_distance_matrix(embeddings)
+    return distance_matrix
+
+#----------------------------------------------------------------------------
 
 def import_dataset(genes: bool, data:str, gene_size: int):
     # Training set.
@@ -216,10 +230,17 @@ def import_dataset(genes: bool, data:str, gene_size: int):
 #     with open(path_to_reals + "/label_dino.pkl", "wb") as f:
 #         pickle.dump(label_dino, f)
 
+# if __name__ == "__main__":
+#     label_dino = create_labelized_fake_embedding(path=path_to_images, network_pkl=path_to_model)
+#     with open(path_to_reals + "/label_dino_fake.pkl", "wb") as f:
+#         pickle.dump(label_dino, f)
+
 if __name__ == "__main__":
-    label_dino = create_labelized_fake_embedding(path=path_to_images, network_pkl=path_to_model)
-    with open(path_to_reals + "/label_dino_fake.pkl", "wb") as f:
-        pickle.dump(label_dino, f)
+    distance_matrix = distance_dino(path_to_dinodict)
+    distance_matrix_fake = distance_dino(path_to_dinodict_fake)
+    diff = distance_matrix - distance_matrix_fake
+    norm = np.linalg.norm(diff, ord=2, axis=0)
+    print(np.mean(norm))        
 
 # if __name__ == "__main__":
 #     rank_gene()
