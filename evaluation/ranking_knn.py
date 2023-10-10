@@ -202,9 +202,16 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     '''
     if embeddings.ndim > 2:
         embeddings = embeddings.reshape(embeddings.shape[0], -1)    
-        
-    return np.sqrt(((embeddings[:, None] - embeddings[None, :]) ** 2).sum(axis=-1))
 
+    print("Computing distance matrix...")
+    embeddings = embeddings.astype(np.float32)
+    for i,j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
+        if i <= j:
+            embeddings[i,j] = np.linalg.norm(embeddings[i] - embeddings[j])
+        else:
+            embeddings[i,j] = embeddings[j,i]
+    
+    return embeddings
 def distance_dino(path_to_dict: str) -> np.ndarray:
 
     print("Loading dino dict...")
