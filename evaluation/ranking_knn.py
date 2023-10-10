@@ -19,9 +19,13 @@ from tqdm import tqdm
 import pickle
 from typing import List, Optional, Tuple, Union
 
-sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
-generator = SourceFileLoader("gen_images.name", "../stylegan3-repo/gen_images.py").load_module()
-dnnlib = SourceFileLoader("dnnlib", "../stylegan3-repo/dnnlib/__init__.py").load_module()
+sys.path.append("/import/bc_users/biocomp/stym/depoibens/stylegan3-repo")
+generator = SourceFileLoader(
+    "gen_images.name", "../stylegan3-repo/gen_images.py"
+).load_module()
+dnnlib = SourceFileLoader(
+    "dnnlib", "../stylegan3-repo/dnnlib/__init__.py"
+).load_module()
 legacy = SourceFileLoader("legacy.name", "../stylegan3-repo/legacy.py").load_module()
 train = SourceFileLoader("train.name", "../stylegan3-repo/train.py").load_module()
 
@@ -42,26 +46,30 @@ dino.eval()
 dino.to(device)
 
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 
 def parse_vec2(s: Union[str, Tuple[float, float]]) -> Tuple[float, float]:
-    '''Parse a floating point 2-vector of syntax 'a,b'.
+    """Parse a floating point 2-vector of syntax 'a,b'.
 
     Example:
         '0,1' returns (0,1)
-    '''
-    if isinstance(s, tuple): return s
-    parts = s.split(',')
+    """
+    if isinstance(s, tuple):
+        return s
+    parts = s.split(",")
     if len(parts) == 2:
         return (float(parts[0]), float(parts[1]))
-    raise ValueError(f'cannot parse 2-vector {s}')
+    raise ValueError(f"cannot parse 2-vector {s}")
 
-#----------------------------------------------------------------------------
 
-def make_transform(translate: Tuple[float,float], angle: float):
+# ----------------------------------------------------------------------------
+
+
+def make_transform(translate: Tuple[float, float], angle: float):
     m = np.eye(3)
-    s = np.sin(angle/360.0*np.pi*2)
-    c = np.cos(angle/360.0*np.pi*2)
+    s = np.sin(angle / 360.0 * np.pi * 2)
+    c = np.cos(angle / 360.0 * np.pi * 2)
     m[0][0] = c
     m[0][1] = s
     m[0][2] = translate[0]
@@ -70,17 +78,21 @@ def make_transform(translate: Tuple[float,float], angle: float):
     m[1][2] = translate[1]
     return m
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+
 
 def create_labelized_embeddings(path: str, model=dino, device=device):
     training_set = import_dataset(genes=True, data=path, gene_size=900)
     os.chdir(path)
-    dataloader = torch.utils.data.DataLoader(training_set, batch_size=1, shuffle=False, num_workers=0)
+    dataloader = torch.utils.data.DataLoader(
+        training_set, batch_size=1, shuffle=False, num_workers=0
+    )
     dict_reals = {}
-    
+
     with tqdm(dataloader, unit="spot", total=len(dataloader)) as pbar:
         for image, label in pbar:
-            image = transforms.ToTensor()(image[0].numpy()) # prevent unit8 type error
+            image = transforms.ToTensor()(image[0].numpy())  # prevent unit8 type error
             image = image.permute(1, 2, 0)
             image = image.unsqueeze(0).to(device)
             label = label.to(device)
@@ -89,74 +101,111 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
 
     return dict_reals
 
-def create_labelized_fake_embedding(path: str, network_pkl: str, model=dino, device=device):
+
+def create_labelized_fake_embedding(
+    path: str, network_pkl: str, model=dino, device=device
+):
     training_set = import_dataset(genes=True, data=path, gene_size=900)
     os.chdir(path)
-    dataloader = torch.utils.data.DataLoader(training_set, batch_size=1, shuffle=False, num_workers=0)
+    dataloader = torch.utils.data.DataLoader(
+        training_set, batch_size=1, shuffle=False, num_workers=0
+    )
     dict_fakes = {}
 
     print('Loading networks from "%s"...' % network_pkl)
-    device = torch.device('cuda')
+    device = torch.device("cuda")
     with dnnlib.util.open_url(network_pkl) as f:
-        G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
+        G = legacy.load_network_pkl(f)["G_ema"].to(device)  # type: ignore
 
     with tqdm(dataloader, unit="spot", total=len(dataloader)) as pbar:
         for image, label in pbar:
-            image = transforms.ToTensor()(image[0].numpy()) # prevent unit8 type error
+            image = transforms.ToTensor()(image[0].numpy())  # prevent unit8 type error
             image = image.permute(1, 2, 0)
             image = image.unsqueeze(0).to(device)
             label = label.to(device)
             z = torch.from_numpy(np.random.RandomState(42).randn(1, G.z_dim)).to(device)
-            fake = G(z, label, truncation_psi=1, noise_mode='const')
+            fake = G(z, label, truncation_psi=1, noise_mode="const")
             with torch.no_grad():
                 dict_fakes[label] = model(fake).cpu().numpy()
 
-    return dict_fakes 
+    return dict_fakes
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+
 
 @click.command()
-@click.option('--network', 'network_pkl', help='Network pickle filename', required=True)
-@click.option('--seed', type=int, help='Random seed', default=42, show_default=True)
-@click.option('--trunc', 'truncation_psi', type=float, help='Truncation psi', default=1, show_default=True)
-@click.option('--class', 'class_idx', type=int, help='Class label', required=True)
-@click.option('--noise-mode', help='Noise mode', type=click.Choice(['const', 'random', 'none']), default='const', show_default=True)
-@click.option('--translate', help='Translate XY-coordinate (e.g. \'0.3,1\')', type=parse_vec2, default='0,0', show_default=True, metavar='VEC2')
-@click.option('--rotate', help='Rotation angle in degrees', type=float, default=0, show_default=True, metavar='ANGLE')
+@click.option("--network", "network_pkl", help="Network pickle filename", required=True)
+@click.option("--seed", type=int, help="Random seed", default=42, show_default=True)
+@click.option(
+    "--trunc",
+    "truncation_psi",
+    type=float,
+    help="Truncation psi",
+    default=1,
+    show_default=True,
+)
+@click.option("--class", "class_idx", type=int, help="Class label", required=True)
+@click.option(
+    "--noise-mode",
+    help="Noise mode",
+    type=click.Choice(["const", "random", "none"]),
+    default="const",
+    show_default=True,
+)
+@click.option(
+    "--translate",
+    help="Translate XY-coordinate (e.g. '0.3,1')",
+    type=parse_vec2,
+    default="0,0",
+    show_default=True,
+    metavar="VEC2",
+)
+@click.option(
+    "--rotate",
+    help="Rotation angle in degrees",
+    type=float,
+    default=0,
+    show_default=True,
+    metavar="ANGLE",
+)
 def rank_gene(
     network_pkl: str,
     seed: int,
     truncation_psi: float,
     noise_mode: str,
-    translate: Tuple[float,float],
+    translate: Tuple[float, float],
     rotate: float,
     class_idx: int,
-    data = path_to_images
+    data=path_to_images,
 ):
-    
     print('Loading networks from "%s"...' % network_pkl)
-    device = torch.device('cuda')
+    device = torch.device("cuda")
     with dnnlib.util.open_url(network_pkl) as f:
-        G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
+        G = legacy.load_network_pkl(f)["G_ema"].to(device)  # type: ignore
 
     # Labels.
     if class_idx is None:
-        raise click.UsageError('--class must be specified when running on unconditional networks')
+        raise click.UsageError(
+            "--class must be specified when running on unconditional networks"
+        )
     if G.c_dim == 0:
-        raise click.UsageError('--class cannot be specified when running on unconditional networks')
+        raise click.UsageError(
+            "--class cannot be specified when running on unconditional networks"
+        )
 
     training_set = import_dataset(genes=True, data=data, gene_size=G.c_dim)
-    label = training_set.get_label(class_idx) 
+    label = training_set.get_label(class_idx)
     label = torch.from_numpy(label).unsqueeze(0).to(device)
 
     # Generate images.
-    print('Generating image for seed %d ...' % (seed))
+    print("Generating image for seed %d ..." % (seed))
     z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
 
     # Construct an inverse rotation/translation matrix and pass to the generator.  The
     # generator expects this matrix as an inverse to avoid potentially failing numerical
     # operations in the network.
-    if hasattr(G.synthesis, 'input'):
+    if hasattr(G.synthesis, "input"):
         m = make_transform(translate, rotate)
         m = np.linalg.inv(m)
         G.synthesis.input.transform.copy_(torch.from_numpy(m))
@@ -179,41 +228,47 @@ def rank_gene(
     for key in dino_dict.keys():
         distances.append(np.linalg.norm(dino_dict[key] - embed_img.cpu().numpy()))
     distances = np.array(distances)
-    idx = np.argsort(distances)[:10000].tolist() # dino_dict is ranged in the same order as training_set
+    idx = np.argsort(distances)[
+        :10000
+    ].tolist()  # dino_dict is ranged in the same order as training_set
 
     try:
         real_idx = idx.index(class_idx)
-        print(f"Position of the real image in the 10000 nearest neighbors of generated image: {real_idx}")
+        print(
+            f"Position of the real image in the 10000 nearest neighbors of generated image: {real_idx}"
+        )
     except ValueError:
         print("Real image not in the 10000 nearest neighbors of generated image")
         return
 
-    
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
+
 
 def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
-    '''Compute the distance matrix of a set of embeddings.
+    """Compute the distance matrix of a set of embeddings.
 
     Args:
         embeddings: An array of shape (N, D) where N is the number of embeddings and D is the embedding dimension.
 
     Returns:
         A distance matrix of shape (N, N) where the element (i, j) is the distance between embeddings[i] and embeddings[j].
-    '''
+    """
     if embeddings.ndim > 2:
-        embeddings = embeddings.reshape(embeddings.shape[0], -1)    
+        embeddings = embeddings.reshape(embeddings.shape[0], -1)
 
     print("Computing distance matrix...")
     embeddings = embeddings.astype(np.float32)
-    for i,j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
+    for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
         if i <= j:
-            embeddings[i,j] = np.linalg.norm(embeddings[i] - embeddings[j])
+            embeddings[i, j] = np.linalg.norm(embeddings[i] - embeddings[j])
         else:
-            embeddings[i,j] = embeddings[j,i]
-    
-    return embeddings
-def distance_dino(path_to_dict: str) -> np.ndarray:
+            embeddings[i, j] = embeddings[j, i]
 
+    return embeddings
+
+
+def distance_dino(path_to_dict: str) -> np.ndarray:
     print("Loading dino dict...")
     with open(path_to_dict, "rb") as f:
         dino_dict = pickle.load(f)
@@ -224,18 +279,23 @@ def distance_dino(path_to_dict: str) -> np.ndarray:
     distance_matrix = compute_distance_matrix(embeddings)
     return distance_matrix
 
-#----------------------------------------------------------------------------
 
-def import_dataset(genes: bool, data:str, gene_size: int):
+# ----------------------------------------------------------------------------
+
+
+def import_dataset(genes: bool, data: str, gene_size: int):
     # Training set.
     training_set_kwargs, _dataset_name = init_dataset_kwargs(data=data, is_pickle=genes)
     training_set_kwargs.use_labels = True
     training_set_kwargs.xflip = False
     training_set_kwargs.gene_size = gene_size
-    training_set = dnnlib.util.construct_class_by_name(**training_set_kwargs) # subclass of training.dataset.Dataset
+    training_set = dnnlib.util.construct_class_by_name(
+        **training_set_kwargs
+    )  # subclass of training.dataset.Dataset
     return training_set
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 
 # if __name__ == "__main__":
 #     label_dino = create_labelized_embeddings(path=path_to_images)
@@ -252,9 +312,9 @@ if __name__ == "__main__":
     distance_matrix_fake = distance_dino(path_to_dinodict_fake)
     diff = distance_matrix - distance_matrix_fake
     norm = np.linalg.norm(diff, ord=2, axis=0)
-    print(np.mean(norm))        
+    print(np.mean(norm))
 
 # if __name__ == "__main__":
 #     rank_gene()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
