@@ -75,7 +75,8 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
     training_set = import_dataset(genes=True, data=path, gene_size=900)
     os.chdir(path)
     dataloader = torch.utils.data.DataLoader(training_set, batch_size=1, shuffle=False, num_workers=0)
-    dict = {}
+    dict_reals = {}
+    
     with tqdm(dataloader, unit="spot", total=len(dataloader)) as pbar:
         for image, label in pbar:
             image = transforms.ToTensor()(image[0].numpy()) # prevent unit8 type error
@@ -83,9 +84,33 @@ def create_labelized_embeddings(path: str, model=dino, device=device):
             image = image.unsqueeze(0).to(device)
             label = label.to(device)
             with torch.no_grad():
-                dict[label] = model(image).cpu().numpy()
+                dict_reals[label] = model(image).cpu().numpy()
 
-    return dict
+    return dict_reals
+
+def create_labelized_fake_embedding(path: str, network_pkl: str, model=dino, device=device):
+    training_set = import_dataset(genes=True, data=path, gene_size=900)
+    os.chdir(path)
+    dataloader = torch.utils.data.DataLoader(training_set, batch_size=1, shuffle=False, num_workers=0)
+    dict_fakes = {}
+
+    print('Loading networks from "%s"...' % network_pkl)
+    device = torch.device('cuda')
+    with dnnlib.util.open_url(network_pkl) as f:
+        G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
+
+    with tqdm(dataloader, unit="spot", total=len(dataloader)) as pbar:
+        for image, label in pbar:
+            image = transforms.ToTensor()(image[0].numpy()) # prevent unit8 type error
+            image = image.permute(1, 2, 0)
+            image = image.unsqueeze(0).to(device)
+            label = label.to(device)
+            z = torch.from_numpy(np.random.RandomState(42).randn(1, G.z_dim)).to(device)
+            fake = G(z, label, truncation_psi=1, noise_mode='const')
+            with torch.no_grad():
+                dict_fakes[label] = model(fake).cpu().numpy()
+
+    return dict_fakes 
 
 #----------------------------------------------------------------------------
 
@@ -164,7 +189,16 @@ def rank_gene(
 
     
 
+def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
+    '''Compute the distance matrix of a set of embeddings.
 
+    Args:
+        embeddings: An array of shape (N, D) where N is the number of embeddings and D is the embedding dimension.
+
+    Returns:
+        A distance matrix of shape (N, N) where the element (i, j) is the distance between embeddings[i] and embeddings[j].
+    '''
+    return np.sqrt(((embeddings[:, None] - embeddings[None, :]) ** 2).sum(axis=-1))
 
 def import_dataset(genes: bool, data:str, gene_size: int):
     # Training set.
@@ -183,6 +217,11 @@ def import_dataset(genes: bool, data:str, gene_size: int):
 #         pickle.dump(label_dino, f)
 
 if __name__ == "__main__":
-    rank_gene()
+    label_dino = create_labelized_fake_embedding(path=path_to_images, network_pkl=path_to_model)
+    with open(path_to_reals + "/label_dino_fake.pkl", "wb") as f:
+        pickle.dump(label_dino, f)
+
+# if __name__ == "__main__":
+#     rank_gene()
 
 #----------------------------------------------------------------------------
