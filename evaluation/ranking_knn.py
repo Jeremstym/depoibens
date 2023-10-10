@@ -256,7 +256,7 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     """
     if embeddings.ndim > 2:
         embeddings = embeddings.reshape(embeddings.shape[0], -1)
-    print(f"embeddings.shape: {embeddings.shape}")
+    print(f"embeddings[i].shape: {embeddings[0].shape}")
     print("Computing distance matrix...")
     embeddings = embeddings.astype(np.float32)
     for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
