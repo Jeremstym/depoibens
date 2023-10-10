@@ -262,6 +262,7 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
     for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
         if i <= j:
             diff = embeddings[i] - embeddings[j]
+            print(diff.shape)
             embeddings[i, j] = np.linalg.norm(diff, ord=2)
         else:
             embeddings[i, j] = embeddings[j, i]
