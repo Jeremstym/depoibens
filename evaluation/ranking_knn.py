@@ -259,15 +259,15 @@ def compute_distance_matrix(embeddings: np.ndarray) -> np.ndarray:
 
     print("Computing distance matrix...")
     embeddings = embeddings.astype(np.float32)
+    distance = np.zeros((embeddings.shape[0], embeddings.shape[0]))
     for i, j in tqdm(np.ndindex(embeddings.shape[0], embeddings.shape[0])):
         if i <= j:
             diff = embeddings[i] - embeddings[j]
-            print(diff.shape)
-            embeddings[i, j] = np.linalg.norm(diff, ord=2)
+            distance[i, j] = np.linalg.norm(diff, ord=2)
         else:
-            embeddings[i, j] = embeddings[j, i]
+            distance[i, j] = distance[j, i]
 
-    return embeddings
+    return distance
 
 
 def distance_dino(path_to_dict: str) -> np.ndarray:
