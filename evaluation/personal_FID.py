@@ -99,8 +99,7 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     # splited_images = [image.squeeze(3) for image in splited_images]
     # assert splited_images[0].shape == (len(concatenate_image), 256, 256)
     # Create artificial 3 channels
-    images = splited_images.repeat(1, 3, 1, 1)
-    return images
+    return splited_images
 
 def embed_images(images: torch.Tensor) -> torch.Tensor:
     # Embed images
@@ -119,13 +118,13 @@ def main():
     ch1_reals, ch2_reals, ch3_reals = split_on_channels(reals)
     ch1_fakes, ch2_fakes, ch3_fakes = split_on_channels(fakes)
     print("Embedding reals...")
-    ch1_reals = embed_images(ch1_reals)
-    ch2_reals = embed_images(ch2_reals)
-    ch3_reals = embed_images(ch3_reals)
+    ch1_reals = embed_images(ch1_reals.repeat(1,3,1,1))
+    ch2_reals = embed_images(ch2_reals.repeat(1,3,1,1))
+    ch3_reals = embed_images(ch3_reals.repeat(1,3,1,1))
     print("Embedding fakes...")
-    ch1_fakes = embed_images(ch1_fakes)
-    ch2_fakes = embed_images(ch2_fakes)
-    ch3_fakes = embed_images(ch3_fakes)
+    ch1_fakes = embed_images(ch1_fakes.repeat(1,3,1,1))
+    ch2_fakes = embed_images(ch2_fakes.repeat(1,3,1,1))
+    ch3_fakes = embed_images(ch3_fakes.repeat(1,3,1,1))
     print("Computing main FID...")
     main_results = FID()(reals, fakes)
     print("Computing channel 1 FID...")
