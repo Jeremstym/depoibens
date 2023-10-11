@@ -101,12 +101,21 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     # Create artificial 3 channels
     return splited_images
 
-def embed_images(images: torch.Tensor) -> torch.Tensor:
+def embed_images(imageset: torch.Tensor) -> torch.Tensor:
     # Embed images
+    print("Embedding images...")
     with torch.no_grad():
-        images_embedded = inception(images)
-    assert images_embedded.shape == (len(images), 2048)
-    return images_embedded
+        embeddings = []
+        with tqdm(imageset, unit="spot") as pbar:
+            for image in pbar:
+                image = image.to(device)
+                embedding = inception(image)
+                embeddings.append(embedding)
+    embeddings = torch.cat(embeddings)
+    print(f"embeddings.shape: {embeddings.shape}")
+    assert embeddings.shape == (len(imageset), 2048)
+    return embeddings
+    
 
 
 def main():
