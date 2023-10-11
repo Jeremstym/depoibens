@@ -56,9 +56,9 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
         ]
     )
     image_processed = preprocess(image)
-    image_transposed = image_processed.permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
-    image_batch = image_transposed.unsqueeze(0)
-    assert image_batch.shape == (1, 256, 256, 3)
+    # image_transposed = image_processed.permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
+    image_batch = image_processed.unsqueeze(0)
+    assert image_batch.shape == (1, 3, 256, 256)
     return image_batch
 
 
@@ -73,7 +73,7 @@ def preprocess_all_reals(path_to_reals: str) -> torch.Tensor:
             reals.append(image_batch)
     reals = torch.cat(reals)
     print(f"reals.shape: {reals.shape}")
-    assert reals.shape == (len(reals), 256, 256, 3)
+    assert reals.shape == (len(reals), 3, 256, 256)
     return reals
 
 
@@ -83,15 +83,15 @@ def preprocess_all_fakes(path_to_fakes: str) -> torch.Tensor:
     with open(path_to_fakes, "rb") as f:
         fakes = pickle.load(f)
     fakes = list(fakes.values()) # list of tensors
-    fakes_transposed = [fake.permute(1, 2, 0) for fake in fakes] # (C, H, W) -> (H, W, C)
-    fake_stacked = torch.stack(fakes_transposed) # stack tensors to create batch
+    # fakes_transposed = [fake.permute(1, 2, 0) for fake in fakes] # (C, H, W) -> (H, W, C)
+    fake_stacked = torch.stack(fakes) # stack tensors to create batch
     print(f"fake_stacked.shape: {fake_stacked.shape}")
-    assert fake_stacked.shape == (len(fake_stacked), 256, 256, 3)
+    assert fake_stacked.shape == (len(fake_stacked), 3, 256, 256)
     return fake_stacked
 
 
 def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
-    assert concatenate_image.shape == (len(concatenate_image), 256, 256, 3)
+    assert concatenate_image.shape == (len(concatenate_image), 3, 256, 256)
     # Split on channels
     splited_images = concatenate_image.split(1, dim=3)
     assert len(splited_images) == 3
