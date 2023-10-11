@@ -9,7 +9,11 @@ import os
 import numpy as np
 from PIL import Image
 import torch
+import torch.nn as nn
 from torchvision import transforms
+from piq import FID
+from torchvision import models
+
 import pickle
 from tqdm import tqdm
 from glob import glob 
@@ -18,6 +22,23 @@ from glob import glob
 
 path_to_reals = "/projects/minos/jeremie/data/"
 path_to_fakes = "/projects/minos/jeremie/data/generated_dict.pkl"
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Prepare model
+class Identity(nn.Module):
+    def __init__(self):
+        super(Identity, self).__init__()
+
+    def forward(self, x):
+        return x
+
+inception = models.inception_v3(pretrained=True)
+inception.Conv2d_1a_3x3.conv=nn.Conv2d(1, 32, kernel_size=(3, 3), stride=(2, 2), bias=False) # change input channels to 1
+
+inception.fc = Identity() # remove fully connected layer, output size = 2048
+inception.eval()
+inception.to(device)
 
 
 def preprocess_image(image: Image.Image) -> torch.Tensor:
@@ -79,21 +100,38 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     # assert splited_images[0].shape == (len(concatenate_image), 256, 256)
     return splited_images
 
+def embed_images(images: torch.Tensor) -> torch.Tensor:
+    # Embed images
+    with torch.no_grad():
+        images_embedded = inception(images)
+    assert images_embedded.shape == (len(images), 2048)
+    return images_embedded
+
 
 def main():
-    topk = ConditionalEvaluation(distributed_method="fid")
+    # topk = ConditionalEvaluation(distributed_method="fid")
     reals = preprocess_all_reals(path_to_reals)
     fakes = preprocess_all_fakes(path_to_fakes)
     print("Computing FID...")
-    main_results = topk(reals, fakes, aggregated=False)
+    # main_results = topk(reals, fakes, aggregated=False)
     ch1_reals, ch2_reals, ch3_reals = split_on_channels(reals)
     ch1_fakes, ch2_fakes, ch3_fakes = split_on_channels(fakes)
+    print("Embedding reals...")
+    ch1_reals = embed_images(ch1_reals)
+    ch2_reals = embed_images(ch2_reals)
+    ch3_reals = embed_images(ch3_reals)
+    print("Embedding fakes...")
+    ch1_fakes = embed_images(ch1_fakes)
+    ch2_fakes = embed_images(ch2_fakes)
+    ch3_fakes = embed_images(ch3_fakes)
+    print("Computing main FID...")
+    main_results = FID()(reals, fakes)
     print("Computing channel 1 FID...")
-    ch1_results = topk(ch1_reals, ch1_fakes, aggregated=False)
+    ch1_results = FID()(ch1_reals, ch1_fakes)
     print("Computing channel 2 FID...")
-    ch2_results = topk(ch2_reals, ch2_fakes, aggregated=False)
+    ch2_results = FID()(ch2_reals, ch2_fakes)
     print("Computing channel 3 FID...")
-    ch3_results = topk(ch3_reals, ch3_fakes, aggregated=False)
+    ch3_results = FID()(ch3_reals, ch3_fakes)
     mean_results = torch.mean([ch1_results, ch2_results, ch3_results], dim=0)
     print("Main results:", main_results)
     print("Channel 1 results:", ch1_results)
@@ -101,9 +139,22 @@ def main():
     print("Channel 3 results:", ch3_results)
     print("Mean results:", mean_results)
     return main_results, ch1_results, ch2_results, ch3_results, mean_results
+    # print("Computing channel 1 FID...")
+    # ch1_results = topk(ch1_reals, ch1_fakes, aggregated=False)
+    # print("Computing channel 2 FID...")
+    # ch2_results = topk(ch2_reals, ch2_fakes, aggregated=False)
+    # print("Computing channel 3 FID...")
+    # ch3_results = topk(ch3_reals, ch3_fakes, aggregated=False)
+    # mean_results = torch.mean([ch1_results, ch2_results, ch3_results], dim=0)
+    # print("Main results:", main_results)
+    # print("Channel 1 results:", ch1_results)
+    # print("Channel 2 results:", ch2_results)
+    # print("Channel 3 results:", ch3_results)
+    # print("Mean results:", mean_results)
+    # return main_results, ch1_results, ch2_results, ch3_results, mean_results
 
 
 if __name__ == "__main__":
     main_results, ch1_results, ch2_results, ch3_results, mean_results = main()
-    # with open("results.pkl", "wb") as f:
-    #     pickle.dump([main_results, ch1_results, ch2_results, ch3_results], f)
+    with open("results_FID.pkl", "wb") as f:
+        pickle.dump([main_results, ch1_results, ch2_results, ch3_results], f)
