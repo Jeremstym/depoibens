@@ -315,6 +315,9 @@ if __name__ == "__main__":
     diff = distance_matrix - distance_matrix_fake
     norm = np.linalg.norm(diff, ord=2, axis=0)
     print(np.mean(norm))
+    dict_res = {"res": np.mean(norm)}
+    with open(path_to_reals + "/distance_dino.pkl", "wb") as f:
+        pickle.dump(dict_res, f)
 
 # if __name__ == "__main__":
 #     rank_gene()
