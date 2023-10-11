@@ -167,5 +167,7 @@ def main():
 
 if __name__ == "__main__":
     main_results, ch1_results, ch2_results, ch3_results, mean_results = main()
+    res_dict = {"main": main_results, "ch1": ch1_results, "ch2": ch2_results, "ch3": ch3_results, "mean": mean_results}
     with open("results_FID.pkl", "wb") as f:
-        pickle.dump([main_results, ch1_results, ch2_results, ch3_results], f)
+        # pickle.dump([main_results, ch1_results, ch2_results, ch3_results], f)
+        pickle.dump(res_dict, f)
