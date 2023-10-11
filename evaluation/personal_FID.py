@@ -93,7 +93,7 @@ def preprocess_all_fakes(path_to_fakes: str) -> torch.Tensor:
 def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     assert concatenate_image.shape == (len(concatenate_image), 3, 256, 256)
     # Split on channels
-    splited_images = concatenate_image.split(1, dim=3)
+    splited_images = concatenate_image.split(1, dim=1)
     assert len(splited_images) == 3
     # Remove the channel dimension
     # splited_images = [image.squeeze(3) for image in splited_images]
