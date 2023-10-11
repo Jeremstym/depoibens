@@ -109,6 +109,7 @@ def embed_images(imageset: torch.Tensor) -> torch.Tensor:
         with tqdm(imageset, unit="spot") as pbar:
             for image in pbar:
                 image = image.to(device)
+                image = image.unsqueeze(0)
                 embedding = inception(image)
                 embeddings.append(embedding)
     embeddings = torch.cat(embeddings)
