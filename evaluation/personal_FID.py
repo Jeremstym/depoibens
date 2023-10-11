@@ -10,9 +10,10 @@ import numpy as np
 from PIL import Image
 import torch
 import torch.nn as nn
+import torchvision
 from torchvision import transforms
+from torchvision.models.inception import Inception_V3_Weights
 from piq import FID
-from torchvision import models
 
 import pickle
 from tqdm import tqdm
@@ -33,9 +34,8 @@ class Identity(nn.Module):
     def forward(self, x):
         return x
 
-inception = models.inception_v3(pretrained=True)
-inception.Conv2d_1a_3x3.conv=nn.Conv2d(1, 32, kernel_size=(3, 3), stride=(2, 2), bias=False) # change input channels to 1
-
+inception = torchvision.models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
+# inception.Conv2d_1a_3x3.conv=nn.Conv2d(1, 32, kernel_size=(3, 3), stride=(2, 2), bias=False) # change input channels to 1
 inception.fc = Identity() # remove fully connected layer, output size = 2048
 inception.eval()
 inception.to(device)
@@ -98,7 +98,9 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     # Remove the channel dimension
     # splited_images = [image.squeeze(3) for image in splited_images]
     # assert splited_images[0].shape == (len(concatenate_image), 256, 256)
-    return splited_images
+    # Create artificial 3 channels
+    images = splited_images.repeat(1, 3, 1, 1)
+    return images
 
 def embed_images(images: torch.Tensor) -> torch.Tensor:
     # Embed images
