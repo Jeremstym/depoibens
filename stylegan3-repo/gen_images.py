@@ -21,7 +21,7 @@ import torch
 import legacy
 
 from train import init_dataset_kwargs
-from data.dataset_stnet import create_dataloader
+from ..data.dataset_stnet import create_dataloader
 
 
 # Constants
