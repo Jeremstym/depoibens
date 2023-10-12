@@ -176,13 +176,16 @@ def load_and_evaluate_model(seed: int = 42):
         return sampler, score / count, ami / count
 
 
-def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
+def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRandomSampler=None, seed: int = 42):
 
     # import dataloader
     dataloader = create_generated_dataloader(sampler=sampler)
+    _real_dataloader, real_valid_loader, _ = create_dataloader(
+        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
+    )
     # Create the model
     model = TumoClassifier().to(device)
-    model.load_state_dict(torch.load(path_to_classifier))
+    model.load_state_dict(torch.load(f"model_tumo_seed{seed}.ckpt"))
 
     # Evaluate the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
@@ -190,27 +193,30 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
         print("Evaluating model...")
         count = 0
         score = 0
+        score_real = 0
         ami = 0
-        with tqdm(dataloader, unit="batch") as pbar:
-            for images, labels in pbar:
+        with tqdm(zip(dataloader, real_valid_loader), unit="batch") as pbar:
+            for (images, labels) , (real_images, _) in pbar:
                 images = images.to(device)
                 labels = labels.to(device)
                 labels = labels.float().unsqueeze(1)
                 outputs = model(images.float())
                 outputsF1 = (outputs > 0.5).float()
                 metric = BinaryF1Score().to(device)
+                metric_real = BinaryF1Score().to(device)
                 score += metric(outputsF1.T, labels.T).item()
-                outputs1D = (outputs > 0.5).float().squeeze(1).cpu()
-                labels1D = labels.squeeze(1).cpu()
-                ami += adjusted_mutual_info_score(outputs1D, labels1D)
+                real_images = real_images.to(device)
+                outputs_real = model(real_images.float())
+                outputsF1_real = (outputs_real > 0.5).float()
+                score_real += metric_real(outputsF1.T, outputsF1_real.T).item()
                 count += 1
                 pbar.set_postfix(f1_score=score/count)
         print(
             "F1 score of the model on the test images: {} %".format(
                 100 * score / count
             ),
-            "AMI of the model on the test images: {} %".format(
-                100 * ami / count
+            "F1 score to real on the test images: {} %".format(
+                100 * score_real / count
             )
         )
 
@@ -221,8 +227,8 @@ if __name__ == "__main__":
     for seed in [1, 10, 20, 30, 42]:
         # test_sampler = main(seed=seed)
         sampler, valid_score, valid_ami = load_and_evaluate_model(seed=seed)
-        test_score, test_ami = load_and_evaluate_generated_model(sampler=sampler)
-        score_dict[seed] = {"valid_score": valid_score, "test_score": test_score, "valid_ami": valid_ami, "test_ami": test_ami}
+        test_score, f1_to_real = load_and_evaluate_generated_model(sampler=sampler, seed=seed)
+        score_dict[seed] = {"valid_score": valid_score, "test_score": test_score, "valid_ami": valid_ami, "f1_to_real": f1_to_real}
         with open("score_dict.pkl", "wb") as f:
             pickle.dump(score_dict, f)
 
@@ -230,5 +236,5 @@ if __name__ == "__main__":
         print("valid_score_std", np.std([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
         print("test_score_mean", np.mean([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
         print("test_score_std", np.std([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
-        print("valid_ami_mean", np.mean([score_dict[seed]["valid_ami"] for seed in score_dict.keys()]))
-        print("valid_ami_std", np.std([score_dict[seed]["valid_ami"] for seed in score_dict.keys()]))
+        print("f1_to_real_mean", np.mean([score_dict[seed]["f1_to_real"] for seed in score_dict.keys()]))
+        print("f1_to_real_std", np.std([score_dict[seed]["f1_to_real"] for seed in score_dict.keys()]))
