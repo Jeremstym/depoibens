@@ -19,6 +19,7 @@ import json
 ### ---------- Pathes and constants -------------
 
 path_to_image = "/projects/minos/jeremie/data/images"
+path_to_image_patient_out = "/projects/minos/jeremie/data/images_patient_out"
 path_to_complete = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 
@@ -85,5 +86,5 @@ def export_pickle(dict_label: dict, path: str) -> None:
 
 if __name__ == "__main__":
     df_complete = pd.read_csv(path_to_complete, index_col=0)
-    dict_label = create_dict_label(path_to_image, df_complete)
-    export_json(dict_label, path_to_image)
+    dict_label = create_dict_label(path_to_image_patient_out, df_complete)
+    export_json(dict_label, path_to_image_patient_out)
