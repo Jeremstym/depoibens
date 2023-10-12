@@ -76,7 +76,7 @@ def main(seed: int = 42):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # import dataloader
-    train_loader, valid_loader, test_sampler = create_dataloader(
+    train_loader, valid_loader, sampler = create_dataloader(
         tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
     )
 
@@ -133,14 +133,15 @@ def main(seed: int = 42):
     # Save the model checkpoint
     print("Saving model...")
     torch.save(model.state_dict(), f"model_tumo_seed{seed}.ckpt")
-    return test_sampler # For the generated dataset
+    return sampler # For the generated dataset
 
 def load_and_evaluate_model(seed: int = 42):
 
     # import dataloader
-    _train_loader, valid_loader, _test_sampler = create_dataloader(
+    _train_loader, valid_loader, sampler = create_dataloader(
         tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
     )
+    # Valid loader is sampled with sampler parameter so we can use it to evaluate the model
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load(f"model_tumo_seed{seed}.ckpt"))
@@ -160,8 +161,10 @@ def load_and_evaluate_model(seed: int = 42):
             metric = BinaryF1Score().to(device)
             score += metric(outputs.T, labels.T).item()
             outputs1D = outputs.squeeze(1).cpu().to(torch.int64)
+            print(outputs1D.shape)
+            raise Exception
             labels1D = labels.squeeze(1).cpu().to(torch.int64)
-            ami += adjusted_mutual_info_score(outputs1D.T, labels1D.T)
+            ami += adjusted_mutual_info_score(outputs1D, labels1D)
             count += 1
         print(
             "F1 score of the model on the test images: {} %".format(
@@ -171,13 +174,13 @@ def load_and_evaluate_model(seed: int = 42):
                 100 * ami / count
             )
         )
-        return score / count, ami / count
+        return sampler, score / count, ami / count
 
 
-def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
+def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
 
     # import dataloader
-    dataloader = create_generated_dataloader(sampler=test_sampler)
+    dataloader = create_generated_dataloader(sampler=sampler)
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load(path_to_classifier))
@@ -199,7 +202,7 @@ def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.Sub
                 score += metric(outputs.T, labels.T).item()
                 outputs1D = outputs.squeeze(1).cpu().to(torch.int64)
                 labels1D = labels.squeeze(1).cpu().to(torch.int64)
-                ami += adjusted_mutual_info_score(outputs1D.T, labels1D.T)
+                ami += adjusted_mutual_info_score(outputs1D, labels1D)
                 count += 1
                 pbar.set_postfix(f1_score=score/count)
         print(
@@ -216,9 +219,9 @@ def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.Sub
 if __name__ == "__main__":
     score_dict = {}
     for seed in [1, 10, 20, 30, 42]:
-        test_sampler = main(seed=seed)
-        valid_score, valid_ami = load_and_evaluate_model(seed=seed)
-        test_score, test_ami = load_and_evaluate_generated_model(test_sampler=test_sampler)
+        # test_sampler = main(seed=seed)
+        sampler, valid_score, valid_ami = load_and_evaluate_model(seed=seed)
+        test_score, test_ami = load_and_evaluate_generated_model(sampler=sampler)
         score_dict[seed] = {"valid_score": valid_score, "test_score": test_score, "valid_ami": valid_ami, "test_ami": test_ami}
         with open("score_dict.pkl", "wb") as f:
             pickle.dump(score_dict, f)
