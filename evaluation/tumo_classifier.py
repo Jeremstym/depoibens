@@ -159,8 +159,8 @@ def load_and_evaluate_model(seed: int = 42):
             outputs = model(images.float())
             metric = BinaryF1Score().to(device)
             score += metric(outputs.T, labels.T).item()
-            outputs1D = outputs.squeeze(1).cpu().numpy()
-            labels1D = labels.squeeze(1).cpu().numpy()
+            outputs1D = outputs.squeeze(1).cpu().to(torch.int64)
+            labels1D = labels.squeeze(1).cpu().to(torch.int64)
             ami += adjusted_mutual_info_score(outputs1D, labels1D)
             count += 1
         print(
@@ -197,8 +197,8 @@ def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.Sub
                 outputs = model(images.float())
                 metric = BinaryF1Score().to(device)
                 score += metric(outputs.T, labels.T).item()
-                outputs1D = outputs.squeeze(1).cpu().numpy()
-                labels1D = labels.squeeze(1).cpu().numpy()
+                outputs1D = outputs.squeeze(1).cpu().to(torch.int64)
+                labels1D = labels.squeeze(1).cpu().to(torch.int64)
                 ami += adjusted_mutual_info_score(outputs1D, labels1D)
                 count += 1
                 pbar.set_postfix(f1_score=score/count)
