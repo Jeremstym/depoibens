@@ -125,10 +125,10 @@ def embed_images(imageset: torch.Tensor) -> torch.Tensor:
 def main():
     # topk = ConditionalEvaluation(distributed_method="fid")
     reals = preprocess_all_reals(path_to_reals)
-    print(reals.shape)
+    real_embed = embed_images(reals)
     fakes = preprocess_all_fakes(path_to_fakes)
+    fake_embed = embed_images(fakes)
     print("Computing FID...")
-    # main_results = topk(reals, fakes, aggregated=False)
     ch1_reals, ch2_reals, ch3_reals = split_on_channels(reals)
     ch1_fakes, ch2_fakes, ch3_fakes = split_on_channels(fakes)
     print("Embedding reals...")
@@ -140,7 +140,7 @@ def main():
     ch2_fakes = embed_images(ch2_fakes.repeat(1,3,1,1))
     ch3_fakes = embed_images(ch3_fakes.repeat(1,3,1,1))
     print("Computing main FID...")
-    main_results = FID()(reals, fakes)
+    main_results = FID()(real_embed, fake_embed)
     print("Computing channel 1 FID...")
     ch1_results = FID()(ch1_reals, ch1_fakes)
     print("Computing channel 2 FID...")
@@ -154,19 +154,6 @@ def main():
     print("Channel 3 results:", ch3_results)
     print("Mean results:", mean_results)
     return main_results, ch1_results, ch2_results, ch3_results, mean_results
-    # print("Computing channel 1 FID...")
-    # ch1_results = topk(ch1_reals, ch1_fakes, aggregated=False)
-    # print("Computing channel 2 FID...")
-    # ch2_results = topk(ch2_reals, ch2_fakes, aggregated=False)
-    # print("Computing channel 3 FID...")
-    # ch3_results = topk(ch3_reals, ch3_fakes, aggregated=False)
-    # mean_results = torch.mean([ch1_results, ch2_results, ch3_results], dim=0)
-    # print("Main results:", main_results)
-    # print("Channel 1 results:", ch1_results)
-    # print("Channel 2 results:", ch2_results)
-    # print("Channel 3 results:", ch3_results)
-    # print("Mean results:", mean_results)
-    # return main_results, ch1_results, ch2_results, ch3_results, mean_results
 
 
 if __name__ == "__main__":
