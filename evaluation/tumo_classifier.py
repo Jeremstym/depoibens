@@ -195,7 +195,7 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
         score = 0
         score_real = 0
         ami = 0
-        with tqdm(zip(dataloader, real_valid_loader), unit="batch") as pbar:
+        with tqdm(zip(dataloader, real_valid_loader), unit="batch", total=len(dataloader)) as pbar:
             for (images, labels) , (real_images, _) in pbar:
                 images = images.to(device)
                 labels = labels.to(device)
@@ -220,7 +220,7 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
             )
         )
 
-        return score / count, ami / count
+        return score / count, score_real / count
 
 if __name__ == "__main__":
     score_dict = {}
