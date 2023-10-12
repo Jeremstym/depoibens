@@ -111,6 +111,7 @@ def split_image_on_channel_and_export(image: torch.Tensor, path: str) -> None:
         image = image.squeeze(1)
         image = image.permute(1, 2, 0) # (C, H, W) -> (H, W, C)
         image = image.cpu().numpy()
+        image = (image * 255).astype(np.uint8)
         image = Image.fromarray(image)
         image.save(os.path.join(path, f"channel_{i}.jpg"))
 
