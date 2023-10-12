@@ -147,7 +147,11 @@ def main():
     ch2_results = FID()(ch2_reals, ch2_fakes)
     print("Computing channel 3 FID...")
     ch3_results = FID()(ch3_reals, ch3_fakes)
-    mean_results = torch.mean([ch1_results, ch2_results, ch3_results], dim=0)
+    try:
+        mean_results = np.mean([ch1_results, ch2_results, ch3_results])
+    except:
+        print("Error while computing mean results")
+        mean_results = None
     print("Main results:", main_results)
     print("Channel 1 results:", ch1_results)
     print("Channel 2 results:", ch2_results)
