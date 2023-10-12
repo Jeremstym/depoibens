@@ -95,7 +95,7 @@ def preprocess_all_fakes(path_to_fakes: str) -> torch.Tensor:
 
 
 def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
-    assert concatenate_image.shape == (len(concatenate_image), 3, 256, 256)
+    assert concatenate_image.shape == (len(concatenate_image), 3, 256, 256), f"concatenate_image.shape: {concatenate_image.shape}"
     # Split on channels
     splited_images = concatenate_image.split(1, dim=1)
     assert len(splited_images) == 3
@@ -106,7 +106,7 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     return splited_images
 
 def split_image_on_channel_and_export(image: torch.Tensor, path: str) -> None:
-    splited_images = split_on_channels(image)
+    splited_images = split_on_channels(image[None, ...])
     for i, image in enumerate(splited_images):
         image = image.squeeze(1)
         image = image.permute(1, 2, 0) # (C, H, W) -> (H, W, C)
