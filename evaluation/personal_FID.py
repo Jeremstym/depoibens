@@ -105,6 +105,15 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
     # Create artificial 3 channels
     return splited_images
 
+def split_image_on_channel_and_export(image: torch.Tensor, path: str) -> None:
+    splited_images = split_on_channels(image)
+    for i, image in enumerate(splited_images):
+        image = image.squeeze(1)
+        image = image.permute(1, 2, 0) # (C, H, W) -> (H, W, C)
+        image = image.cpu().numpy()
+        image = Image.fromarray(image)
+        image.save(os.path.join(path, f"channel_{i}.jpg"))
+
 def embed_images(imageset: torch.Tensor) -> torch.Tensor:
     # Embed images
     with torch.no_grad():
@@ -125,6 +134,9 @@ def embed_images(imageset: torch.Tensor) -> torch.Tensor:
 def main():
     # topk = ConditionalEvaluation(distributed_method="fid")
     reals = preprocess_all_reals(path_to_reals)
+    # Visualize one real image
+    split_image_on_channel_and_export(reals[0], path_to_reals)
+
     real_embed = embed_images(reals)
     fakes = preprocess_all_fakes(path_to_fakes)
     fake_embed = embed_images(fakes)
