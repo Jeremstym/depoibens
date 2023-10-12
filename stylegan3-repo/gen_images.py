@@ -22,8 +22,8 @@ from importlib.machinery import SourceFileLoader
 import legacy
 
 from train import init_dataset_kwargs
-data = SourceFileLoader("data.name", "../data/__init__.py").load_module()
-create_dataloader = data.create_dataloader
+dataset_stnet = SourceFileLoader("dataset_stnet.name", "../data/dataset_stnet.py").load_module()
+create_dataloader = dataset_stnet.create_dataloader
 
 
 # Constants
