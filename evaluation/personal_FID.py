@@ -24,7 +24,11 @@ from glob import glob
 path_to_reals = "/projects/minos/jeremie/data/"
 path_to_fakes = "/projects/minos/jeremie/data/generated_dict.pkl"
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+try:
+    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    print("Using device:", device)
+except:
+    device =torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Prepare model
 class Identity(nn.Module):
