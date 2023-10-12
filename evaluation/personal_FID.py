@@ -107,7 +107,6 @@ def split_on_channels(concatenate_image: torch.Tensor) -> torch.Tensor:
 
 def embed_images(imageset: torch.Tensor) -> torch.Tensor:
     # Embed images
-    print("Embedding images...")
     with torch.no_grad():
         embeddings = []
         with tqdm(imageset, unit="spot") as pbar:
