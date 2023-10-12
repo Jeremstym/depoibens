@@ -132,6 +132,8 @@ def main():
     ch1_fakes, ch2_fakes, ch3_fakes = split_on_channels(fakes)
     print("Embedding reals...")
     ch1_reals = embed_images(ch1_reals.repeat(1,3,1,1))
+    print(ch1_reals.shape)
+    raise Exception
     ch2_reals = embed_images(ch2_reals.repeat(1,3,1,1))
     ch3_reals = embed_images(ch3_reals.repeat(1,3,1,1))
     print("Embedding fakes...")
