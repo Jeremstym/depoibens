@@ -158,13 +158,12 @@ def load_and_evaluate_model(seed: int = 42):
             labels = labels.to(device)
             labels = labels.float().unsqueeze(1)
             outputs = model(images.float())
-            print(outputs, labels)
             metric = BinaryF1Score().to(device)
             score += metric(outputs.T, labels.T).item()
-            outputs1D = outputs.squeeze(1).cpu().to(torch.int64)
-            print(outputs1D)
-            labels1D = labels.squeeze(1).cpu().to(torch.int64)
-            print(labels1D)
+            outputs1D = (outputs > 0.5).float().squeeze(1)
+            labels1D = labels.squeeze(1)
+            raise Exception
+            print(outputs1D, labels1D)
             ami += adjusted_mutual_info_score(outputs1D, labels1D)
             count += 1
         print(
@@ -199,11 +198,10 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
                 labels = labels.to(device)
                 labels = labels.float().unsqueeze(1)
                 outputs = model(images.float())
-                print(outputs, labels)
                 metric = BinaryF1Score().to(device)
                 score += metric(outputs.T, labels.T).item()
-                outputs1D = outputs.squeeze(1).cpu().to(torch.int64)
-                labels1D = labels.squeeze(1).cpu().to(torch.int64)
+                outputs1D = (outputs > 0.5).float().squeeze(1)
+                labels1D = labels.squeeze(1)
                 ami += adjusted_mutual_info_score(outputs1D, labels1D)
                 count += 1
                 pbar.set_postfix(f1_score=score/count)
