@@ -91,7 +91,7 @@ def make_transform(translate: Tuple[float,float], angle: float):
 @click.option('--outdir', help='Where to save the output images', type=str, required=True, metavar='DIR')
 @click.option('--genes', help='Gene expression use', metavar='BOOL', type=bool, default=False, show_default=True)
 @click.option('--data', help='Training data', metavar='[ZIP|DIR]', type=str)
-@click.option('--testing', help='Testing data', metavar='BOOL', type=float, default=False, show_default=True)
+@click.option('--testing', help='Testing data', metavar='BOOL', type=bool, default=False, show_default=True)
 def generate_images(
     network_pkl: str,
     seeds: List[int],
