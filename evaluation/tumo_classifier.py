@@ -10,6 +10,7 @@ import sys
 import torch
 import torch.nn as nn
 from torchmetrics.classification import BinaryF1Score
+from sklearn.metrics import adjusted_mutual_info_score
 
 import numpy as np
 from tqdm import tqdm
@@ -150,6 +151,7 @@ def load_and_evaluate_model(seed: int = 42):
         print("Evaluating model...")
         count = 0
         score = 0
+        ami = 0
         for images, labels in valid_loader:
             images = images.to(device)
             labels = labels.to(device)
@@ -157,13 +159,17 @@ def load_and_evaluate_model(seed: int = 42):
             outputs = model(images.float())
             metric = BinaryF1Score().to(device)
             score += metric(outputs.T, labels.T).item()
+            ami += adjusted_mutual_info_score(outputs.T, labels.T)
             count += 1
         print(
             "F1 score of the model on the test images: {} %".format(
                 100 * score / count
+            ),
+            "AMI of the model on the test images: {} %".format(
+                100 * ami / count
             )
         )
-        return score / count
+        return score / count, ami / count
 
 
 def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.SubsetRandomSampler=None):
@@ -180,6 +186,7 @@ def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.Sub
         print("Evaluating model...")
         count = 0
         score = 0
+        ami = 0
         with tqdm(dataloader, unit="batch") as pbar:
             for images, labels in pbar:
                 images = images.to(device)
@@ -188,27 +195,33 @@ def load_and_evaluate_generated_model(test_sampler: torch.utils.data.sampler.Sub
                 outputs = model(images.float())
                 metric = BinaryF1Score().to(device)
                 score += metric(outputs.T, labels.T).item()
+                ami += adjusted_mutual_info_score(outputs.T, labels.T)
                 count += 1
                 pbar.set_postfix(f1_score=score/count)
         print(
             "F1 score of the model on the test images: {} %".format(
                 100 * score / count
+            ),
+            "AMI of the model on the test images: {} %".format(
+                100 * ami / count
             )
         )
 
-        return score / count
+        return score / count, ami / count
 
 if __name__ == "__main__":
     score_dict = {}
     for seed in [1, 10, 20, 30, 42]:
         test_sampler = main(seed=seed)
-        valid_score = load_and_evaluate_model(seed=seed)
-        test_score = load_and_evaluate_generated_model(test_sampler=test_sampler)
-        score_dict[seed] = {"valid_score": valid_score, "test_score": test_score}
+        valid_score, valid_ami = load_and_evaluate_model(seed=seed)
+        test_score, test_ami = load_and_evaluate_generated_model(test_sampler=test_sampler)
+        score_dict[seed] = {"valid_score": valid_score, "test_score": test_score, "valid_ami": valid_ami, "test_ami": test_ami}
         with open("score_dict.pkl", "wb") as f:
             pickle.dump(score_dict, f)
 
-        print("valid_score", np.mean([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
-        print("Std_valid_score", np.std([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
-        print("test_score", np.mean([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
-        print("Std_test_score", np.std([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
+        print("valid_score_mean", np.mean([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
+        print("valid_score_std", np.std([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
+        print("test_score_mean", np.mean([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
+        print("test_score_std", np.std([score_dict[seed]["test_score"] for seed in score_dict.keys()]))
+        print("valid_ami_mean", np.mean([score_dict[seed]["valid_ami"] for seed in score_dict.keys()]))
+        print("valid_ami_std", np.std([score_dict[seed]["valid_ami"] for seed in score_dict.keys()]))
