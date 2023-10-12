@@ -22,6 +22,12 @@ import legacy
 
 from train import init_dataset_kwargs
 
+# Constants
+
+test_patient = ["BT24233_D2", "BT24233_E1", "BT24233_E2"]
+tsv_path = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
+selection_tensor_path = "/projects/minos/jeremie/data/features_std.pkl"
+
 #----------------------------------------------------------------------------
 
 def parse_range(s: Union[str, List]) -> List[int]:
@@ -81,6 +87,7 @@ def make_transform(translate: Tuple[float,float], angle: float):
 @click.option('--outdir', help='Where to save the output images', type=str, required=True, metavar='DIR')
 @click.option('--genes', help='Gene expression use', metavar='BOOL', type=bool, default=False, show_default=True)
 @click.option('--data', help='Training data', metavar='[ZIP|DIR]', type=str)
+@click.option('--testing', help='Testing data', metavar='BOOL', type=float, default=False, show_default=True)
 def generate_images(
     network_pkl: str,
     seeds: List[int],
@@ -91,7 +98,8 @@ def generate_images(
     rotate: float,
     class_idx: Optional[List[int]],
     genes: bool,
-    data: str
+    data: str,
+    testing: bool
 ):
     """Generate images using pretrained network pickle.
 
