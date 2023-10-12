@@ -17,11 +17,13 @@ import dnnlib
 import numpy as np
 import PIL.Image
 import torch
+from importlib.machinery import SourceFileLoader
 
 import legacy
 
 from train import init_dataset_kwargs
-from ..data.dataset_stnet import create_dataloader
+data = SourceFileLoader("data.name", "../data/__init__.py").load_module()
+create_dataloader = data.create_dataloader
 
 
 # Constants
