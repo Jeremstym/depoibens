@@ -254,11 +254,11 @@ class Dataset_STnet(data.Dataset):
         embd_size=2048,
     ) -> None:
         super().__init__()
+        # tsv is already sorted by std
         self.genotypes = tsv_concatened.drop("tissue", axis=1)[
             tsv_concatened.columns[:nb_genes]
         ]
         self.embeddings_dict = embeddings_dict
-        # select most varied genes before sorting index for matching purposes 
         if selection_tensor:
             self.selection_list = (
                 selection_tensor[:, :embd_size].sort(descending=True).values.tolist()
