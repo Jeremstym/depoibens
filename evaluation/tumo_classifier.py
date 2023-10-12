@@ -163,7 +163,6 @@ def load_and_evaluate_model(seed: int = 42):
             score += metric(outputsF1.T, labels.T).item()
             outputs1D = (outputs > 0.5).float().squeeze(1).cpu()
             labels1D = labels.squeeze(1).cpu()
-            print(outputs1D, labels1D)
             ami += adjusted_mutual_info_score(outputs1D, labels1D)
             count += 1
         print(
