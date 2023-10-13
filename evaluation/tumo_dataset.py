@@ -48,6 +48,8 @@ path_to_generated_image = "/projects/minos/jeremie/data/generated_dict.pkl"
 path_to_generated_image_test = "/projects/minos/jeremie/data/generated_dict_test.pkl"
 
 test_patient = ["BT24223_D2", "BT24223_E1", "BT24223_E2"]
+
+test_patient = ["BT24223_D2", "BT24223_E1", "BT24223_E2"]
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -56,6 +58,7 @@ class TumoDataset(data.Dataset):
         self,
         tumor_path: str,
         path_to_image: str,
+        testing: bool = False,
     ) -> None:
         self.path = path_to_image
         self.dict = {}
@@ -68,6 +71,12 @@ class TumoDataset(data.Dataset):
         os.chdir(self.path)
         with tqdm(glob("images/*/*.jpg"), unit="spot") as pbar:
             for image in pbar:
+                if testing:
+                    if not any([image.startswith(patient) for patient in test_patient]):
+                        continue
+                else:
+                    if any([image.startswith(patient) for patient in test_patient]):
+                        continue
                 img_path = image
                 pattern = 'B[A-Z][0-9]+_[A-Z0-9]+_[0-9]+x[0-9]+'
                 img_match = re.search(pattern, image)
@@ -132,8 +141,9 @@ def create_dataloader(
     num_workers: int = NUM_WORKERS,
     shuffle: bool = True,
     seed: int = 42,
+    testing: bool = False,
 ):
-    dataset = TumoDataset(tumor_path, path_to_image)
+    dataset = TumoDataset(tumor_path, path_to_image, testing=testing)
     # Creating data indices for training and validation splits:
     dataset_size = len(dataset)
     indices = list(range(dataset_size))
@@ -161,7 +171,7 @@ def create_generated_dataloader(
     path_to_generated_image: str = path_to_generated_image,
     batch_size: int = BATCH_SIZE,
     num_workers: int = NUM_WORKERS,
-    sampler: data.Sampler = None,
+    sampler: data.Sampler = None
 ):
     if sampler is None:
         print("No sampler provided, using default sampler")
@@ -237,8 +247,8 @@ def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes
 #     with open("generated_dict.pkl", "wb") as f:
 #         pkl.dump(generated_dict, f)
 
-if __name__ == "__main__":
-    generated_dict_test = create_generated_images_dataset(path_to_tsv, path_to_generator_test, testing=True)
-    os.chdir("/projects/minos/jeremie/data")
-    with open("generated_dict_test.pkl", "wb") as f:
-        pkl.dump(generated_dict_test, f)
+# if __name__ == "__main__":
+#     generated_dict_test = create_generated_images_dataset(path_to_tsv, path_to_generator_test, testing=True)
+#     os.chdir("/projects/minos/jeremie/data")
+#     with open("generated_dict_test.pkl", "wb") as f:
+#         pkl.dump(generated_dict_test, f)

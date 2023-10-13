@@ -24,7 +24,8 @@ from tumo_dataset import create_dataloader, create_generated_dataloader
 tumor_path = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 path_to_image = "/projects/minos/jeremie/data"
 path_to_classifier = "/projects/minos/jeremie/data/model_tumo.ckpt"
-
+path_to_generated_image = "/projects/minos/jeremie/data/generated_dict.pkl"
+path_to_generated_image_test = "/projects/minos/jeremie/data/generated_dict_test.pkl"
 
 # create a binary CNN classifier
 class TumoClassifier(nn.Module):
@@ -135,11 +136,11 @@ def main(seed: int = 42):
     torch.save(model.state_dict(), f"model_tumo_seed{seed}.ckpt")
     return sampler # For the generated dataset
 
-def load_and_evaluate_model(seed: int = 42):
+def load_and_evaluate_model(seed: int = 42, testing: bool = False):
 
     # import dataloader
     _train_loader, valid_loader, sampler = create_dataloader(
-        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
+        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed, testing=testing
     )
     # Valid loader is sampled with sampler parameter so we can use it to evaluate the model
     # Create the model
@@ -176,12 +177,16 @@ def load_and_evaluate_model(seed: int = 42):
         return sampler, score / count, ami / count
 
 
-def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRandomSampler=None, seed: int = 42):
+def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRandomSampler=None, seed: int = 42, testing: bool = False):
 
     # import dataloader
-    dataloader = create_generated_dataloader(sampler=sampler)
+    if testing:
+        path_to_dict_image = path_to_generated_image_test
+    else:
+        path_to_dict_image = path_to_generated_image
+    dataloader = create_generated_dataloader(sampler=sampler, path_to_generated_image=path_to_dict_image)
     _real_dataloader, real_valid_loader, _ = create_dataloader(
-        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
+        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed, testing=testing
     )
     # Create the model
     model = TumoClassifier().to(device)
@@ -225,11 +230,11 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
 if __name__ == "__main__":
     score_dict = {}
     for seed in [1, 10, 20, 30, 42]:
-        # test_sampler = main(seed=seed)
-        sampler, valid_score, valid_ami = load_and_evaluate_model(seed=seed)
-        test_score, f1_to_real = load_and_evaluate_generated_model(sampler=sampler, seed=seed)
+        test_sampler = main(seed=seed)
+        sampler, valid_score, valid_ami = load_and_evaluate_model(seed=seed, testing=True)
+        test_score, f1_to_real = load_and_evaluate_generated_model(sampler=sampler, seed=seed, testing=True)
         score_dict[seed] = {"valid_score": valid_score, "test_score": test_score, "valid_ami": valid_ami, "f1_to_real": f1_to_real}
-        with open("score_dict.pkl", "wb") as f:
+        with open("score_dict_2.pkl", "wb") as f:
             pickle.dump(score_dict, f)
 
         print("valid_score_mean", np.mean([score_dict[seed]["valid_score"] for seed in score_dict.keys()]))
