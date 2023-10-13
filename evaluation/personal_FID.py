@@ -23,6 +23,7 @@ from glob import glob
 
 path_to_reals = "/projects/minos/jeremie/data/"
 path_to_fakes = "/projects/minos/jeremie/data/generated_dict.pkl"
+path_to_fakes_test = "/projects/minos/jeremie/data/generated_dict_test.pkl"
 
 try:
     device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
@@ -140,7 +141,7 @@ def main():
     split_image_on_channel_and_export(reals[0], path_to_reals)
 
     real_embed = embed_images(reals)
-    fakes = preprocess_all_fakes(path_to_fakes)
+    fakes = preprocess_all_fakes(path_to_fakes_test)
     fake_embed = embed_images(fakes)
     print("Computing FID...")
     ch1_reals, ch2_reals, ch3_reals = split_on_channels(reals)
