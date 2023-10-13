@@ -125,6 +125,7 @@ def generate_images(
         G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
         print("Loading discriminator...")
         D = legacy.load_network_pkl(f)['D'].to(device) # type: ignore
+        print("Discriminator loaded")
 
     os.makedirs(outdir, exist_ok=True)
 
