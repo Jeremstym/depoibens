@@ -28,7 +28,7 @@ from tqdm import tqdm
 
 sys.path.append('/import/bc_users/biocomp/stym/depoibens/stylegan3-repo')
 dnnlib = SourceFileLoader("dnnlib", "../stylegan3-repo/dnnlib/__init__.py").load_module()
-legacy = SourceFileLoader("legacy.name", "../stylegan3-repo/legacy.py").load_module
+legacy = SourceFileLoader("legacy.name", "../stylegan3-repo/legacy.py").load_module()
 # import dnnlib
 # import legacy
 
