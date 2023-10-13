@@ -177,7 +177,7 @@ def generate_images(
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                 logits, regressor = D(gen_img, label)
                 mse = torch.nn.functional.mse_loss(label, regressor, reduction='mean')
-                print(f"clf: {torch.nn.functional.softmax(logits, dim=1).item()}, regressor: {mse.item()}")
+                print(f"clf: {torch.nn.functional.sigmoid(logits, dim=1).item()}, regressor: {mse.item()}")
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
