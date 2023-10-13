@@ -175,7 +175,7 @@ def generate_images(
                     G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                logits, regressor = D(gen_img, label, return_features=True)
+                logits, regressor = D(gen_img, label)
                 print(f"clf:{torch.nn.functional.softmax(logits, dim=1)}, regressor{regressor}")
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
