@@ -182,9 +182,10 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
     # import dataloader
     if testing:
         path_to_dict_image = path_to_generated_image_test
+        dataloader = create_generated_dataloader(sampler=None, path_to_generated_image=path_to_dict_image)
     else:
         path_to_dict_image = path_to_generated_image
-    dataloader = create_generated_dataloader(sampler=sampler, path_to_generated_image=path_to_dict_image)
+        dataloader = create_generated_dataloader(sampler=sampler, path_to_generated_image=path_to_dict_image)
     if testing:
         real_valid_loader = create_dataloader(
             tumor_path=tumor_path, path_to_image=path_to_image, seed=seed, testing=testing
@@ -193,7 +194,7 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
         _, real_valid_loader, _ = create_dataloader(
             tumor_path=tumor_path, path_to_image=path_to_classifier, seed=seed
         )
-        
+
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load(f"model_tumo_seed{seed}.ckpt"))
@@ -237,7 +238,7 @@ if __name__ == "__main__":
     score_dict = {}
     for seed in [1, 10, 20, 30, 42]:
         test_sampler = main(seed=seed)
-        sampler, valid_score, valid_ami = load_and_evaluate_model(seed=seed, testing=True)
+        sampler, valid_score, valid_ami = load_and_evaluate_model(seed=seed, testing=False)
         test_score, f1_to_real = load_and_evaluate_generated_model(sampler=sampler, seed=seed, testing=True)
         score_dict[seed] = {"valid_score": valid_score, "test_score": test_score, "valid_ami": valid_ami, "f1_to_real": f1_to_real}
         with open("score_dict_2.pkl", "wb") as f:
