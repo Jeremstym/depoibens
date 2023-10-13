@@ -49,7 +49,6 @@ path_to_generated_image_test = "/projects/minos/jeremie/data/generated_dict_test
 
 test_patient = ["BT24223_D2", "BT24223_E1", "BT24223_E2"]
 
-test_patient = ["BT24223_D2", "BT24223_E1", "BT24223_E2"]
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -71,12 +70,6 @@ class TumoDataset(data.Dataset):
         os.chdir(self.path)
         with tqdm(glob("images/*/*.jpg"), unit="spot") as pbar:
             for image in pbar:
-                if testing:
-                    if not any([image.startswith(patient) for patient in test_patient]):
-                        continue
-                else:
-                    if any([image.startswith(patient) for patient in test_patient]):
-                        continue
                 img_path = image
                 pattern = 'B[A-Z][0-9]+_[A-Z0-9]+_[0-9]+x[0-9]+'
                 img_match = re.search(pattern, image)
@@ -84,6 +77,12 @@ class TumoDataset(data.Dataset):
                     img_name = img_match.group(0)
                 else:
                     raise ValueError(f"Image name {image} does not match pattern {pattern}")
+                if testing:
+                    if not any([img_name.startswith(patient) for patient in test_patient]):
+                        continue
+                else:
+                    if any([img_name.startswith(patient) for patient in test_patient]):
+                        continue
                 # img_name = image[18:-4]
                 # img_preprocessed = self.preprocess(img)
                 self.dict[img_name] = img_path
