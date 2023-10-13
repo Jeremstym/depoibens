@@ -154,16 +154,22 @@ def create_dataloader(
     train_indices, valid_indices = indices[split:], indices[:split]
 
     # Creating PT data samplers and loaders:
-    train_sampler = data.SubsetRandomSampler(train_indices)
-    valid_sampler = data.SubsetRandomSampler(valid_indices)
-
-    train_loader = data.DataLoader(
-        dataset, batch_size=batch_size, sampler=train_sampler, num_workers=num_workers
-    )
-    valid_loader = data.DataLoader(
-        dataset, batch_size=batch_size, sampler=valid_sampler, num_workers=num_workers
-    )
-    return train_loader, valid_loader, valid_sampler
+    if not testing:
+        train_sampler = data.SubsetRandomSampler(train_indices)
+        valid_sampler = data.SubsetRandomSampler(valid_indices)
+        train_loader = data.DataLoader(
+            dataset, batch_size=batch_size, sampler=train_sampler, num_workers=num_workers
+        )
+        valid_loader = data.DataLoader(
+            dataset, batch_size=batch_size, sampler=valid_sampler, num_workers=num_workers
+        )
+        return train_loader, valid_loader, valid_sampler
+    else:
+        test_loader = data.DataLoader(
+            dataset, batch_size=batch_size, num_workers=num_workers
+        )
+        return test_loader
+        
 
 def create_generated_dataloader(
     tumor_path: str = tumor_path,

@@ -185,9 +185,15 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
     else:
         path_to_dict_image = path_to_generated_image
     dataloader = create_generated_dataloader(sampler=sampler, path_to_generated_image=path_to_dict_image)
-    _real_dataloader, real_valid_loader, _ = create_dataloader(
-        tumor_path=tumor_path, path_to_image=path_to_image, seed=seed, testing=testing
-    )
+    if testing:
+        real_valid_loader = create_dataloader(
+            tumor_path=tumor_path, path_to_image=path_to_image, seed=seed, testing=testing
+        )
+    else:
+        _, real_valid_loader, _ = create_dataloader(
+            tumor_path=tumor_path, path_to_image=path_to_classifier, seed=seed
+        )
+        
     # Create the model
     model = TumoClassifier().to(device)
     model.load_state_dict(torch.load(f"model_tumo_seed{seed}.ckpt"))
