@@ -47,7 +47,7 @@ path_to_generator_test = "/projects/minos/jeremie/data/styleGANresults/00083-sty
 path_to_generated_image = "/projects/minos/jeremie/data/generated_dict.pkl"
 path_to_generated_image_test = "/projects/minos/jeremie/data/generated_dict_test.pkl"
 
-test_patient = ["BT24233_D2", "BT24233_E1", "BT24233_E2"]
+test_patient = ["BT24223_D2", "BT24223_E1", "BT24223_E2"]
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
