@@ -217,7 +217,6 @@ def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes
             if testing:
                 if not any([index.startswith(patient) for patient in test_patient]):
                     continue
-            print(index)
             gene = tsv.loc[index].values
             with torch.no_grad():
                 gene = torch.from_numpy(gene).unsqueeze(0).to(device)
