@@ -212,13 +212,12 @@ def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes
     dataset_dict = {}
     generator = load_generator(network_pkl)
     tsv = load_tsv(path_to_tsv)
-    print(tsv.index)
-    raise Exception
     with tqdm(tsv.index, unit="spot") as pbar:
         for index in pbar:
             if testing:
                 if not any([index.startswith(patient) for patient in test_patient]):
                     continue
+            print(index)
             gene = tsv.loc[index].values
             with torch.no_grad():
                 gene = torch.from_numpy(gene).unsqueeze(0).to(device)
