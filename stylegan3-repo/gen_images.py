@@ -123,6 +123,7 @@ def generate_images(
     device = torch.device('cuda')
     with dnnlib.util.open_url(network_pkl) as f:
         G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
+        D = legacy.load_network_pkl(f)['D'].to(device) # type: ignore
 
     os.makedirs(outdir, exist_ok=True)
 
@@ -171,6 +172,8 @@ def generate_images(
                     G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+                logits, regressor = D(gen_img, label, return_features=True)
+                print(f"clf:{torch.nn.functional.softmax(logits, dim=1)}, regressor{regressor}")
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
