@@ -239,5 +239,6 @@ def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes
 
 if __name__ == "__main__":
     generated_dict_test = create_generated_images_dataset(path_to_tsv, path_to_generator_test, testing=True)
+    os.chdir("/projects/minos/jeremie/data")
     with open("generated_dict_test.pkl", "wb") as f:
         pkl.dump(generated_dict_test, f)
