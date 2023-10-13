@@ -43,8 +43,11 @@ tumor_path = "/projects/minos/jeremie/data/complete_concatenate_df.csv"
 path_to_image = "/projects/minos/jeremie/data"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_generator = "/projects/minos/jeremie/data/styleGANresults/00078-stylegan2-styleImagesGen-gpus2-batch32-gamma0.2048/network-snapshot-021800.pkl"
+path_to_generator_test = "/projects/minos/jeremie/data/styleGANresults/00083-stylegan2-styleImagesGen_test-gpus2-batch32-gamma0.2048/network-snapshot-005800.pkl"
 path_to_generated_image = "/projects/minos/jeremie/data/generated_dict.pkl"
+path_to_generated_image_test = "/projects/minos/jeremie/data/generated_dict_test.pkl"
 
+test_patient = ["BT24233_D2", "BT24233_E1", "BT24233_E2"]
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -173,7 +176,7 @@ def create_generated_dataloader(
 
     return dataloader
 
-def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_genes: int = 900):
+def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes: int = 900, testing: bool = False):
 
     def load_generator(network_pkl: str):
         print('Loading networks from "%s"...' % network_pkl)
@@ -191,7 +194,7 @@ def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_gen
         return tsv
 
     def preprocess(image: PIL.Image.Image):
-        os.chdir(path_to_image)
+        # os.chdir(path_to_image)
         size = 256
         preprocess = transforms.Compose(
             [
@@ -211,6 +214,9 @@ def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_gen
     tsv = load_tsv(path_to_tsv)
     with tqdm(tsv.index, unit="spot") as pbar:
         for index in pbar:
+            if testing:
+                if not any([index.startswith(patient) for patient in test_patient]):
+                    continue
             gene = tsv.loc[index].values
             with torch.no_grad():
                 gene = torch.from_numpy(gene).unsqueeze(0).to(device)
@@ -227,6 +233,11 @@ def create_generated_images_dataset(path_to_image: str, network_pkl: str, nb_gen
 
 # ------------------- #
 # if __name__ == "__main__":
-#     generated_dict = create_generated_images_dataset(path_to_image, path_to_generator)
+#     generated_dict = create_generated_images_dataset(path_to_tsv, path_to_generator)
 #     with open("generated_dict.pkl", "wb") as f:
 #         pkl.dump(generated_dict, f)
+
+if __name__ == "__main__":
+    generated_dict_test = create_generated_images_dataset(path_to_tsv, path_to_generator_test, testing=True)
+    with open("generated_dict_test.pkl", "wb") as f:
+        pkl.dump(generated_dict_test, f)
