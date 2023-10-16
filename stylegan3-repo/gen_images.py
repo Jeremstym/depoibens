@@ -138,7 +138,7 @@ def generate_images(
         if class_idx is None:
             raise click.ClickException('Must specify class label with --class when using a conditional network')
         elif genes is True:
-            suffix = '_patientout' if testing else ''
+            suffix = '_patientout' if testing else '_test' # test is the same as train without patient test
             training_set = import_dataset(genes=genes, data=data+suffix, gene_size=G.c_dim)
             list_of_images = []
             for idx in class_idx:
@@ -161,13 +161,19 @@ def generate_images(
         print(f"Number of images per label: {len(seeds)}")
         canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
         list_of_PIL_images = [] 
-        dict_results = {"probs": [], "correlation": []}           
+        dict_results = {"probs": []}           
         for real_image, label in list_of_images:            
             real_img = real_image.transpose(1, 2, 0)
             list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
             # Generate images.
-            list_pearson = []
             list_probs = []
+            if testing:
+                list_pearson_fake_test = []
+                list_pearson_real_test = []
+            else:
+                list_pearson_fake = []
+                list_pearson_real = []
+
             for seed_idx, seed in enumerate(seeds):
                 # print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
                 z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
@@ -181,41 +187,89 @@ def generate_images(
                     G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                logits, regressor = D(gen_img, label)
+                logits, regressor_fake = D(gen_img, label)
+                _, regressor_real = D(real_image.unsqueeze(0).to(device), label)
                 pearson = PearsonCorrCoef(num_outputs=1).to(device)
-                correlation = pearson(regressor.squeeze(0), label.squeeze(0))
                 list_probs.append(torch.nn.functional.sigmoid(logits).item())
-                list_pearson.append(correlation)
+                if testing:
+                    correlation_fake_test = pearson(regressor_fake.squeeze(0), label.squeeze(0))
+                    correlation_real_test = pearson(regressor_real.squeeze(0), label.squeeze(0))
+                    list_pearson_fake_test.append(correlation_fake_test)
+                    list_pearson_real_test.append(correlation_real_test)
+                else:
+                    correlation_fake = pearson(regressor_fake.squeeze(0), label.squeeze(0))
+                    correlation_real = pearson(regressor_real.squeeze(0), label.squeeze(0))
+                    list_pearson_fake.append(correlation_fake)
+                    list_pearson_real.append(correlation_real)
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
             
             dict_results["probs"].append(np.mean(list_probs))
-            dict_results["correlation"].append(torch.stack(list_pearson).mean())
-            print(f"Mean probs: {np.mean(list_probs)}")
-            print(f"Mean correlation: {torch.stack(list_pearson).mean()}")
+            if testing:
+                if "correlation_fake_test" not in dict_results.keys():
+                    dict_results['correlation_fake_test'] = []
+                if "correlation_real_test" not in dict_results.keys():
+                    dict_results['correlation_real_test'] = []
+                dict_results["correlation_fake_test"].append(torch.stack(list_pearson_fake_test).mean())
+                dict_results["correlation_real_test"].append(torch.stack(list_pearson_real_test).mean())
+            else:
+                if "correlation_fake" not in dict_results.keys():
+                    dict_results['correlation'] = []
+                if "correlation_real" not in dict_results.keys():
+                    dict_results['correlation_real'] = []
+                dict_results["correlation_fake"].append(torch.stack(list_pearson_fake).mean())
+                dict_results["correlation_real"].append(torch.stack(list_pearson_real).mean())
 
-        for idx, img in enumerate(list_of_PIL_images):
-            x = idx % gw
-            y = idx // gw
-            canvas.paste(img, (x * w, y * h))
-        canvas.save(f'{outdir}_grid.png')
+            # print(f"Mean probs: {np.mean(list_probs)}")
+            # print(f"Mean correlation_fake: {torch.stack(list_pearson).mean()}")
+
+        if len(list_of_PIL_images) <= 10:
+            for idx, img in enumerate(list_of_PIL_images):
+                x = idx % gw
+                y = idx // gw
+                canvas.paste(img, (x * w, y * h))
+            canvas.save(f'{outdir}_grid.png')
+        else:
+            print("Too many images to display")
 
         if testing:
             true_labels = torch.zeros(len(list_of_images), dtype=torch.long)
             outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
             accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
             print(f"Accuracy: {accuracy}")
-            correlation = torch.stack(dict_results["correlation"]).mean()
-            print(f"Correlation: {correlation}")
+            correlation_fake_test = torch.stack(dict_results["correlation_fake_test"]).mean()
+            print(f"Correlation test fakes: {correlation_fake_test}")
+            correlation_real_test = torch.stack(dict_results["correlation_real_test"]).mean()
+            print(f"Correlation test reals: {correlation_real_test}")
+
+            # Start again generation without testing
+
+            new_class_idx = [np.random.randint(0, len(list_of_images)) for _ in range(42)]
+
+            generate_images(
+                network_pkl=network_pkl,
+                seeds=seeds,
+                truncation_psi=truncation_psi,
+                noise_mode=noise_mode,
+                outdir=outdir,
+                translate=translate,
+                rotate=rotate,
+                class_idx=new_class_idx,
+                genes=genes,
+                data=data,
+                testing=False
+            )            
 
         else:
             true_labels = torch.ones(len(list_of_images), dtype=torch.long)
             outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
             accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
             print(f"Accuracy: {accuracy}")
-            correlation = torch.stack(dict_results["correlation"]).mean()
-            print(f"Correlation: {correlation}")
+            correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
+            print(f"Correlation fakes: {correlation_fake}")
+            correlation_real = torch.stack(dict_results["correlation_real"]).mean()
+            print(f"Correlation reals: {correlation_real}")
 
 
     else:
