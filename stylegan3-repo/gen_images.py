@@ -18,6 +18,7 @@ import numpy as np
 import PIL.Image
 import torch
 from importlib.machinery import SourceFileLoader
+import torchmetrics
 from torchmetrics import PearsonCorrCoef
 
 import legacy
@@ -158,7 +159,8 @@ def generate_images(
         print(f"Number of labels: {len(list_of_images)}")
         print(f"Number of images per label: {len(seeds)}")
         canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
-        list_of_PIL_images = []            
+        list_of_PIL_images = [] 
+        dict_results = {"probs": [], "correlation": []}           
         for real_image, label in list_of_images:            
             real_img = real_image.transpose(1, 2, 0)
             list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
@@ -178,10 +180,10 @@ def generate_images(
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                 logits, regressor = D(gen_img, label)
                 pearson = PearsonCorrCoef(num_outputs=1)
-                print(label.shape, regressor.shape)
-                raise Exception
-                correlation = pearson(regressor, label)
+                correlation = pearson(regressor.squeeze(0), label.squeeze(0))
                 print(f"clf: {torch.nn.functional.sigmoid(logits)}, correlation: {correlation}")
+                dict_results["probs"].append(torch.nn.functional.sigmoid(logits))
+                dict_results["correlation"].append(correlation)
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
@@ -191,6 +193,21 @@ def generate_images(
             y = idx // gw
             canvas.paste(img, (x * w, y * h))
         canvas.save(f'{outdir}_grid.png')
+
+        if testing:
+            true_labels = torch.zeros(len(list_of_images), dtype=torch.long)
+            accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels)
+            print(f"Accuracy: {accuracy}")
+            correlation = torch.stack(dict_results["correlation"]).mean()
+            print(f"Correlation: {correlation}")
+
+        else:
+            true_labels = torch.ones(len(list_of_images), dtype=torch.long)
+            accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels)
+            print(f"Accuracy: {accuracy}")
+            correlation = torch.stack(dict_results["correlation"]).mean()
+            print(f"Correlation: {correlation}")
+
 
     else:
         #  Generate images.
@@ -214,7 +231,7 @@ def generate_images(
 def import_dataset(genes: bool, data:str, gene_size: int, testing: bool = False):
     # Training set.
     if testing:
-        data += '_test'
+        data += '_patientout'
     training_set_kwargs, _dataset_name = init_dataset_kwargs(data=data, is_pickle=genes)
     training_set_kwargs.use_labels = True
     training_set_kwargs.xflip = False
