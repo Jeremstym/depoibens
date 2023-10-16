@@ -196,6 +196,9 @@ def generate_images(
 
         if testing:
             true_labels = torch.zeros(len(list_of_images), dtype=torch.long)
+            outputs = torch.tensor((dict_results["probs"] > 0.5) * 1)
+            print(outputs.shape)
+            raise Exception
             accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels, task="binary")
             print(f"Accuracy: {accuracy}")
             correlation = torch.stack(dict_results["correlation"]).mean()
