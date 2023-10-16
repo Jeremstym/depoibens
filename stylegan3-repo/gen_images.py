@@ -183,7 +183,6 @@ def generate_images(
                 logits, regressor = D(gen_img, label)
                 pearson = PearsonCorrCoef(num_outputs=1).to(device)
                 correlation = pearson(regressor.squeeze(0), label.squeeze(0))
-                print(f"clf: {torch.nn.functional.sigmoid(logits).cpu().item()}, correlation: {correlation}")
                 list_probs.append(torch.nn.functional.sigmoid(logits).item())
                 list_pearson.append(correlation)
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
@@ -192,6 +191,8 @@ def generate_images(
             
             dict_results["probs"].append(np.mean(list_probs))
             dict_results["correlation"].append(torch.stack(list_pearson).mean())
+            print(f"Mean probs: {np.mean(list_probs)}")
+            print(f"Mean correlation: {torch.stack(list_pearson).mean()}")
 
         for idx, img in enumerate(list_of_PIL_images):
             x = idx % gw
