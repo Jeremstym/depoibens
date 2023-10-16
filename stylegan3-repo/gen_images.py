@@ -210,6 +210,7 @@ def generate_images(
 
         else:
             true_labels = torch.ones(len(list_of_images), dtype=torch.long)
+            outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
             accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
             print(f"Accuracy: {accuracy}")
             correlation = torch.stack(dict_results["correlation"]).mean()
