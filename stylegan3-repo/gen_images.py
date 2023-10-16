@@ -188,8 +188,9 @@ def generate_images(
 
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                 logits, regressor_fake = D(gen_img, label)
-                print(seed_idx)
-                print(type(real_image))
+                # condition type on real image because of issues
+                if type(real_image) == torch.Tensor:
+                    real_image = real_image.cpu().numpy()
                 real_image = torch.from_numpy(real_image).unsqueeze(0).to(device)
                 real_image = real_image.float()/127.5 - 1
                 _, regressor_real = D(real_image, label)
