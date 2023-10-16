@@ -168,7 +168,7 @@ def generate_images(
             list_pearson = []
             list_probs = []
             for seed_idx, seed in enumerate(seeds):
-                print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
+                # print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
                 z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
 
                 # Construct an inverse rotation/translation matrix and pass to the generator.  The
