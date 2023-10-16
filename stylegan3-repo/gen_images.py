@@ -196,14 +196,14 @@ def generate_images(
 
         if testing:
             true_labels = torch.zeros(len(list_of_images), dtype=torch.long)
-            accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels)
+            accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels, task="binary")
             print(f"Accuracy: {accuracy}")
             correlation = torch.stack(dict_results["correlation"]).mean()
             print(f"Correlation: {correlation}")
 
         else:
             true_labels = torch.ones(len(list_of_images), dtype=torch.long)
-            accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels)
+            accuracy = torchmetrics.functional.accuracy(torch.stack(dict_results["probs"]), true_labels, task="binary")
             print(f"Accuracy: {accuracy}")
             correlation = torch.stack(dict_results["correlation"]).mean()
             print(f"Correlation: {correlation}")
