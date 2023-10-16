@@ -190,6 +190,9 @@ def generate_images(
                 logits, regressor_fake = D(gen_img, label)
                 real_image = torch.from_numpy(real_image).unsqueeze(0).to(device)
                 real_image = real_image.float()/127.5 - 1
+                print(gen_img.shape)
+                print(real_image.shape)
+                raise Exception
                 _, regressor_real = D(real_image.unsqueeze(0), label)
                 pearson = PearsonCorrCoef(num_outputs=1).to(device)
                 list_probs.append(torch.nn.functional.sigmoid(logits).item())
