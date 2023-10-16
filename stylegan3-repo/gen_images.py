@@ -252,19 +252,7 @@ def generate_images(
 
             new_class_idx = [np.random.randint(0, len(list_of_images)) for _ in range(42)]
 
-            generate_images(
-                network_pkl=network_pkl,
-                seeds=seeds,
-                truncation_psi=truncation_psi,
-                noise_mode=noise_mode,
-                outdir=outdir,
-                translate=translate,
-                rotate=rotate,
-                class_idx=new_class_idx,
-                genes=genes,
-                data=data,
-                testing=False
-            )            
+            generate_images(testing=False)
 
         else:
             true_labels = torch.ones(len(list_of_images), dtype=torch.long)
