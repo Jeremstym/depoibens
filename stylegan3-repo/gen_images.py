@@ -165,6 +165,8 @@ def generate_images(
             real_img = real_image.transpose(1, 2, 0)
             list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
             # Generate images.
+            list_pearson = []
+            list_probs = []
             for seed_idx, seed in enumerate(seeds):
                 print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
                 z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
@@ -182,11 +184,14 @@ def generate_images(
                 pearson = PearsonCorrCoef(num_outputs=1).to(device)
                 correlation = pearson(regressor.squeeze(0), label.squeeze(0))
                 print(f"clf: {torch.nn.functional.sigmoid(logits).cpu().item()}, correlation: {correlation}")
-                dict_results["probs"].append(torch.nn.functional.sigmoid(logits).item())
-                dict_results["correlation"].append(correlation)
+                list_probs.append(torch.nn.functional.sigmoid(logits).item())
+                list_pearson.append(correlation)
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
+            
+            dict_results["probs"].append(np.mean(list_probs))
+            dict_results["correlation"].append(torch.stack(list_pearson).mean())
 
         for idx, img in enumerate(list_of_PIL_images):
             x = idx % gw
