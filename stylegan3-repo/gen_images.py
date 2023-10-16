@@ -18,6 +18,7 @@ import numpy as np
 import PIL.Image
 import torch
 from importlib.machinery import SourceFileLoader
+from torchmetrics import PearsonCorrCoef
 
 import legacy
 
@@ -176,8 +177,11 @@ def generate_images(
 
                 gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                 logits, regressor = D(gen_img, label)
-                mse = torch.nn.functional.mse_loss(label, regressor, reduction='mean')
-                print(f"clf: {torch.nn.functional.sigmoid(logits)}, regressor: {mse.item()}")
+                pearson = PearsonCorrCoef(num_outputs=1)
+                print(label.shape, regressor.shape)
+                raise Exception
+                correlation = pearson(regressor, label)
+                print(f"clf: {torch.nn.functional.sigmoid(logits)}, correlation: {correlation}")
                 gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
                 gen_img = gen_img.cpu().numpy()
                 list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
