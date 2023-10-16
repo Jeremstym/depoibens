@@ -138,7 +138,8 @@ def generate_images(
         if class_idx is None:
             raise click.ClickException('Must specify class label with --class when using a conditional network')
         elif genes is True:
-            training_set = import_dataset(genes=genes, data=data, gene_size=G.c_dim, testing=testing)
+            suffix = '_patientout' if testing else ''
+            training_set = import_dataset(genes=genes, data=data+suffix, gene_size=G.c_dim)
             list_of_images = []
             for idx in class_idx:
                 assert idx < len(training_set), f"Class index {idx} is out of range for dataset of size {len(training_set)}"
@@ -236,10 +237,8 @@ def generate_images(
             PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
 
 
-def import_dataset(genes: bool, data:str, gene_size: int, testing: bool = False):
+def import_dataset(genes: bool, data:str, gene_size: int):
     # Training set.
-    if testing:
-        data += '_patientout'
     training_set_kwargs, _dataset_name = init_dataset_kwargs(data=data, is_pickle=genes)
     training_set_kwargs.use_labels = True
     training_set_kwargs.xflip = False
