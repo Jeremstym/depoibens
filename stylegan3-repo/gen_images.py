@@ -20,6 +20,7 @@ import torch
 from importlib.machinery import SourceFileLoader
 import torchmetrics
 from torchmetrics import PearsonCorrCoef
+from tqdm import tqdm
 
 import legacy
 
@@ -166,7 +167,8 @@ def generate_images(
             canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
             list_of_PIL_images = [] 
             dict_results = {}           
-            for real_image, label in list_of_images:            
+            pbar = tqdm(list_of_images, unit="image", total=len(list_of_images))
+            for real_image, label in pbar:            
                 real_img = real_image.transpose(1, 2, 0)
                 list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
                 # Generate images.
