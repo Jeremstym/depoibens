@@ -132,50 +132,144 @@ def generate_images(
 
     os.makedirs(outdir, exist_ok=True)
 
-    # Labels.
-    label = torch.zeros([1, G.c_dim], device=device)
-    if G.c_dim != 0:
-        if class_idx is None:
-            raise click.ClickException('Must specify class label with --class when using a conditional network')
-        elif genes is True:
-            suffix = '_patientout' if testing else '_test' # test is the same as train without patient test
-            training_set = import_dataset(genes=genes, data=data+suffix, gene_size=G.c_dim)
-            list_of_images = []
-            for idx in class_idx:
-                assert idx < len(training_set), f"Class index {idx} is out of range for dataset of size {len(training_set)}"
-                label = training_set.get_label(idx)
-                label = torch.from_numpy(label).unsqueeze(0).to(device)
-                real_image = training_set[idx][0]
-                list_of_images.append([real_image, label])
-        else:
-            label[:, class_idx[0]] = 1
-    else:
-        if class_idx is not None:
-            print ('warn: --class=lbl ignored when running on an unconditional network')
-
-    if genes is True:
-        _c, w, h = list_of_images[0][0].shape
-        gw, gh = len(seeds)+1, len(class_idx)
-        print(f"grid shape: width: {gw}, height:{gh}")
-        print(f"Number of labels: {len(list_of_images)}")
-        print(f"Number of images per label: {len(seeds)}")
-        canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
-        list_of_PIL_images = [] 
-        dict_results = {"probs": []}           
-        for real_image, label in list_of_images:            
-            real_img = real_image.transpose(1, 2, 0)
-            list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
-            # Generate images.
-            list_probs = []
-            if testing:
-                list_pearson_fake_test = []
-                list_pearson_real_test = []
+    while True:
+        # Labels.
+        label = torch.zeros([1, G.c_dim], device=device)
+        if G.c_dim != 0:
+            if class_idx is None:
+                raise click.ClickException('Must specify class label with --class when using a conditional network')
+            elif genes is True:
+                suffix = '_patientout' if testing else '_test' # test is the same as train without patient test
+                training_set = import_dataset(genes=genes, data=data+suffix, gene_size=G.c_dim)
+                class_idx_no_test = [np.random.randint(0, len(list_of_images)) for _ in range(42)]
+                if not testing:
+                    class_idx = class_idx_no_test
+                list_of_images = []
+                for idx in class_idx:
+                    assert idx < len(training_set), f"Class index {idx} is out of range for dataset of size {len(training_set)}"
+                    label = training_set.get_label(idx)
+                    label = torch.from_numpy(label).unsqueeze(0).to(device)
+                    real_image = training_set[idx][0]
+                    list_of_images.append([real_image, label])
             else:
-                list_pearson_fake = []
-                list_pearson_real = []
+                label[:, class_idx[0]] = 1
+        else:
+            if class_idx is not None:
+                print ('warn: --class=lbl ignored when running on an unconditional network')
 
+        if genes is True:
+            _c, w, h = list_of_images[0][0].shape
+            gw, gh = len(seeds)+1, len(class_idx)
+            print(f"grid shape: width: {gw}, height:{gh}")
+            print(f"Number of labels: {len(list_of_images)}")
+            print(f"Number of images per label: {len(seeds)}")
+            canvas = PIL.Image.new('RGB', (w * gw, h * gh), 'white')
+            list_of_PIL_images = [] 
+            dict_results = {"probs": []}           
+            for real_image, label in list_of_images:            
+                real_img = real_image.transpose(1, 2, 0)
+                list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
+                # Generate images.
+                list_probs = []
+                if testing:
+                    list_pearson_fake_test = []
+                    list_pearson_real_test = []
+                else:
+                    list_pearson_fake = []
+                    list_pearson_real = []
+
+                for seed_idx, seed in enumerate(seeds):
+                    # print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
+                    z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
+
+                    # Construct an inverse rotation/translation matrix and pass to the generator.  The
+                    # generator expects this matrix as an inverse to avoid potentially failing numerical
+                    # operations in the network.
+                    if hasattr(G.synthesis, 'input'):
+                        m = make_transform(translate, rotate)
+                        m = np.linalg.inv(m)
+                        G.synthesis.input.transform.copy_(torch.from_numpy(m))
+
+                    gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+                    logits, regressor_fake = D(gen_img, label)
+                    # condition type on real image because of issues
+                    if type(real_image) == np.ndarray:
+                        real_image = torch.from_numpy(real_image).unsqueeze(0).to(device)
+                    real_image = real_image.to(device)
+                    real_image = real_image.float()/127.5 - 1
+                    _, regressor_real = D(real_image, label)
+                    pearson = PearsonCorrCoef(num_outputs=1).to(device)
+                    list_probs.append(torch.nn.functional.sigmoid(logits).item())
+                    if testing:
+                        correlation_fake_test = pearson(regressor_fake.squeeze(0), label.squeeze(0))
+                        correlation_real_test = pearson(regressor_real.squeeze(0), label.squeeze(0))
+                        list_pearson_fake_test.append(correlation_fake_test)
+                        list_pearson_real_test.append(correlation_real_test)
+                    else:
+                        correlation_fake = pearson(regressor_fake.squeeze(0), label.squeeze(0))
+                        correlation_real = pearson(regressor_real.squeeze(0), label.squeeze(0))
+                        list_pearson_fake.append(correlation_fake)
+                        list_pearson_real.append(correlation_real)
+                    gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+                    gen_img = gen_img.cpu().numpy()
+                    list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
+                
+                dict_results["probs"].append(np.mean(list_probs))
+                if testing:
+                    if "correlation_fake_test" not in dict_results.keys():
+                        dict_results['correlation_fake_test'] = []
+                    if "correlation_real_test" not in dict_results.keys():
+                        dict_results['correlation_real_test'] = []
+                    dict_results["correlation_fake_test"].append(torch.stack(list_pearson_fake_test).mean())
+                    dict_results["correlation_real_test"].append(torch.stack(list_pearson_real_test).mean())
+                else:
+                    if "correlation_fake" not in dict_results.keys():
+                        dict_results['correlation'] = []
+                    if "correlation_real" not in dict_results.keys():
+                        dict_results['correlation_real'] = []
+                    dict_results["correlation_fake"].append(torch.stack(list_pearson_fake).mean())
+                    dict_results["correlation_real"].append(torch.stack(list_pearson_real).mean())
+
+                # print(f"Mean probs: {np.mean(list_probs)}")
+                # print(f"Mean correlation_fake: {torch.stack(list_pearson).mean()}")
+
+            if len(list_of_PIL_images) <= 10:
+                for idx, img in enumerate(list_of_PIL_images):
+                    x = idx % gw
+                    y = idx // gw
+                    canvas.paste(img, (x * w, y * h))
+                canvas.save(f'{outdir}_grid.png')
+            else:
+                print("Too many images to display")
+
+            if testing:
+                true_labels = torch.zeros(len(list_of_images), dtype=torch.long)
+                outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
+                accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
+                print(f"Accuracy: {accuracy}")
+                correlation_fake_test = torch.stack(dict_results["correlation_fake_test"]).mean()
+                print(f"Correlation test fakes: {correlation_fake_test}")
+                correlation_real_test = torch.stack(dict_results["correlation_real_test"]).mean()
+                print(f"Correlation test reals: {correlation_real_test}")
+
+                # Start again generation without testing
+                testing = False
+
+            else:
+                true_labels = torch.ones(len(list_of_images), dtype=torch.long)
+                outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
+                accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
+                print(f"Accuracy: {accuracy}")
+                correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
+                print(f"Correlation fakes: {correlation_fake}")
+                correlation_real = torch.stack(dict_results["correlation_real"]).mean()
+                print(f"Correlation reals: {correlation_real}")
+                return None
+
+        else:
+            #  Generate images.
             for seed_idx, seed in enumerate(seeds):
-                # print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
+                print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
                 z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
 
                 # Construct an inverse rotation/translation matrix and pass to the generator.  The
@@ -186,102 +280,9 @@ def generate_images(
                     m = np.linalg.inv(m)
                     G.synthesis.input.transform.copy_(torch.from_numpy(m))
 
-                gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-                logits, regressor_fake = D(gen_img, label)
-                # condition type on real image because of issues
-                if type(real_image) == np.ndarray:
-                    real_image = torch.from_numpy(real_image).unsqueeze(0).to(device)
-                real_image = real_image.to(device)
-                real_image = real_image.float()/127.5 - 1
-                _, regressor_real = D(real_image, label)
-                pearson = PearsonCorrCoef(num_outputs=1).to(device)
-                list_probs.append(torch.nn.functional.sigmoid(logits).item())
-                if testing:
-                    correlation_fake_test = pearson(regressor_fake.squeeze(0), label.squeeze(0))
-                    correlation_real_test = pearson(regressor_real.squeeze(0), label.squeeze(0))
-                    list_pearson_fake_test.append(correlation_fake_test)
-                    list_pearson_real_test.append(correlation_real_test)
-                else:
-                    correlation_fake = pearson(regressor_fake.squeeze(0), label.squeeze(0))
-                    correlation_real = pearson(regressor_real.squeeze(0), label.squeeze(0))
-                    list_pearson_fake.append(correlation_fake)
-                    list_pearson_real.append(correlation_real)
-                gen_img = (gen_img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-                gen_img = gen_img.cpu().numpy()
-                list_of_PIL_images.append(PIL.Image.fromarray(gen_img[0], 'RGB'))
-            
-            dict_results["probs"].append(np.mean(list_probs))
-            if testing:
-                if "correlation_fake_test" not in dict_results.keys():
-                    dict_results['correlation_fake_test'] = []
-                if "correlation_real_test" not in dict_results.keys():
-                    dict_results['correlation_real_test'] = []
-                dict_results["correlation_fake_test"].append(torch.stack(list_pearson_fake_test).mean())
-                dict_results["correlation_real_test"].append(torch.stack(list_pearson_real_test).mean())
-            else:
-                if "correlation_fake" not in dict_results.keys():
-                    dict_results['correlation'] = []
-                if "correlation_real" not in dict_results.keys():
-                    dict_results['correlation_real'] = []
-                dict_results["correlation_fake"].append(torch.stack(list_pearson_fake).mean())
-                dict_results["correlation_real"].append(torch.stack(list_pearson_real).mean())
-
-            # print(f"Mean probs: {np.mean(list_probs)}")
-            # print(f"Mean correlation_fake: {torch.stack(list_pearson).mean()}")
-
-        if len(list_of_PIL_images) <= 10:
-            for idx, img in enumerate(list_of_PIL_images):
-                x = idx % gw
-                y = idx // gw
-                canvas.paste(img, (x * w, y * h))
-            canvas.save(f'{outdir}_grid.png')
-        else:
-            print("Too many images to display")
-
-        if testing:
-            true_labels = torch.zeros(len(list_of_images), dtype=torch.long)
-            outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
-            accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
-            print(f"Accuracy: {accuracy}")
-            correlation_fake_test = torch.stack(dict_results["correlation_fake_test"]).mean()
-            print(f"Correlation test fakes: {correlation_fake_test}")
-            correlation_real_test = torch.stack(dict_results["correlation_real_test"]).mean()
-            print(f"Correlation test reals: {correlation_real_test}")
-
-            # Start again generation without testing
-
-            new_class_idx = [np.random.randint(0, len(list_of_images)) for _ in range(42)]
-
-            generate_images(testing=False)
-
-        else:
-            true_labels = torch.ones(len(list_of_images), dtype=torch.long)
-            outputs = torch.tensor((np.array(dict_results["probs"]) > 0.5) * 1)
-            accuracy = torchmetrics.functional.accuracy(outputs, true_labels, task="binary")
-            print(f"Accuracy: {accuracy}")
-            correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
-            print(f"Correlation fakes: {correlation_fake}")
-            correlation_real = torch.stack(dict_results["correlation_real"]).mean()
-            print(f"Correlation reals: {correlation_real}")
-
-
-    else:
-        #  Generate images.
-        for seed_idx, seed in enumerate(seeds):
-            print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
-            z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
-
-            # Construct an inverse rotation/translation matrix and pass to the generator.  The
-            # generator expects this matrix as an inverse to avoid potentially failing numerical
-            # operations in the network.
-            if hasattr(G.synthesis, 'input'):
-                m = make_transform(translate, rotate)
-                m = np.linalg.inv(m)
-                G.synthesis.input.transform.copy_(torch.from_numpy(m))
-
-            img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-            img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
-            PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
+                img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+                img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
+                PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
 
 
 def import_dataset(genes: bool, data:str, gene_size: int):
