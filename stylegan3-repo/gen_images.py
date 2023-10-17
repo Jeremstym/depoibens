@@ -193,12 +193,12 @@ def generate_images(
 
                     gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                     logits_fake, regressor_fake = D(gen_img, label)
-                    output_fake = ((torch.nn.functional.sigmoid(logits_fake) > 0.5) * 1).item()
+                    output_fake = ((torch.nn.functional.sigmoid(logits_fake) > 0.5) * 1)
                     tensor_img = torch.from_numpy(real_image).unsqueeze(0).to(device)
                     tensor_img = tensor_img.to(device)
                     tensor_img = tensor_img.to(torch.float32)/127.5 - 1 # normalize to [-1, 1]
                     logits_real, regressor_real = D(tensor_img, label)
-                    output_real = ((torch.nn.functional.sigmoid(logits_real) > 0.5) * 1).item()
+                    output_real = ((torch.nn.functional.sigmoid(logits_real) > 0.5) * 1)
                     pearson = PearsonCorrCoef(num_outputs=1).to(device)
                     if testing:
                         correlation_fake_test = pearson(regressor_fake.squeeze(0), label.squeeze(0))
