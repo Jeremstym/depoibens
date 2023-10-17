@@ -146,7 +146,7 @@ def generate_images(
                     class_idx = class_idx_no_test
                 list_of_images = []
                 for idx in class_idx:
-                    assert idx < len(training_set), f"Class index {idx} is out of range for dataset of size {len(training_set)}"
+                    assert idx <= len(training_set), f"Class index {idx} is out of range for dataset of size {len(training_set)}"
                     label = training_set.get_label(idx)
                     label = torch.from_numpy(label).unsqueeze(0).to(device)
                     real_image = training_set[idx][0]
