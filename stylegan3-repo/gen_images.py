@@ -227,7 +227,7 @@ def generate_images(
                     dict_results["correlation_real_test"].append(torch.stack(list_pearson_real_test).mean())
                     if "accuracy_test" not in dict_results.keys():
                         dict_results['accuracy_test'] = []
-                    dict_results["accuracy_test"].append(torch.stack(accuracy_test).mean())
+                    dict_results["accuracy_test"].append(torch.stack(accuracy_test).to(torch.float32).mean())
                 else:
                     if "correlation_fake" not in dict_results.keys():
                         dict_results['correlation_fake'] = []
@@ -237,7 +237,7 @@ def generate_images(
                     dict_results["correlation_real"].append(torch.stack(list_pearson_real).mean())
                     if "accuracy" not in dict_results.keys():
                         dict_results['accuracy'] = []
-                    dict_results["accuracy"].append(torch.stack(accuracy).mean())
+                    dict_results["accuracy"].append(torch.stack(accuracy).to(torch.float32).mean())
 
                 # print(f"Mean probs: {np.mean(list_probs)}")
                 # print(f"Mean correlation_fake: {torch.stack(list_pearson).mean()}")
