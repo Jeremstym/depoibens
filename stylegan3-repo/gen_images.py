@@ -141,7 +141,7 @@ def generate_images(
             elif genes is True:
                 suffix = '_patientout' if testing else '_test' # test is the same as train without patient test
                 training_set = import_dataset(genes=genes, data=data+suffix, gene_size=G.c_dim)
-                class_idx_no_test = [np.random.randint(0, len(training_set)) for _ in range(42)]
+                class_idx_no_test = [np.random.randint(0, len(training_set)) for _ in range(1000)]
                 if not testing:
                     class_idx = class_idx_no_test
                 list_of_images = []
