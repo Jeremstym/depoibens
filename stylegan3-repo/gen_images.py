@@ -224,7 +224,7 @@ def generate_images(
                     dict_results["correlation_real_test"].append(torch.stack(list_pearson_real_test).mean())
                 else:
                     if "correlation_fake" not in dict_results.keys():
-                        dict_results['correlation'] = []
+                        dict_results['correlation_fake'] = []
                     if "correlation_real" not in dict_results.keys():
                         dict_results['correlation_real'] = []
                     dict_results["correlation_fake"].append(torch.stack(list_pearson_fake).mean())
