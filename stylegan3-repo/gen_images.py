@@ -192,12 +192,10 @@ def generate_images(
 
                     gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                     logits, regressor_fake = D(gen_img, label)
-                    # condition type on real image because of issues
-                    if type(real_image) == np.ndarray:
-                        real_image = torch.from_numpy(real_image).unsqueeze(0).to(device)
-                    real_image = real_image.to(device)
-                    real_image = real_image.float()/127.5 - 1
-                    _, regressor_real = D(real_image, label)
+                    tensor_img = torch.from_numpy(real_image).unsqueeze(0).to(device)
+                    tensor_img = tensor_img.to(device)
+                    tensor_img = tensor_img.to(torch.float32)/127.5 - 1 # normalize to [-1, 1]
+                    _, regressor_real = D(tensor_img, label)
                     pearson = PearsonCorrCoef(num_outputs=1).to(device)
                     list_probs.append(torch.nn.functional.sigmoid(logits).item())
                     if testing:
