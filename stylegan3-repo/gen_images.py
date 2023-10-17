@@ -170,7 +170,6 @@ def generate_images(
                 real_img = real_image.transpose(1, 2, 0)
                 list_of_PIL_images.append(PIL.Image.fromarray(real_img, 'RGB'))
                 # Generate images.
-                list_probs = []
                 if testing:
                     list_pearson_fake_test = []
                     list_pearson_real_test = []
