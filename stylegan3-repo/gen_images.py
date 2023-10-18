@@ -256,7 +256,7 @@ def generate_images(
                 print("Too many images to display")
 
             if testing:
-                accuracy = np.mean(dict_results["accuracy_test"])
+                accuracy = torch.stack(dict_results["accuracy_test"]).mean()
                 print(f"Accuracy: {accuracy}")
                 correlation_fake_test = torch.stack(dict_results["correlation_fake_test"]).mean()
                 print(f"Correlation test fakes: {correlation_fake_test}")
@@ -273,7 +273,7 @@ def generate_images(
                 testing = False
 
             else:
-                accuracy = np.mean(dict_results["accuracy"])
+                accuracy = torch.stack(dict_results["accuracy"]).mean()
                 print(f"Accuracy: {accuracy}")
                 correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
                 print(f"Correlation fakes: {correlation_fake}")
