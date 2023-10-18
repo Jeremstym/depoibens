@@ -249,6 +249,7 @@ def generate_images(
                     dict_results["classification_test"].extend(classification_test)
                     if "true_label_test" not in dict_results.keys():
                         dict_results['true_label_test'] = []
+                    dict_results["true_label_test"].extend(true_label_test)
 
                 else:
                     if "correlation_fake" not in dict_results.keys():
