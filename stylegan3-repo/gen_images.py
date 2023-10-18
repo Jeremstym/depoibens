@@ -197,12 +197,12 @@ def generate_images(
 
                     gen_img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
                     logits_fake, regressor_fake = D(gen_img, label)
-                    output_fake = ((torch.nn.functional.sigmoid(logits_fake) > 0.5) * 1).to(torch.float32)
+                    output_fake = ((torch.nn.functional.sigmoid(logits_fake) > 0.5) * 1).to(torch.float32).cpu()
                     tensor_img = torch.from_numpy(real_image).unsqueeze(0).to(device)
                     tensor_img = tensor_img.to(device)
                     tensor_img = tensor_img.to(torch.float32)/127.5 - 1 # normalize to [-1, 1]
                     logits_real, regressor_real = D(tensor_img, label)
-                    output_real = ((torch.nn.functional.sigmoid(logits_real) > 0.5) * 1).to(torch.float32)
+                    output_real = ((torch.nn.functional.sigmoid(logits_real) > 0.5) * 1).to(torch.float32).cpu()
                     pearson = PearsonCorrCoef(num_outputs=1).to(device)
                     if testing:
                         correlation_fake_test = pearson(regressor_fake.squeeze(0), label.squeeze(0))
@@ -256,7 +256,7 @@ def generate_images(
                 print("Too many images to display")
 
             if testing:
-                accuracy = torch.stack(dict_results["accuracy_test"]).to(torch.float32).cpu().mean()
+                accuracy = torch.stack(dict_results["accuracy_test"]).to(torch.float32).mean()
                 print(f"Accuracy: {accuracy}")
                 correlation_fake_test = torch.stack(dict_results["correlation_fake_test"]).mean()
                 print(f"Correlation test fakes: {correlation_fake_test}")
@@ -273,7 +273,7 @@ def generate_images(
                 testing = False
 
             else:
-                accuracy = torch.stack(dict_results["accuracy"]).to(torch.float32).cpu().mean()
+                accuracy = torch.stack(dict_results["accuracy"]).to(torch.float32).mean()
                 print(f"Accuracy: {accuracy}")
                 correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
                 print(f"Correlation fakes: {correlation_fake}")
