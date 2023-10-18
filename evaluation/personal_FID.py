@@ -50,10 +50,10 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
             transforms.Resize(size),
             transforms.CenterCrop(size),
             transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],  # default values for imagenet
-                std=[0.229, 0.224, 0.225],
-            ),
+            # transforms.Normalize(
+                # mean=[0.485, 0.456, 0.406],  # default values for imagenet
+                # std=[0.229, 0.224, 0.225],
+            # ),
         ]
     )
     image_processed = preprocess(image)
