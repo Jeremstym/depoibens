@@ -178,10 +178,14 @@ def generate_images(
                     list_pearson_fake_test = []
                     list_pearson_real_test = []
                     accuracy_test = []
+                    classification_test = []
+                    true_label_test = []
                 else:
                     list_pearson_fake = []
                     list_pearson_real = []
                     accuracy = []
+                    classification = []
+                    true_label = []
 
                 for seed_idx, seed in enumerate(seeds):
                     # print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
@@ -207,6 +211,10 @@ def generate_images(
                     if testing:
                         correlation_fake_test = pearson(regressor_fake.squeeze(0), label.squeeze(0))
                         correlation_real_test = pearson(regressor_real.squeeze(0), label.squeeze(0))
+                        classification_test.append(output_fake.item())
+                        true_label_test.append(0)
+                        classification_test.append(output_real.item())
+                        true_label_test.append(1)
                         accuracy_test.append(((output_fake == 0) * 1).item())
                         accuracy_test.append(((output_real == 1) * 1).item())
                         list_pearson_fake_test.append(correlation_fake_test)
@@ -214,6 +222,10 @@ def generate_images(
                     else:
                         correlation_fake = pearson(regressor_fake.squeeze(0), label.squeeze(0))
                         correlation_real = pearson(regressor_real.squeeze(0), label.squeeze(0))
+                        classification.append(output_fake.item())
+                        true_label.append(0)
+                        classification.append(output_real.item())
+                        true_label.append(1)
                         accuracy.append(((output_fake == 0) * 1).item())
                         accuracy.append(((output_real == 1) * 1).item())
                         list_pearson_fake.append(correlation_fake)
@@ -232,6 +244,12 @@ def generate_images(
                     if "accuracy_test" not in dict_results.keys():
                         dict_results['accuracy_test'] = []
                     dict_results["accuracy_test"].extend(accuracy_test)
+                    if "classification_test" not in dict_results.keys():
+                        dict_results['classification_test'] = []
+                    dict_results["classification_test"].extend(classification_test)
+                    if "true_label_test" not in dict_results.keys():
+                        dict_results['true_label_test'] = []
+
                 else:
                     if "correlation_fake" not in dict_results.keys():
                         dict_results['correlation_fake'] = []
@@ -242,6 +260,12 @@ def generate_images(
                     if "accuracy" not in dict_results.keys():
                         dict_results['accuracy'] = []
                     dict_results["accuracy"].extend(accuracy)
+                    if "classification" not in dict_results.keys():
+                        dict_results['classification'] = []
+                    dict_results["classification"].extend(classification)
+                    if "true_label" not in dict_results.keys():
+                        dict_results['true_label'] = []
+                    dict_results["true_label"].extend(true_label)
 
                 # print(f"Mean probs: {np.mean(list_probs)}")
                 # print(f"Mean correlation_fake: {torch.stack(list_pearson).mean()}")
@@ -262,7 +286,7 @@ def generate_images(
                 print(f"Correlation test fakes: {correlation_fake_test}")
                 correlation_real_test = torch.stack(dict_results["correlation_real_test"]).mean()
                 print(f"Correlation test reals: {correlation_real_test}")
-                cm = confusion_matrix(dict_results["accuracy_test"][::2], dict_results["accuracy_test"][1::2])
+                cm = confusion_matrix(dict_results["classification_test"], dict_results["true_label_test"])
                 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["fake", "real"])
                 # save image
                 disp.plot()
@@ -273,13 +297,13 @@ def generate_images(
                 testing = False
 
             else:
-                accuracy = np.mean(dict_results["accuracy"]).to(torch.float32)
+                accuracy = np.mean(dict_results["accuracy"])
                 print(f"Accuracy: {accuracy}")
                 correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
                 print(f"Correlation fakes: {correlation_fake}")
                 correlation_real = torch.stack(dict_results["correlation_real"]).mean()
                 print(f"Correlation reals: {correlation_real}")
-                cm = confusion_matrix(dict_results["accuracy"][::2], dict_results["accuracy"][1::2])
+                cm = confusion_matrix(dict_results["classification"], dict_results["true_label"])
                 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["fake", "real"])
                 # save image
                 disp.plot()
