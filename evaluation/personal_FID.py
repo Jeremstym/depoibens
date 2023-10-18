@@ -108,9 +108,7 @@ def split_image_on_channel_and_export(image: torch.Tensor, path: str) -> None:
         image = image.squeeze(1)
         image = image.permute(1, 2, 0) # (C, H, W) -> (H, W, C)
         image = image.cpu().numpy()
-        # image is already unnormalized to [0, 255]
-        print(image.max(), image.min(), image.shape, image.dtype)
-        raise Exception
+        image = (image - image.min()) / (image.max() - image.min()) * 255
         np_image = np.squeeze(image, axis=2).astype(np.uint8) # (H, W, 1) -> (H, W) 
         image = Image.fromarray(np_image)
         image.save(os.path.join(path, f"channel_{i}.jpg"))
