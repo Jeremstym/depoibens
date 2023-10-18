@@ -232,6 +232,7 @@ def generate_images(
                     if "accuracy_test" not in dict_results.keys():
                         dict_results['accuracy_test'] = []
                     dict_results["accuracy_test"].extend(accuracy_test)
+                    print(dict_results['accuracy_test'])
                 else:
                     if "correlation_fake" not in dict_results.keys():
                         dict_results['correlation_fake'] = []
