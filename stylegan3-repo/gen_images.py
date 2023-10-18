@@ -262,7 +262,7 @@ def generate_images(
                 print(f"Correlation test fakes: {correlation_fake_test}")
                 correlation_real_test = torch.stack(dict_results["correlation_real_test"]).mean()
                 print(f"Correlation test reals: {correlation_real_test}")
-                cm = confusion_matrix(dict_results["accuracy_test"][::2], dict_results["accuracy_test"][1::2])
+                cm = confusion_matrix(dict_results["accuracy_test"][::2].cpu().numpy(), dict_results["accuracy_test"][1::2].cpu().numpy())
                 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["fake", "real"])
                 # save image
                 disp.plot()
@@ -279,7 +279,7 @@ def generate_images(
                 print(f"Correlation fakes: {correlation_fake}")
                 correlation_real = torch.stack(dict_results["correlation_real"]).mean()
                 print(f"Correlation reals: {correlation_real}")
-                cm = confusion_matrix(dict_results["accuracy"][::2], dict_results["accuracy"][1::2])
+                cm = confusion_matrix(dict_results["accuracy"][::2].cpu().numpy(), dict_results["accuracy"][1::2].cpu().numpy())
                 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["fake", "real"])
                 # save image
                 disp.plot()
