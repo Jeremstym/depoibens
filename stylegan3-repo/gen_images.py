@@ -21,6 +21,8 @@ from importlib.machinery import SourceFileLoader
 import torchmetrics
 from torchmetrics import PearsonCorrCoef
 from tqdm import tqdm
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+import matplotlib.pyplot as plt
 
 import legacy
 
@@ -225,21 +227,21 @@ def generate_images(
                         dict_results['correlation_fake_test'] = []
                     if "correlation_real_test" not in dict_results.keys():
                         dict_results['correlation_real_test'] = []
-                    dict_results["correlation_fake_test"].append(torch.stack(list_pearson_fake_test).mean())
-                    dict_results["correlation_real_test"].append(torch.stack(list_pearson_real_test).mean())
+                    dict_results["correlation_fake_test"].extend(list_pearson_fake_test)
+                    dict_results["correlation_real_test"].extend(list_pearson_real_test)
                     if "accuracy_test" not in dict_results.keys():
                         dict_results['accuracy_test'] = []
-                    dict_results["accuracy_test"].append(torch.stack(accuracy_test).to(torch.float32).mean())
+                    dict_results["accuracy_test"].extend(accuracy_test)
                 else:
                     if "correlation_fake" not in dict_results.keys():
                         dict_results['correlation_fake'] = []
                     if "correlation_real" not in dict_results.keys():
                         dict_results['correlation_real'] = []
-                    dict_results["correlation_fake"].append(torch.stack(list_pearson_fake).mean())
-                    dict_results["correlation_real"].append(torch.stack(list_pearson_real).mean())
+                    dict_results["correlation_fake"].extend(list_pearson_fake)
+                    dict_results["correlation_real"].extend(list_pearson_real)
                     if "accuracy" not in dict_results.keys():
                         dict_results['accuracy'] = []
-                    dict_results["accuracy"].append(torch.stack(accuracy).to(torch.float32).mean())
+                    dict_results["accuracy"].extend(accuracy)
 
                 # print(f"Mean probs: {np.mean(list_probs)}")
                 # print(f"Mean correlation_fake: {torch.stack(list_pearson).mean()}")
@@ -254,23 +256,34 @@ def generate_images(
                 print("Too many images to display")
 
             if testing:
-                accuracy = torch.stack(dict_results["accuracy_test"]).mean()
+                accuracy = np.mean(dict_results["accuracy_test"])
                 print(f"Accuracy: {accuracy}")
                 correlation_fake_test = torch.stack(dict_results["correlation_fake_test"]).mean()
                 print(f"Correlation test fakes: {correlation_fake_test}")
                 correlation_real_test = torch.stack(dict_results["correlation_real_test"]).mean()
                 print(f"Correlation test reals: {correlation_real_test}")
+                cm = confusion_matrix(dict_results["accuracy_test"][::2], dict_results["accuracy_test"][1::2])
+                disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["fake", "real"])
+                # save image
+                disp.plot()
+                plt.savefig(f"{outdir}_confusion_matrix_test.png")
+                                
 
                 # Start again generation without testing
                 testing = False
 
             else:
-                accuracy = torch.stack(dict_results["accuracy"]).mean()
+                accuracy = np.mean(dict_results["accuracy"])
                 print(f"Accuracy: {accuracy}")
                 correlation_fake = torch.stack(dict_results["correlation_fake"]).mean()
                 print(f"Correlation fakes: {correlation_fake}")
                 correlation_real = torch.stack(dict_results["correlation_real"]).mean()
                 print(f"Correlation reals: {correlation_real}")
+                cm = confusion_matrix(dict_results["accuracy"][::2], dict_results["accuracy"][1::2])
+                disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["fake", "real"])
+                # save image
+                disp.plot()
+                plt.savefig(f"{outdir}_confusion_matrix.png")
                 return None
 
         else:
