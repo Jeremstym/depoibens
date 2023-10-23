@@ -253,8 +253,8 @@ def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes
 #     with open("generated_dict.pkl", "wb") as f:
 #         pkl.dump(generated_dict, f)
 
-if __name__ == "__main__":
-    generated_dict_test_wrong = create_generated_images_dataset(path_to_tsv, path_to_generator_test2, testing=False)
-    os.chdir("/projects/minos/jeremie/data")
-    with open("generated_dict_test_wrong.pkl", "wb") as f:
-        pkl.dump(generated_dict_test_wrong, f)
+# if __name__ == "__main__":
+#     generated_dict_test_wrong = create_generated_images_dataset(path_to_tsv, path_to_generator_test2, testing=False)
+#     os.chdir("/projects/minos/jeremie/data")
+#     with open("generated_dict_test_wrong.pkl", "wb") as f:
+#         pkl.dump(generated_dict_test_wrong, f)
