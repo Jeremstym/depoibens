@@ -193,7 +193,7 @@ def load_and_evaluate_generated_model(sampler: torch.utils.data.sampler.SubsetRa
         )
     else:
         _, real_valid_loader, _ = create_dataloader(
-            tumor_path=tumor_path, path_to_image=path_to_classifier, seed=seed
+            tumor_path=tumor_path, path_to_image=path_to_image, seed=seed
         )
 
     # Create the model
