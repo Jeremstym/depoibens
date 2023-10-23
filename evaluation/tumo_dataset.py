@@ -44,6 +44,7 @@ path_to_image = "/projects/minos/jeremie/data"
 path_to_tsv = "/projects/minos/jeremie/data/tsv_concatened_allgenes.pkl"
 path_to_generator = "/projects/minos/jeremie/data/styleGANresults/00078-stylegan2-styleImagesGen-gpus2-batch32-gamma0.2048/network-snapshot-021800.pkl"
 path_to_generator_test = "/projects/minos/jeremie/data/styleGANresults/00083-stylegan2-styleImagesGen_test-gpus2-batch32-gamma0.2048/network-snapshot-005800.pkl"
+path_to_generator_test2 = "/projects/minos/jeremie/data/styleGANresults/00060-stylegan2-styleImagesGen-gpus2-batch32-gamma0.2048/network-snapshot-006800.pkl"
 path_to_generated_image = "/projects/minos/jeremie/data/generated_dict.pkl"
 path_to_generated_image_test = "/projects/minos/jeremie/data/generated_dict_test.pkl"
 
@@ -252,8 +253,8 @@ def create_generated_images_dataset(path_to_tsv: str, network_pkl: str, nb_genes
 #     with open("generated_dict.pkl", "wb") as f:
 #         pkl.dump(generated_dict, f)
 
-# if __name__ == "__main__":
-#     generated_dict_test = create_generated_images_dataset(path_to_tsv, path_to_generator_test, testing=True)
-#     os.chdir("/projects/minos/jeremie/data")
-#     with open("generated_dict_test.pkl", "wb") as f:
-#         pkl.dump(generated_dict_test, f)
+if __name__ == "__main__":
+    generated_dict_test_wrong = create_generated_images_dataset(path_to_tsv, path_to_generator_test2, testing=True)
+    os.chdir("/projects/minos/jeremie/data")
+    with open("generated_dict_test_wrong.pkl", "wb") as f:
+        pkl.dump(generated_dict_test_wrong, f)
